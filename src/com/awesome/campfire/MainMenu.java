@@ -80,8 +80,8 @@ public class MainMenu extends Activity {
 	        		session = cookieHeader.getValue();
         	
 	        } else {
-	        	output = "Not logged in, using email [" + email + "]- response body:\n";
-	        	output += EntityUtils.toString(response.getEntity());
+	        	output = "Not logged in, using email [" + email + "], redirected to";
+	        	output += "\n" + location;
 	        }
     	} catch(ClientProtocolException e) {
     		output += "\n\nCPError: " + e.getMessage();
