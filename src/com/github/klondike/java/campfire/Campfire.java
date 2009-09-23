@@ -1,5 +1,6 @@
 package com.github.klondike.java.campfire;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.message.BasicNameValuePair;
@@ -17,7 +19,9 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 
-public class Campfire {	
+public class Campfire {
+	private static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
+	
 	public String username, email, password;
 	public boolean ssl;
 	
@@ -36,13 +40,14 @@ public class Campfire {
     	try {
 	    	HttpPost request = new HttpPost(loginUrl());
 	        
+	    	// prepare post
 	        List<NameValuePair> params = new ArrayList<NameValuePair>(2);
 	        params.add(new BasicNameValuePair("email_address", email));
 	        params.add(new BasicNameValuePair("password", password));
 	        request.setEntity(new UrlEncodedFormEntity(params));
-	               
 	        request.addHeader("Content-Type", "application/x-www-form-urlencoded");
-	        request.addHeader("User-Agent", "android-campfire (http://github.com/Klondike/android-campfire");
+	        
+	        request.addHeader("User-Agent", USER_AGENT);
         
 	        DefaultHttpClient client = new DefaultHttpClient();
 	        client.setRedirectHandler(new NoRedirectHandler());
@@ -73,23 +78,17 @@ public class Campfire {
 	}
 	
 	public boolean joinRoom(String room_id) throws CampfireException {
-    	try {
-	    	HttpGet request = new HttpGet(roomUrl(room_id));
-	        request.addHeader("User-Agent", "android-campfire (http://github.com/Klondike/android-campfire");
-	        request.addHeader("Cookie", session);
+		CampfireRequest request = new CampfireRequest(session);
+        HttpResponse response = request.get(roomUrl(room_id));
         
-	        DefaultHttpClient client = new DefaultHttpClient();
-	        client.setRedirectHandler(new NoRedirectHandler());
-	        HttpResponse response = client.execute(request);
+        int status = response.getStatusLine().getStatusCode();
+        try {
+        	lastResponseBody = EntityUtils.toString(response.getEntity());
+        } catch(IOException e) {
+        	throw new CampfireException(e);
+        }
 	        
-	        int status = response.getStatusLine().getStatusCode();
-	        lastResponseBody = EntityUtils.toString(response.getEntity());
-	        
-	        return (status == HttpStatus.SC_OK);
-    	} catch(Exception e) {
-    		throw new CampfireException(e);
-    	}
-
+	    return (status == HttpStatus.SC_OK);
 	}
 	
 	public String rootUrl() {
@@ -125,4 +124,33 @@ class NoRedirectHandler extends DefaultRedirectHandler {
 		return false;
 	}
 	
+}
+
+class CampfireRequest {
+	private static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
+	
+	private String session;
+	private HttpUriRequest request;
+	
+	public CampfireRequest(String session) {
+		this.session = session;
+	}
+	
+	public HttpResponse get(String url) throws CampfireException {
+		request = new HttpGet(url);
+		addHeaders();
+        DefaultHttpClient client = new DefaultHttpClient();
+        client.setRedirectHandler(new NoRedirectHandler());
+        try {
+        	return client.execute(request);
+        } catch(Exception e) {
+    		throw new CampfireException(e);
+    	}
+	}
+	
+	private void addHeaders() {
+		request.addHeader("User-Agent", USER_AGENT);
+		if (session != null)
+			request.addHeader("Cookie", session);
+	}
 }
