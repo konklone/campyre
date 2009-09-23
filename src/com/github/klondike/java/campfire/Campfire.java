@@ -21,11 +21,13 @@ import org.apache.http.util.EntityUtils;
 
 public class Campfire {
 	private static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
+	public static final boolean DEBUG = true;
 	
 	public String username, email, password;
 	public boolean ssl;
 	
-	private String session;
+	// used by CampfireRequest
+	public String session;
 	public String lastResponseBody;
 	
 	
@@ -78,17 +80,9 @@ public class Campfire {
 	}
 	
 	public boolean joinRoom(String room_id) throws CampfireException {
-		CampfireRequest request = new CampfireRequest(session);
+		CampfireRequest request = new CampfireRequest(this);
         HttpResponse response = request.get(roomUrl(room_id));
-        
-        int status = response.getStatusLine().getStatusCode();
-        try {
-        	lastResponseBody = EntityUtils.toString(response.getEntity());
-        } catch(IOException e) {
-        	throw new CampfireException(e);
-        }
-	        
-	    return (status == HttpStatus.SC_OK);
+	    return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
 	}
 	
 	public String rootUrl() {
@@ -129,11 +123,11 @@ class NoRedirectHandler extends DefaultRedirectHandler {
 class CampfireRequest {
 	private static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
 	
-	private String session;
+	private Campfire campfire;
 	private HttpUriRequest request;
 	
-	public CampfireRequest(String session) {
-		this.session = session;
+	public CampfireRequest(Campfire campfire) {
+		this.campfire = campfire;
 	}
 	
 	public HttpResponse get(String url) throws CampfireException {
@@ -142,7 +136,10 @@ class CampfireRequest {
         DefaultHttpClient client = new DefaultHttpClient();
         client.setRedirectHandler(new NoRedirectHandler());
         try {
-        	return client.execute(request);
+        	HttpResponse response = client.execute(request);
+        	if (Campfire.DEBUG)
+        		campfire.lastResponseBody = EntityUtils.toString(response.getEntity());
+        	return response;
         } catch(Exception e) {
     		throw new CampfireException(e);
     	}
@@ -150,7 +147,7 @@ class CampfireRequest {
 	
 	private void addHeaders() {
 		request.addHeader("User-Agent", USER_AGENT);
-		if (session != null)
-			request.addHeader("Cookie", session);
+		if (campfire.session != null)
+			request.addHeader("Cookie", campfire.session);
 	}
 }
