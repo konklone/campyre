@@ -10,7 +10,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.message.BasicNameValuePair;
@@ -66,6 +65,18 @@ public class Campfire {
     	
 	}
 	
+	public boolean speak(String message, String room_id) throws CampfireException {
+		CampfireRequest request = new CampfireRequest(this, true);
+		
+		List<NameValuePair> params = new ArrayList<NameValuePair>(2);
+        params.add(new BasicNameValuePair("message", message));
+        params.add(new BasicNameValuePair("t", System.currentTimeMillis() + ""));
+        
+        HttpResponse response = request.post(speakUrl(room_id), params);
+        
+		return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
+	}
+	
 	public boolean joinRoom(String room_id) throws CampfireException {
 		CampfireRequest request = new CampfireRequest(this);
         HttpResponse response = request.get(roomUrl(room_id));
@@ -82,6 +93,10 @@ public class Campfire {
 	
 	public String roomUrl(String room_id) {
 		return rootUrl() + "room/" + room_id;
+	}
+	
+	public String speakUrl(String room_id) {
+		return rootUrl() + "room/" + room_id + "/speak";
 	}
 	
 	public String protocol() {
@@ -111,9 +126,16 @@ class CampfireRequest {
 	private static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
 	
 	private Campfire campfire;
+	public boolean ajax;
 	
 	public CampfireRequest(Campfire campfire) {
 		this.campfire = campfire;
+		this.ajax = false;
+	}
+	
+	public CampfireRequest(Campfire campfire, boolean ajax) {
+		this.campfire = campfire;
+		this.ajax = ajax;
 	}
 	
 	public HttpResponse post(String url, List<NameValuePair> params) throws CampfireException {
@@ -123,6 +145,11 @@ class CampfireRequest {
 		if (campfire.session != null)
 			request.addHeader("Cookie", campfire.session);
 		request.addHeader("Content-Type", "application/x-www-form-urlencoded");
+		
+		if (this.ajax) {
+			request.addHeader("X-Requested-With", "XMLHttpRequest");
+	        request.addHeader("X-Prototype-Version", "1.5.1.1");
+		}
 		
         try {
         	request.setEntity(new UrlEncodedFormEntity(params));

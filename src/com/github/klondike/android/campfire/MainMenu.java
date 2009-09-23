@@ -20,20 +20,29 @@ public class MainMenu extends Activity {
         loadCampfire();
         
         TextView debug = (TextView) findViewById(R.id.debug);
+        String output = "";
         
         try {
 	        if (campfire.login()) {
+	        	output += "Logged in successfully\n";
 	        	String room_id = getResources().getString(R.string.campfire_room_id);
-	        	if (campfire.joinRoom(room_id))
-	        		debug.setText("Joined room!");
+	        	if (campfire.joinRoom(room_id)) {
+	        		output += "Joined room!\n";
+	        		if (campfire.speak("Hello from MainMenu line 31!", room_id))
+	        			output += "Spoke to room!\n";
+	        		else
+	        			output += "Couldn't speak to room :(\n";
+	        	}
 	        	else
-	        		debug.setText("Failed to join room #" + room_id + ". :(");
+	        		output += "Failed to join room #" + room_id + ". :(\n";
 	        }	
 	        else
-	        	debug.setText("Failed to log in");
+	        	output += "Failed to log in.\n";
         } catch(CampfireException e) {
-        	debug.setText("Error: " + e.getMessage());
+        	output += "Error: " + e.getMessage();
         }
+        
+        debug.setText(output);
     }
     
     public void loadCampfire() {
