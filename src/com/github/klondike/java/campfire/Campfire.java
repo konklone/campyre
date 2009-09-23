@@ -8,6 +8,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
@@ -71,12 +72,36 @@ public class Campfire {
     	}
 	}
 	
+	public boolean joinRoom(String room_id) throws CampfireException {
+    	try {
+	    	HttpGet request = new HttpGet(roomUrl(room_id));
+	        request.addHeader("User-Agent", "android-campfire (http://github.com/Klondike/android-campfire");
+	        request.addHeader("Cookie", session);
+        
+	        DefaultHttpClient client = new DefaultHttpClient();
+	        client.setRedirectHandler(new NoRedirectHandler());
+	        HttpResponse response = client.execute(request);
+	        
+	        int status = response.getStatusLine().getStatusCode();
+	        lastResponseBody = EntityUtils.toString(response.getEntity());
+	        
+	        return (status == HttpStatus.SC_OK);
+    	} catch(Exception e) {
+    		throw new CampfireException(e);
+    	}
+
+	}
+	
 	public String rootUrl() {
 		return protocol() + "://" + username + ".campfirenow.com/";
 	}
 	
 	public String loginUrl() {
 		return rootUrl() + "login";
+	}
+	
+	public String roomUrl(String room_id) {
+		return rootUrl() + "room/" + room_id;
 	}
 	
 	public String protocol() {

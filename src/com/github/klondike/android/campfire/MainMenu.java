@@ -22,8 +22,13 @@ public class MainMenu extends Activity {
         TextView debug = (TextView) findViewById(R.id.debug);
         
         try {
-	        if (campfire.login())
-		        debug.setText("Logged in successfully");
+	        if (campfire.login()) {
+	        	String room_id = getResources().getString(R.string.campfire_room_id);
+	        	if (campfire.joinRoom(room_id))
+	        		debug.setText("Joined room!");
+	        	else
+	        		debug.setText("Failed to join room #" + room_id + ". :(");
+	        }	
 	        else
 	        	debug.setText("Failed to log in");
         } catch(CampfireException e) {
