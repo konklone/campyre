@@ -69,7 +69,7 @@ public class Campfire {
 		CampfireRequest request = new CampfireRequest(this, true);
 		
 		List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-        params.add(new BasicNameValuePair("message", message));
+		params.add(new BasicNameValuePair("message", message));
         params.add(new BasicNameValuePair("t", System.currentTimeMillis() + ""));
         
         HttpResponse response = request.post(speakUrl(room_id), params);
@@ -79,8 +79,8 @@ public class Campfire {
 	
 	public boolean joinRoom(String room_id) throws CampfireException {
 		CampfireRequest request = new CampfireRequest(this);
-        HttpResponse response = request.get(roomUrl(room_id));
-	    return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
+		HttpResponse response = request.get(roomUrl(room_id));
+		return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
 	}
 	
 	public String rootUrl() {
@@ -100,10 +100,10 @@ public class Campfire {
 	}
 	
 	public String protocol() {
-        if (ssl)
-        	return "https";
-        else
-        	return "http";
+		if (ssl)
+			return "https";
+		else
+			return "http";
 	}
 }
 
@@ -151,19 +151,19 @@ class CampfireRequest {
 	        request.addHeader("X-Prototype-Version", "1.5.1.1");
 		}
 		
-        try {
+		try {
         	request.setEntity(new UrlEncodedFormEntity(params));
     		
     		DefaultHttpClient client = new DefaultHttpClient();
-            client.setRedirectHandler(new NoRedirectHandler());
+    		client.setRedirectHandler(new NoRedirectHandler());
             
-        	HttpResponse response = client.execute(request);
+    		HttpResponse response = client.execute(request);
         	if (Campfire.DEBUG)
         		campfire.lastResponseBody = EntityUtils.toString(response.getEntity());
         	return response;
-        } catch(Exception e) {
-    		throw new CampfireException(e);
-    	}
+		} catch(Exception e) {
+        	throw new CampfireException(e);
+        }
 	}
 	
 	public HttpResponse get(String url) throws CampfireException {
@@ -173,16 +173,16 @@ class CampfireRequest {
 		if (campfire.session != null)
 			request.addHeader("Cookie", campfire.session);
 		
-        try {
+		try {
         	DefaultHttpClient client = new DefaultHttpClient();
-            client.setRedirectHandler(new NoRedirectHandler());
+        	client.setRedirectHandler(new NoRedirectHandler());
             
-        	HttpResponse response = client.execute(request);
+            HttpResponse response = client.execute(request);
         	if (Campfire.DEBUG)
         		campfire.lastResponseBody = EntityUtils.toString(response.getEntity());
         	return response;
         } catch(Exception e) {
-    		throw new CampfireException(e);
-    	}
+        	throw new CampfireException(e);
+        }
 	}
 }
