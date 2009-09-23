@@ -1,0 +1,9 @@
+Steps to set up and use:
+
+1) Copy keys.example.xml to res/values/keys.xml.
+2) Open project in Eclipse and all that (assuming you have your Android dev environment set up).
+3) Fill in your details in keys.xml. "username" is the subdomain of the room, "email" and "password" are your credentials, "room_id" is the numeric ID of the room, visible in the URL when you're in it. "ssl" is if you use https, just leave it blank if you're not on the $50/month plan or higher.
+4) Install on your phone through the SDK and go.
+5) Realize that you are an amazing and unique human being.
+
+This only works for non-SSL rooms right now.
