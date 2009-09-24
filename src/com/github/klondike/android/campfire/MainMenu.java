@@ -53,16 +53,10 @@ public class MainMenu extends Activity {
     	speak.setOnClickListener(new View.OnClickListener() {
     		public void onClick(View v) {
     			try {
-//	    			if (campfire.speak(message.getText().toString(), roomId))
-//	        			out.setText("Spoke to room!\n");
-//	        		else
-//	        			out.setText("Didn't speak to room :(\n");
-    				
-    				if (campfire.uploadFile(roomId, "/sdcard/test.jpg"))
-    					out.setText("Uploaded file\n");
-    				else
-    					out.setText("Didn't upload file :(\n");
-    				
+	    			if (campfire.speak(message.getText().toString(), roomId))
+	        			out.setText("Spoke to room!\n");
+	        		else
+	        			out.setText("Didn't speak to room :(\n");
     			} catch (CampfireException e) {
     				out.setText("Error speaking to room :(\n");
     			}
@@ -72,8 +66,8 @@ public class MainMenu extends Activity {
     }
     
     public void loadCampfire() {
-        Resources res = getResources();
-        String username = res.getString(R.string.campfire_username);
+    	Resources res = getResources();
+    	String username = res.getString(R.string.campfire_username);
         String email = res.getString(R.string.campfire_email);
         String password = res.getString(R.string.campfire_password);
         String sslString = res.getString(R.string.campfire_ssl);
@@ -85,4 +79,5 @@ public class MainMenu extends Activity {
         
         campfire = new Campfire(username, email, password, ssl);
     }
+    
 }
