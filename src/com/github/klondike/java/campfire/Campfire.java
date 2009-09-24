@@ -1,5 +1,11 @@
 package com.github.klondike.java.campfire;
 
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +89,91 @@ public class Campfire {
 		return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
 	}
 	
+	public boolean uploadFile(String room_id, FileInputStream stream) throws CampfireException {
+		String filename = "from_phone.jpg";
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+        String boundary = "*****";
+        try {
+            URL connectURL = new URL(uploadUrl(room_id));
+            HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setUseCaches(false);
+            conn.setRequestMethod("POST");
+
+            conn.setRequestProperty("Connection","Keep-Alive");
+            conn.setRequestProperty("Content-Type","multipart/form-data, boundary="+boundary);
+            conn.setRequestProperty("Cookie", session);
+
+            DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
+            
+            // submit header
+            dos.writeBytes(twoHyphens + boundary + lineEnd);
+            dos.writeBytes("Content-Disposition: form-data; name=\"submit\"" + lineEnd);
+            dos.writeBytes(lineEnd);
+            // insert submit
+            dos.writeBytes("Upload");
+            // submit closer
+            dos.writeBytes(lineEnd);
+            
+            // file header
+            dos.writeBytes(twoHyphens + boundary + lineEnd);
+            // OH MY GOD the space between the semicolon and "filename=" is ABSOLUTELY NECESSARY
+            dos.writeBytes("Content-Disposition: form-data; name=\"upload\"; filename=\"" + filename + "\"" + lineEnd);
+            dos.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
+            dos.writeBytes("Content-Type: image/jpg" + lineEnd);
+            dos.writeBytes(lineEnd);
+
+            // insert file
+            int bytesAvailable = stream.available();
+            int maxBufferSize = 1024;
+            int bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            byte[] buffer = new byte[bufferSize];
+            int bytesRead = stream.read(buffer, 0, bufferSize);
+            while (bytesRead > 0) {
+                dos.write(buffer, 0, bufferSize);
+                bytesAvailable = stream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                bytesRead = stream.read(buffer, 0, bufferSize);
+            }
+            
+            // file closer
+            dos.writeBytes(lineEnd);
+            
+            // send multipart form data necesssary after file data...            
+            dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+            // close streams
+            stream.close();
+            dos.flush();
+
+            InputStream is = conn.getInputStream();
+            int ch;
+
+            StringBuffer b = new StringBuffer();
+            while((ch = is.read()) != -1) {
+            	b.append((char) ch);
+            }
+
+            String s = b.toString();
+            dos.close();
+            return (s.contains("waitForMessage"));
+        }
+        catch (Exception e) {
+        	throw new CampfireException(e);
+        } 
+		
+	}
+	
+	public boolean uploadFile(String room_id, String path) throws CampfireException {
+		try {
+			return uploadFile(room_id, new FileInputStream(path));
+		} catch (FileNotFoundException e) {
+			throw new CampfireException("File not found: " + path);
+		}
+	}
+	
 	public String rootUrl() {
 		return protocol() + "://" + username + ".campfirenow.com/";
 	}
@@ -97,6 +188,10 @@ public class Campfire {
 	
 	public String speakUrl(String room_id) {
 		return rootUrl() + "room/" + room_id + "/speak";
+	}
+	
+	public String uploadUrl(String room_id) {
+		return rootUrl() + "upload.cgi/room/" + room_id + "/uploads/new";
 	}
 	
 	public String protocol() {

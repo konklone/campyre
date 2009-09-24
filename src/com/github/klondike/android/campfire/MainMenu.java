@@ -53,10 +53,16 @@ public class MainMenu extends Activity {
     	speak.setOnClickListener(new View.OnClickListener() {
     		public void onClick(View v) {
     			try {
-	    			if (campfire.speak(message.getText().toString(), roomId))
-	        			out.setText("Spoke to room!\n");
-	        		else
-	        			out.setText("Didn't speak to room :(\n");
+//	    			if (campfire.speak(message.getText().toString(), roomId))
+//	        			out.setText("Spoke to room!\n");
+//	        		else
+//	        			out.setText("Didn't speak to room :(\n");
+    				
+    				if (campfire.uploadFile(roomId, "/sdcard/test.jpg"))
+    					out.setText("Uploaded file\n");
+    				else
+    					out.setText("Didn't upload file :(\n");
+    				
     			} catch (CampfireException e) {
     				out.setText("Error speaking to room :(\n");
     			}
