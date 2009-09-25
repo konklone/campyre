@@ -79,6 +79,9 @@ public class Campfire {
 		params.add(new BasicNameValuePair("message", message));
         params.add(new BasicNameValuePair("t", System.currentTimeMillis() + ""));
         
+        if (message.contains("\n") == true)
+        { params.add(new BasicNameValuePair("paste", "1")); }
+        
         HttpResponse response = request.post(speakUrl(room_id), params);
         
 		return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
