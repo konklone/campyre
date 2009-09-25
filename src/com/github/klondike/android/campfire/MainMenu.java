@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
@@ -20,10 +21,11 @@ public class MainMenu extends Activity {
 	
 	private Campfire campfire;
 	private String roomId;
-	private TextView out;
 	private EditText message;
 	private Button speak;
+
 	private boolean spoke;
+	private boolean loggedIn;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -31,48 +33,52 @@ public class MainMenu extends Activity {
         setContentView(R.layout.main);
         
         loadCampfire();
+        loginCampfire();
         setupControls();
-        
-        String output = "";
-        try {
-	        if (campfire.login()) {
-	        	output += "Logged in successfully\n";
-	        	if (campfire.joinRoom(roomId))
-	        		output += "Joined room!\n";
-	        	else
-	        		output += "Failed to join room. :(\n";
-	        }	
-	        else
-	        	output += "Failed to log in. :(\n";
-        } catch(CampfireException e) {
-        	output += "Error: " + e.getMessage();
-        }
-        
-        out.setText(output);
     }
     
     final Handler handler = new Handler();
+    final Runnable updateLoggingIn = new Runnable() {
+    	public void run() {
+    		if (loggedIn) {
+        		alert("Logged in to Campfire and joined room.");
+        		speak.setEnabled(true);
+    		}
+    		else
+    			alert("Couldn't log into Campfire. Please check your credentials.");
+    		
+    		dismissDialog(LOGGING_IN);
+    	}
+    };
     final Runnable updateSpeaking = new Runnable() {
         public void run() {
         	if (spoke)
-        		out.setText("Spoke to room!\n");
-    		else
-    			out.setText("Didn't speak to room :(\n");
-        	message.setText("");
+        		message.setText("");
+        	else
+        		alert("Error sending your message, you can try again.");
+        	
         	dismissDialog(SPEAKING);
         }
     };
     
-    public void setupControls() {
-    	out = (TextView) findViewById(R.id.debug);
-        speak = (Button) this.findViewById(R.id.speak);
-        message = (EditText) this.findViewById(R.id.message);
-        
-    	speak.setOnClickListener(new View.OnClickListener() {
-    		public void onClick(View v) {
-    			speak();
+    public void loginCampfire() {
+    	Thread loginThread = new Thread() {
+    		public void run() {
+    			try {
+    		        if (campfire.login()) {
+    		        	loggedIn = campfire.joinRoom(roomId);
+    		        }	
+    		        else
+    		        	loggedIn = false;
+    	        } catch(CampfireException e) {
+    	        	loggedIn = false;
+    	        }
+    	        handler.post(updateLoggingIn);
     		}
-    	});
+    	};
+    	loginThread.start();
+    	
+    	showDialog(LOGGING_IN);
     }
     
     public void speak() {
@@ -106,16 +112,36 @@ public class MainMenu extends Activity {
         campfire = new Campfire(username, email, password, ssl);
     }
     
+    public void setupControls() {
+        speak = (Button) this.findViewById(R.id.speak);
+        message = (EditText) this.findViewById(R.id.message);
+        
+    	speak.setOnClickListener(new View.OnClickListener() {
+    		public void onClick(View v) {
+    			speak();
+    		}
+    	});
+    }
+    
     protected Dialog onCreateDialog(int id) {
         switch(id) {
+        case LOGGING_IN:
+            ProgressDialog loginDialog = new ProgressDialog(this);
+            loginDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            loginDialog.setMessage("Logging in...");
+            return loginDialog;
         case SPEAKING:
-            ProgressDialog dialog = new ProgressDialog(this);
-            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            dialog.setMessage("Speaking...");
-            return dialog;
+            ProgressDialog speakDialog = new ProgressDialog(this);
+            speakDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            speakDialog.setMessage("Speaking...");
+            return speakDialog;
         default:
             return null;
         }
     }
+    
+    public void alert(String msg) {
+		Toast.makeText(MainMenu.this, msg, Toast.LENGTH_SHORT).show();
+	}
     
 }
