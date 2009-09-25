@@ -1,27 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
+	android:layout_height="100sp"
+	android:orientation="vertical"
 	>
-	<LinearLayout 
-	    android:orientation="vertical"
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-	    >
-	    
-		<TextView android:id="@+id/explain"
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content" 
-		    android:textSize="12sp"
-		    android:text="Press Upload to upload the image"
-		    />
 	
-		<Button android:id="@+id/upload"
-			android:layout_width="fill_parent"
-			android:layout_height="50sp"
-			android:text="Upload!"
-			/>
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:text="Uploading..."
+		/>
 	    
-	</LinearLayout>
-	
-</ScrollView>
+</LinearLayout>

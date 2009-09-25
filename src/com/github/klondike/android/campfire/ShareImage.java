@@ -13,18 +13,14 @@ import android.os.ParcelFileDescriptor;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
 
 public class ShareImage extends Activity {
-	private FileInputStream image;
-	private FileDescriptor fd;
-	
-	private TextView explain;
 	private Campfire campfire;
 	private String roomId;
-	private boolean loggedIn;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -32,25 +28,12 @@ public class ShareImage extends Activity {
 		
 		setContentView(R.layout.share);
 		
-		setupControls();
 		loadCampfire();
-		loginCampfire();
-		
-		//loadImage();
-		uploadImage();
-	}
-	
-	public void setupControls() {
-		explain = (TextView) this.findViewById(R.id.explain);
-		Button upload = (Button) this.findViewById(R.id.upload);
-		upload.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				if (image != null)
-					uploadImage();
-				else
-					explain.setText("No file found.");
-			}
-		});
+		if (loginCampfire())
+			uploadImage();
+		else
+			alert("Couldn't log in to Campfire, image was not uploaded. Check your Campfire credentials.");
+		finish();
 	}
 	
 	public void uploadImage() {
@@ -60,19 +43,21 @@ public class ShareImage extends Activity {
 		ContentResolver cr = this.getContentResolver();
 		try {
 			ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
-			fd = pfd.getFileDescriptor();
-			image = new FileInputStream(fd);
+			FileDescriptor fd = pfd.getFileDescriptor();
+			FileInputStream image = new FileInputStream(fd);
+			
+			if (image == null) {
+				alert("Error getting photo from gallery, image was not uploaded.");
+				finish();
+			}
+			
+			if (campfire.uploadFile(roomId, image))
+				alert("Uploaded image to Campfire.");
+			
 		} catch (FileNotFoundException e) {
-			image = null;
-		}
-	
-		try {
-			if (image != null && campfire.uploadFile(roomId, image))
-				explain.setText("Uploaded file\n");
-			else
-				explain.setText("Didn't upload file :(\n");
+			alert("Error processing photo, image was not uploaded.");
 		} catch (CampfireException e) {
-			explain.setText("Error uploading file!\n");
+			alert("Error connecting to Campfire, image was not uploaded.");
 		}
 	}
 	
@@ -91,12 +76,16 @@ public class ShareImage extends Activity {
         campfire = new Campfire(username, email, password, ssl);
     }
 	
-	public void loginCampfire() {
+	public boolean loginCampfire() {
 		try {
-			loggedIn = campfire.login();
+			return campfire.login();
 		} catch (CampfireException e) {
-			loggedIn = false;
+			return false;
 		}
+	}
+	
+	public void alert(String msg) {
+		Toast.makeText(ShareImage.this, msg, Toast.LENGTH_SHORT).show();
 	}
 	
 }
