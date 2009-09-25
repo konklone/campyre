@@ -13,7 +13,7 @@
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content" 
 		    android:textSize="12sp"
-		    android:text="Filename will be here"
+		    android:text="Press Upload to upload the image"
 		    />
 	
 		<Button android:id="@+id/upload"

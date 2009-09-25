@@ -1,12 +1,15 @@
 package com.github.klondike.android.campfire;
 
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -16,9 +19,12 @@ import com.github.klondike.java.campfire.CampfireException;
 
 public class ShareImage extends Activity {
 	private FileInputStream image;
+	private FileDescriptor fd;
+	
 	private TextView explain;
 	private Campfire campfire;
 	private String roomId;
+	private boolean loggedIn;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -28,7 +34,10 @@ public class ShareImage extends Activity {
 		
 		setupControls();
 		loadCampfire();
-		loadImage();
+		loginCampfire();
+		
+		//loadImage();
+		uploadImage();
 	}
 	
 	public void setupControls() {
@@ -44,18 +53,21 @@ public class ShareImage extends Activity {
 		});
 	}
 	
-	public void loadImage() {
-		Bundle extras = this.getIntent().getExtras();
-		Uri contentURI = (Uri) extras.get("android.intent.extra.STREAM");
-		
-		try {
-			image = new FileInputStream("/sdcard/test.jpg");
-		} catch(FileNotFoundException e) {image = null;}
-	}
-	
 	public void uploadImage() {
+		Bundle extras = this.getIntent().getExtras();
+		Uri uri = (Uri) extras.get("android.intent.extra.STREAM");
+		
+		ContentResolver cr = this.getContentResolver();
 		try {
-			if (campfire.login() && campfire.uploadFile(roomId, image))
+			ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
+			fd = pfd.getFileDescriptor();
+			image = new FileInputStream(fd);
+		} catch (FileNotFoundException e) {
+			image = null;
+		}
+	
+		try {
+			if (image != null && campfire.uploadFile(roomId, image))
 				explain.setText("Uploaded file\n");
 			else
 				explain.setText("Didn't upload file :(\n");
@@ -78,5 +90,13 @@ public class ShareImage extends Activity {
         
         campfire = new Campfire(username, email, password, ssl);
     }
+	
+	public void loginCampfire() {
+		try {
+			loggedIn = campfire.login();
+		} catch (CampfireException e) {
+			loggedIn = false;
+		}
+	}
 	
 }
