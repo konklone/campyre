@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,7 +35,8 @@ public class ShareImage extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.share);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		//setContentView(R.layout.share);
 		
 		loadCampfire();
 		uploadImage();
