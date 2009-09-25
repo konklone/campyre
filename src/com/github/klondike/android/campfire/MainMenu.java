@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
@@ -24,6 +23,7 @@ public class MainMenu extends Activity {
 	private EditText message;
 	private Button speak;
 
+	private ProgressDialog loginDialog;
 	private boolean spoke;
 	private boolean loggedIn;
 	
@@ -50,6 +50,11 @@ public class MainMenu extends Activity {
     		dismissDialog(LOGGING_IN);
     	}
     };
+    final Runnable updateLoginMessage = new Runnable() {
+    	public void run() {
+    		loginDialog.setMessage("Joining room...");
+    	}
+    };
     final Runnable updateSpeaking = new Runnable() {
         public void run() {
         	if (spoke)
@@ -66,6 +71,7 @@ public class MainMenu extends Activity {
     		public void run() {
     			try {
     		        if (campfire.login()) {
+    		        	handler.post(updateLoginMessage);
     		        	loggedIn = campfire.joinRoom(roomId);
     		        }	
     		        else
@@ -126,7 +132,7 @@ public class MainMenu extends Activity {
     protected Dialog onCreateDialog(int id) {
         switch(id) {
         case LOGGING_IN:
-            ProgressDialog loginDialog = new ProgressDialog(this);
+            loginDialog = new ProgressDialog(this);
             loginDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             loginDialog.setMessage("Logging in...");
             return loginDialog;
