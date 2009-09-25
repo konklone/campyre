@@ -3,6 +3,7 @@ package com.github.klondike.java.campfire;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -159,9 +160,8 @@ public class Campfire {
             String s = b.toString();
             dos.close();
             return (s.contains("waitForMessage"));
-        }
-        catch (Exception e) {
-        	throw new CampfireException(e);
+        } catch (IOException e) {
+        	throw new CampfireException(e.getMessage());
         } 
 		
 	}
