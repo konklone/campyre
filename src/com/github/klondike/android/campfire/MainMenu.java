@@ -3,9 +3,12 @@ package com.github.klondike.android.campfire;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -70,12 +73,16 @@ public class MainMenu extends Activity {
     	Thread loginThread = new Thread() {
     		public void run() {
     			try {
-    		        if (campfire.login()) {
-    		        	handler.post(updateLoginMessage);
-    		        	loggedIn = campfire.joinRoom(roomId);
-    		        }	
-    		        else
-    		        	loggedIn = false;
+    				if (campfire.username == null)
+    					loggedIn = false;
+    				else {
+	    		        if (campfire.login()) {
+	    		        	handler.post(updateLoginMessage);
+	    		        	loggedIn = campfire.joinRoom(roomId);
+	    		        }	
+	    		        else
+	    		        	loggedIn = false;
+    				}
     	        } catch(CampfireException e) {
     	        	loggedIn = false;
     	        }
@@ -104,16 +111,11 @@ public class MainMenu extends Activity {
     }
     
     public void loadCampfire() {
-    	Resources res = getResources();
-    	String username = res.getString(R.string.campfire_username);
-        String email = res.getString(R.string.campfire_email);
-        String password = res.getString(R.string.campfire_password);
-        String sslString = res.getString(R.string.campfire_ssl);
-        roomId = res.getString(R.string.campfire_room_id);
-        
-        boolean ssl = false;
-        if (sslString == "true")
-        	ssl = true;
+    	String username = Preferences.getSubdomain(this);
+        String email = Preferences.getEmail(this);
+        String password = Preferences.getPassword(this);
+        boolean ssl = Preferences.getSsl(this);
+        roomId = Preferences.getRoomId(this);
         
         campfire = new Campfire(username, email, password, ssl);
     }
@@ -144,6 +146,23 @@ public class MainMenu extends Activity {
         default:
             return null;
         }
+    }
+    
+    @Override 
+    public boolean onCreateOptionsMenu(Menu menu) { 
+	    boolean result = super.onCreateOptionsMenu(menu);
+        menu.add(0, Menu.FIRST, 0, "Preferences");
+        return result;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch(item.getItemId()) { 
+    	case Menu.FIRST:
+    		startActivity(new Intent(this, Preferences.class)); 
+    		return true;
+    	}
+    	return super.onOptionsItemSelected(item);
     }
     
     public void alert(String msg) {

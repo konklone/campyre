@@ -36,7 +36,6 @@ public class ShareImage extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		//setContentView(R.layout.share);
 		
 		loadCampfire();
 		uploadImage();
@@ -100,16 +99,11 @@ public class ShareImage extends Activity {
 	}
 	
 	public void loadCampfire() {
-    	Resources res = getResources();
-    	String username = res.getString(R.string.campfire_username);
-        String email = res.getString(R.string.campfire_email);
-        String password = res.getString(R.string.campfire_password);
-        String sslString = res.getString(R.string.campfire_ssl);
-        roomId = res.getString(R.string.campfire_room_id);
-        
-        boolean ssl = false;
-        if (sslString == "true")
-        	ssl = true;
+    	String username = Preferences.getSubdomain(this);
+        String email = Preferences.getEmail(this);
+        String password = Preferences.getPassword(this);
+        boolean ssl = Preferences.getSsl(this);
+        roomId = Preferences.getRoomId(this);
         
         campfire = new Campfire(username, email, password, ssl);
     }

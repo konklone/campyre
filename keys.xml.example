@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="campfire_username"></string>
-    <string name="campfire_email"></string>
-    <string name="campfire_password"></string>
-    <string name="campfire_ssl">false</string>
-    <string name="campfire_room_id"></string>
-</resources>
