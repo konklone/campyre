@@ -26,8 +26,12 @@ Allow a photo upload to be accompanied by a "caption" (post-upload message).
 
 Allow the user to see a list of members.
 
+Allow the user to pick a room to auto-join on starting the app.
+
 Allow the user to see the topic of a room.
 
 Allow the user to download the uploaded files in a room.
 
 Allow the user to upload any type of file, not just images.
+
+Support "guest" access.
