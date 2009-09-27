@@ -9,7 +9,8 @@
 	<EditTextPreference
 		android:key="campfire_email" 
 		android:title="Email Address" 
-		android:summary="Your login email" 
+		android:summary="Your login email"
+		android:inputType="textEmailAddress" 
 		/>
 	<EditTextPreference
 		android:key="campfire_password"
