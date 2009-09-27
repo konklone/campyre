@@ -1,9 +1,33 @@
-Steps to set up and use:
+= Android Campfire Client
 
-1) Copy keys.example.xml to res/values/keys.xml.
-2) Open project in Eclipse and all that (assuming you have your Android dev environment set up).
-3) Fill in your details in keys.xml. "username" is the subdomain of the room, "email" and "password" are your credentials, "room_id" is the numeric ID of the room, visible in the URL when you're in it. "ssl" is if you use https, just leave it blank if you're not on the $50/month plan or higher.
-4) Install on your phone through the SDK and go.
-5) Realize that you are an amazing and unique human being.
+A basic Campfire client for Android phones. Will be released on the Market for free.  Code is open source. Help out!
 
-This only works for non-SSL rooms right now.
+== To Use
+
+Open the "Campfire" app. It'll try to log you in and fail - hit Menu and go to the Preferences screen to enter your credentials.
+
+Also, you can Share images from your Gallery through the phone.  Campfire will appear on the Share menu, and will upload the picture immediately, assuming your credentials are stored and valid.
+
+== Missing Crucial Features
+
+It doesn't show you others' messages.
+
+Only works for non-SSL accounts.
+
+Select rooms from a list, not entering an ID.
+
+Only uploads JPGs, needs to upload any type of image.
+
+First time it runs it should bring you to preferences.
+
+== Missing Desired Features
+
+Allow a photo upload to be accompanied by a "caption" (post-upload message).
+
+Allow the user to see a list of members.
+
+Allow the user to see the topic of a room.
+
+Allow the user to download the uploaded files in a room.
+
+Allow the user to upload any type of file, not just images.
