@@ -44,13 +44,11 @@ public class Campfire {
 	
 	public String login() throws CampfireException {
     	CampfireRequest request = new CampfireRequest(this);
+    	
+    	request.addParam("email_address", email);
+    	request.addParam("password", password);
         
-    	// prepare post
-        List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-        params.add(new BasicNameValuePair("email_address", email));
-        params.add(new BasicNameValuePair("password", password));
-        
-        HttpResponse response = request.post(loginUrl(), params);
+        HttpResponse response = request.post(loginUrl());
         int status = response.getStatusLine().getStatusCode();
         
         Header locationHeader = response.getFirstHeader("location");
@@ -75,14 +73,12 @@ public class Campfire {
 	public boolean speak(String message, String room_id) throws CampfireException {
 		CampfireRequest request = new CampfireRequest(this, true);
 		
-		List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-		params.add(new BasicNameValuePair("message", message));
-        params.add(new BasicNameValuePair("t", System.currentTimeMillis() + ""));
-        
+		request.addParam("message", message);
+		request.addParam("t", System.currentTimeMillis() + "");
         if (message.contains("\n") == true)
-        { params.add(new BasicNameValuePair("paste", "1")); }
+        	request.addParam("paste", "1");
         
-        HttpResponse response = request.post(speakUrl(room_id), params);
+        HttpResponse response = request.post(speakUrl(room_id));
         
 		return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
 	}
@@ -224,19 +220,26 @@ class CampfireRequest {
 	private static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
 	
 	private Campfire campfire;
+	private List<NameValuePair> params;
 	public boolean ajax;
 	
 	public CampfireRequest(Campfire campfire) {
 		this.campfire = campfire;
 		this.ajax = false;
+		this.params = new ArrayList<NameValuePair>();
 	}
 	
 	public CampfireRequest(Campfire campfire, boolean ajax) {
 		this.campfire = campfire;
 		this.ajax = ajax;
+		this.params = new ArrayList<NameValuePair>();
 	}
 	
-	public HttpResponse post(String url, List<NameValuePair> params) throws CampfireException {
+	public void addParam(String key, String value) {
+		params.add(new BasicNameValuePair(key, value));
+	}
+	
+	public HttpResponse post(String url) throws CampfireException {
 		HttpPost request = new HttpPost(url);
 		
 		request.addHeader("User-Agent", USER_AGENT);
