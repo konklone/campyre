@@ -80,7 +80,7 @@ public class MainMenu extends Activity {
     	Thread loginThread = new Thread() {
     		public void run() {
     			try {
-    				if (campfire.username == null)
+    				if (campfire.subdomain == null)
     					loggedIn = false;
     				else {
     					String session = campfire.login();
@@ -120,13 +120,13 @@ public class MainMenu extends Activity {
     }
     
     public void loadCampfire() {
-    	String username = Preferences.getSubdomain(this);
+    	String subdomain = Preferences.getSubdomain(this);
         String email = Preferences.getEmail(this);
         String password = Preferences.getPassword(this);
         boolean ssl = Preferences.getSsl(this);
         roomId = Preferences.getRoomId(this);
         
-        campfire = new Campfire(username, email, password, ssl);
+        campfire = new Campfire(subdomain, email, password, ssl);
         campfire.session = loadSession();
     }
     

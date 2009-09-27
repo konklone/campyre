@@ -109,13 +109,13 @@ public class ShareImage extends Activity {
 	}
 	
 	public void loadCampfire() {
-    	String username = Preferences.getSubdomain(this);
+    	String subdomain = Preferences.getSubdomain(this);
         String email = Preferences.getEmail(this);
         String password = Preferences.getPassword(this);
         boolean ssl = Preferences.getSsl(this);
         roomId = Preferences.getRoomId(this);
         
-        campfire = new Campfire(username, email, password, ssl);
+        campfire = new Campfire(subdomain, email, password, ssl);
     }
 	
 	protected Dialog onCreateDialog(int id) {

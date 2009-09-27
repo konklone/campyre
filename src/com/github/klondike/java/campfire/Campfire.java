@@ -27,7 +27,7 @@ import org.apache.http.util.EntityUtils;
 public class Campfire {
 	public static final boolean DEBUG = true;
 	
-	public String username, email, password;
+	public String subdomain, email, password;
 	public boolean ssl;
 	
 	// used by CampfireRequest
@@ -35,8 +35,8 @@ public class Campfire {
 	public String lastResponseBody;
 	
 	
-	public Campfire(String username, String email, String password, boolean ssl) {
-		this.username = username;
+	public Campfire(String subdomain, String email, String password, boolean ssl) {
+		this.subdomain = subdomain;
 		this.email = email;
 		this.password = password;
 		this.ssl = ssl;
@@ -174,7 +174,7 @@ public class Campfire {
 	}
 	
 	public String rootUrl() {
-		return protocol() + "://" + username + ".campfirenow.com/";
+		return protocol() + "://" + subdomain + ".campfirenow.com/";
 	}
 	
 	public String loginUrl() {
