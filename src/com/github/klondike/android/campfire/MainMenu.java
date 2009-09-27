@@ -28,7 +28,7 @@ public class MainMenu extends Activity {
 
 	private ProgressDialog loginDialog;
 	private boolean spoke;
-	private boolean loggedIn;
+	private boolean joined;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,14 +42,16 @@ public class MainMenu extends Activity {
     }
     
     final Handler handler = new Handler();
-    final Runnable updateLoggingIn = new Runnable() {
+    final Runnable afterLogin = new Runnable() {
     	public void run() {
-    		if (loggedIn) {
+    		if (campfire.session != null && joined) {
         		alert("Logged in to Campfire and joined room.");
         		speak.setEnabled(true);
     		}
-    		else
+    		else if (campfire.session == null)
     			alert("Couldn't log into Campfire. Please check your credentials.");
+    		else
+    			alert("Logged in, but couldn't join the room. Please try again.");
     		
     		dismissDialog(LOGGING_IN);
     	}
@@ -71,8 +73,10 @@ public class MainMenu extends Activity {
     };
     
     public void loginCampfire() {
+    	if (campfire.subdomain == null)
+    		return;
+    	
     	if (campfire.session != null) {
-    		loggedIn = true;
     		speak.setEnabled(true);
     		return;
     	}
@@ -80,22 +84,14 @@ public class MainMenu extends Activity {
     	Thread loginThread = new Thread() {
     		public void run() {
     			try {
-    				if (campfire.subdomain == null)
-    					loggedIn = false;
-    				else {
-    					String session = campfire.login();
-	    		        if (session != null) {
-	    		        	storeSession(session);
-	    		        	handler.post(updateLoginMessage);
-	    		        	loggedIn = campfire.joinRoom(roomId);
-	    		        }	
-	    		        else
-	    		        	loggedIn = false;
-    				}
-    	        } catch(CampfireException e) {
-    	        	loggedIn = false;
-    	        }
-    	        handler.post(updateLoggingIn);
+					String session = campfire.login();
+    		        if (session != null) {
+    		        	storeSession(session);
+    		        	handler.post(updateLoginMessage);
+    		        	joined = campfire.joinRoom(roomId);
+    		        }
+    	        } catch(CampfireException e) {}
+    	        handler.post(afterLogin);
     		}
     	};
     	loginThread.start();
@@ -127,7 +123,7 @@ public class MainMenu extends Activity {
         roomId = Preferences.getRoomId(this);
         
         campfire = new Campfire(subdomain, email, password, ssl);
-        campfire.session = loadSession();
+        campfire.session = getSharedPreferences("campfire", 0).getString("session", null);
     }
     
     public void setupControls() {
@@ -190,11 +186,6 @@ public class MainMenu extends Activity {
     public void storeSession(String session) {
     	SharedPreferences prefs = getSharedPreferences("campfire", 0);
     	prefs.edit().putString("session", session).commit();
-    }
-    
-    public String loadSession() {
-    	SharedPreferences prefs = getSharedPreferences("campfire", 0);
-    	return prefs.getString("session", null);
     }
     
 }
