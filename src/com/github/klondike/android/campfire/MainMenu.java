@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.res.Resources;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -17,7 +17,7 @@ import android.widget.Toast;
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
 
-public class MainMenu extends Activity {
+public class MainMenu extends Activity { 
 	private static final int LOGGING_IN = 0;
 	private static final int SPEAKING = 1;
 	
@@ -35,9 +35,10 @@ public class MainMenu extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        setupControls();
+        
         loadCampfire();
         loginCampfire();
-        setupControls();
     }
     
     final Handler handler = new Handler();
@@ -70,13 +71,21 @@ public class MainMenu extends Activity {
     };
     
     public void loginCampfire() {
+    	if (campfire.session != null) {
+    		loggedIn = true;
+    		speak.setEnabled(true);
+    		return;
+    	}
+    	
     	Thread loginThread = new Thread() {
     		public void run() {
     			try {
     				if (campfire.username == null)
     					loggedIn = false;
     				else {
-	    		        if (campfire.login()) {
+    					String session = campfire.login();
+	    		        if (session != null) {
+	    		        	storeSession(session);
 	    		        	handler.post(updateLoginMessage);
 	    		        	loggedIn = campfire.joinRoom(roomId);
 	    		        }	
@@ -118,6 +127,7 @@ public class MainMenu extends Activity {
         roomId = Preferences.getRoomId(this);
         
         campfire = new Campfire(username, email, password, ssl);
+        campfire.session = loadSession();
     }
     
     public void setupControls() {
@@ -168,5 +178,15 @@ public class MainMenu extends Activity {
     public void alert(String msg) {
 		Toast.makeText(MainMenu.this, msg, Toast.LENGTH_SHORT).show();
 	}
+    
+    public void storeSession(String session) {
+    	SharedPreferences prefs = getSharedPreferences("campfire", 0);
+    	prefs.edit().putString("session", session).commit();
+    }
+    
+    public String loadSession() {
+    	SharedPreferences prefs = getSharedPreferences("campfire", 0);
+    	return prefs.getString("session", null);
+    }
     
 }

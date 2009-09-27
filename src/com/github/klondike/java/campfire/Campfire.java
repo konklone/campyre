@@ -42,7 +42,7 @@ public class Campfire {
 		this.ssl = ssl;
 	}
 	
-	public boolean login() throws CampfireException {
+	public String login() throws CampfireException {
     	CampfireRequest request = new CampfireRequest(this);
         
     	// prepare post
@@ -65,9 +65,9 @@ public class Campfire {
         		throw new CampfireException("I think I logged in, but I got no cookie to set.");	        	
         	session = cookieHeader.getValue();
         	
-        	return true;
+        	return session;
         } else {
-        	return false;
+        	return null;
         }
     	
 	}

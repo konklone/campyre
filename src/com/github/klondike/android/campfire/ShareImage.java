@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
@@ -58,30 +59,39 @@ public class ShareImage extends Activity {
 		Thread uploadThread = new Thread() {
 			public void run() {
 				try {
-					if (campfire.login()) {
-						Bundle extras = ShareImage.this.getIntent().getExtras();
-						Uri uri = (Uri) extras.get("android.intent.extra.STREAM");
-						
-						ContentResolver cr = ShareImage.this.getContentResolver();
-					
-						ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
-						FileDescriptor fd = pfd.getFileDescriptor();
-						FileInputStream image = new FileInputStream(fd);
-						
-						if (image == null) {
-							uploaded = false;
-							uploadError = "Error processing photo, image was not uploaded.";
+					String session = loadSession();
+					if (session != null)
+						campfire.session = session;
+					else {
+						session = campfire.login();
+						if (session != null) {
+							storeSession(session);
 						} else {
-							if (campfire.uploadFile(roomId, image))
-								uploaded = true;
-							else {
-								uploaded = false;
-								uploadError = "Couldn't upload file to Campfire.";
-							}
+							uploaded = false;
+							uploadError = "Couldn't log in to Campfire, image was not uploaded. Check your Campfire credentials.";
+							return;
 						}
-					} else {
+					}
+					
+					Bundle extras = ShareImage.this.getIntent().getExtras();
+					Uri uri = (Uri) extras.get("android.intent.extra.STREAM");
+					
+					ContentResolver cr = ShareImage.this.getContentResolver();
+				
+					ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
+					FileDescriptor fd = pfd.getFileDescriptor();
+					FileInputStream image = new FileInputStream(fd);
+					
+					if (image == null) {
 						uploaded = false;
-						uploadError = "Couldn't log in to Campfire, image was not uploaded. Check your Campfire credentials.";
+						uploadError = "Error processing photo, image was not uploaded.";
+					} else {
+						if (campfire.uploadFile(roomId, image))
+							uploaded = true;
+						else {
+							uploaded = false;
+							uploadError = "Couldn't upload file to Campfire.";
+						}
 					}
 				} catch (FileNotFoundException e) {
 					uploaded = false;
@@ -123,5 +133,15 @@ public class ShareImage extends Activity {
 	public void alert(String msg) {
 		Toast.makeText(ShareImage.this, msg, Toast.LENGTH_SHORT).show();
 	}
+	
+	public void storeSession(String session) {
+    	SharedPreferences prefs = getSharedPreferences("campfire", 0);
+    	prefs.edit().putString("session", session).commit();
+    }
+    
+    public String loadSession() {
+    	SharedPreferences prefs = getSharedPreferences("campfire", 0);
+    	return prefs.getString("session", null);
+    }
 	
 }
