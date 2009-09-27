@@ -161,15 +161,23 @@ public class MainMenu extends Activity {
     @Override 
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
-        menu.add(0, Menu.FIRST, 0, "Preferences");
+        MenuItem prefs = menu.add(0, 0, 0, "Preferences");
+        prefs.setIcon(android.R.drawable.ic_menu_preferences);
+        MenuItem logout = menu.add(0, 1, 1, "Log Out");
+        logout.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         return result;
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) { 
-    	case Menu.FIRST:
+    	case 0:
     		startActivity(new Intent(this, Preferences.class)); 
+    		return true;
+    	case 1: // Logout
+    		campfire.session = null;
+    		storeSession(null);
+    		finish();
     		return true;
     	}
     	return super.onOptionsItemSelected(item);
