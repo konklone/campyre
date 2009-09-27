@@ -21,6 +21,11 @@ public class MainMenu extends Activity {
 	private static final int LOGGING_IN = 0;
 	private static final int SPEAKING = 1;
 	
+	private static final int PREFS = 0;
+	private static final int LOGOUT = 1;
+	private static final int LOGIN = 2;
+	
+	
 	private Campfire campfire;
 	private String roomId;
 	private EditText message;
@@ -37,7 +42,6 @@ public class MainMenu extends Activity {
         
         setupControls();
         
-        loadCampfire();
         loginCampfire();
     }
     
@@ -73,6 +77,8 @@ public class MainMenu extends Activity {
     };
     
     public void loginCampfire() {
+    	loadCampfire();
+    	
     	if (campfire.subdomain == null)
     		return;
     	
@@ -157,24 +163,34 @@ public class MainMenu extends Activity {
     @Override 
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
-        MenuItem prefs = menu.add(0, 0, 0, "Preferences");
+	    
+        MenuItem prefs = menu.add(0, PREFS, 0, "Preferences");
         prefs.setIcon(android.R.drawable.ic_menu_preferences);
-        MenuItem logout = menu.add(0, 1, 1, "Log Out");
-        logout.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+        
+        if (campfire.session != null) {
+        	MenuItem logout = menu.add(0, LOGOUT, 1, "Log Out");
+        	logout.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+        } else {
+        	MenuItem login = menu.add(0, LOGIN, 1, "Log In");
+        	login.setIcon(android.R.drawable.ic_menu_view);
+        }
+        
         return result;
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) { 
-    	case 0:
+    	case PREFS:
     		startActivity(new Intent(this, Preferences.class)); 
     		return true;
-    	case 1: // Logout
+    	case LOGOUT:
     		campfire.session = null;
     		storeSession(null);
     		finish();
     		return true;
+    	case LOGIN:
+    		loginCampfire();
     	}
     	return super.onOptionsItemSelected(item);
     }
