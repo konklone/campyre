@@ -7,21 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultRedirectHandler;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
 
 
 public class Campfire {
@@ -68,25 +57,6 @@ public class Campfire {
         	return null;
         }
     	
-	}
-	
-	public boolean speak(String message, String room_id) throws CampfireException {
-		CampfireRequest request = new CampfireRequest(this, true);
-		
-		request.addParam("message", message);
-		request.addParam("t", System.currentTimeMillis() + "");
-        if (message.contains("\n") == true)
-        	request.addParam("paste", "1");
-        
-        HttpResponse response = request.post(speakUrl(room_id));
-        
-		return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
-	}
-	
-	public boolean joinRoom(String room_id) throws CampfireException {
-		CampfireRequest request = new CampfireRequest(this);
-		HttpResponse response = request.get(roomUrl(room_id));
-		return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
 	}
 	
 	public boolean uploadFile(String room_id, FileInputStream stream) throws CampfireException {
@@ -198,92 +168,5 @@ public class Campfire {
 			return "https";
 		else
 			return "http";
-	}
-}
-
-/**
- * Tiny redirect handler you can give to an HTTP client to stop it from following redirects. 
- * This can be used to distinguish between successful and unsuccessful login attempts,
- * by looking at the status code and the Location header.
- *
- */
-class NoRedirectHandler extends DefaultRedirectHandler {
-	
-	@Override
-	public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
-		return false;
-	}
-	
-}
-
-class CampfireRequest {
-	private static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
-	
-	private Campfire campfire;
-	private List<NameValuePair> params;
-	public boolean ajax;
-	
-	public CampfireRequest(Campfire campfire) {
-		this.campfire = campfire;
-		this.ajax = false;
-		this.params = new ArrayList<NameValuePair>();
-	}
-	
-	public CampfireRequest(Campfire campfire, boolean ajax) {
-		this.campfire = campfire;
-		this.ajax = ajax;
-		this.params = new ArrayList<NameValuePair>();
-	}
-	
-	public void addParam(String key, String value) {
-		params.add(new BasicNameValuePair(key, value));
-	}
-	
-	public HttpResponse post(String url) throws CampfireException {
-		HttpPost request = new HttpPost(url);
-		
-		request.addHeader("User-Agent", USER_AGENT);
-		if (campfire.session != null)
-			request.addHeader("Cookie", campfire.session);
-		request.addHeader("Content-Type", "application/x-www-form-urlencoded");
-		
-		if (this.ajax) {
-			request.addHeader("X-Requested-With", "XMLHttpRequest");
-	        request.addHeader("X-Prototype-Version", "1.5.1.1");
-		}
-		
-		try {
-        	request.setEntity(new UrlEncodedFormEntity(params));
-    		
-    		DefaultHttpClient client = new DefaultHttpClient();
-    		client.setRedirectHandler(new NoRedirectHandler());
-            
-    		HttpResponse response = client.execute(request);
-        	if (Campfire.DEBUG)
-        		campfire.lastResponseBody = EntityUtils.toString(response.getEntity());
-        	return response;
-		} catch(Exception e) {
-        	throw new CampfireException(e);
-        }
-	}
-	
-	public HttpResponse get(String url) throws CampfireException {
-		HttpGet request = new HttpGet(url);
-		
-		request.addHeader("User-Agent", USER_AGENT);
-		if (campfire.session != null)
-			request.addHeader("Cookie", campfire.session);
-		
-		try {
-        	DefaultHttpClient client = new DefaultHttpClient();
-        	client.setRedirectHandler(new NoRedirectHandler());
-            
-            HttpResponse response = client.execute(request);
-        	if (Campfire.DEBUG)
-        		campfire.lastResponseBody = EntityUtils.toString(response.getEntity());
-        	return response;
-        } catch(Exception e) {
-        	throw new CampfireException(e);
-        }
 	}
 }

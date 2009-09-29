@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
+import com.github.klondike.java.campfire.Room;
 
 public class MainMenu extends Activity { 
 	private static final int LOGGING_IN = 0;
@@ -27,13 +28,14 @@ public class MainMenu extends Activity {
 	
 	
 	private Campfire campfire;
-	private String roomId;
+	private Room room;
 	private EditText message;
 	private Button speak;
 
 	private ProgressDialog loginDialog;
 	private boolean spoke;
 	private boolean joined;
+	private String roomId;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,7 +96,8 @@ public class MainMenu extends Activity {
     		        if (session != null) {
     		        	storeSession(session);
     		        	handler.post(updateLoginMessage);
-    		        	joined = campfire.joinRoom(roomId);
+    		        	room = new Room(campfire, roomId);
+    		        	joined = room.join();
     		        }
     	        } catch(CampfireException e) {}
     	        handler.post(afterLogin);
@@ -109,7 +112,7 @@ public class MainMenu extends Activity {
     	Thread speakingThread = new Thread() {
     		public void run() {
     			try {
-    				spoke = campfire.speak(message.getText().toString(), roomId);
+    				spoke = room.speak(message.getText().toString());
 	    		} catch (CampfireException e) {
 	    			spoke = false;
 				}
@@ -126,10 +129,11 @@ public class MainMenu extends Activity {
         String email = Preferences.getEmail(this);
         String password = Preferences.getPassword(this);
         boolean ssl = Preferences.getSsl(this);
-        roomId = Preferences.getRoomId(this);
         
         campfire = new Campfire(subdomain, email, password, ssl);
         campfire.session = getSharedPreferences("campfire", 0).getString("session", null);
+        
+        roomId = Preferences.getRoomId(this);
     }
     
     public void setupControls() {
