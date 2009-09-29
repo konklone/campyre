@@ -95,8 +95,9 @@ public class MainMenu extends Activity {
 					String session = campfire.login();
     		        if (session != null) {
     		        	storeSession(session);
-    		        	handler.post(updateLoginMessage);
     		        	room = new Room(campfire, roomId);
+    		        	
+    		        	handler.post(updateLoginMessage);
     		        	joined = room.join();
     		        }
     	        } catch(CampfireException e) {}

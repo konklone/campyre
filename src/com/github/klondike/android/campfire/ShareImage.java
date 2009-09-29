@@ -22,12 +22,14 @@ import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
+import com.github.klondike.java.campfire.Room;
 
 public class ShareImage extends Activity {
 	private static final int UPLOADING = 0;
 	
 	private Campfire campfire;
 	private String roomId;
+	private Room room;
 	
 	private boolean uploaded;
 	private String uploadError;
@@ -67,6 +69,11 @@ public class ShareImage extends Activity {
 						uploadError = "Couldn't log in to Campfire, image was not uploaded. Check your Campfire credentials.";
 					} else {
 						storeSession(campfire.session);
+						room = new Room(campfire, roomId);
+						
+						
+						// Don't move this code into another method, or split it up - somehow
+						// stuff gets out of scope or garbage collected and file transfers start dying
 						Bundle extras = ShareImage.this.getIntent().getExtras();
 						Uri uri = (Uri) extras.get("android.intent.extra.STREAM");
 						
@@ -80,7 +87,7 @@ public class ShareImage extends Activity {
 							uploaded = false;
 							uploadError = "Error processing photo, image was not uploaded.";
 						} else {
-							if (campfire.uploadFile(roomId, image))
+							if (room.uploadFile(image))
 								uploaded = true;
 							else {
 								uploaded = false;
