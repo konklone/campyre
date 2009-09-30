@@ -11,7 +11,6 @@ public class Campfire {
 	
 	// used by CampfireRequest
 	public String session;
-	public String lastResponseBody;
 	
 	
 	public Campfire(String subdomain, String email, String password, boolean ssl) {
