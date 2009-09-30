@@ -58,8 +58,6 @@ public class CampfireRequest {
     		client.setRedirectHandler(new NoRedirectHandler());
             
     		HttpResponse response = client.execute(request);
-        	if (Campfire.DEBUG)
-        		campfire.lastResponseBody = EntityUtils.toString(response.getEntity());
         	return response;
 		} catch(Exception e) {
         	throw new CampfireException(e);
@@ -78,8 +76,6 @@ public class CampfireRequest {
         	client.setRedirectHandler(new NoRedirectHandler());
             
             HttpResponse response = client.execute(request);
-        	if (Campfire.DEBUG)
-        		campfire.lastResponseBody = EntityUtils.toString(response.getEntity());
         	return response;
         } catch(Exception e) {
         	throw new CampfireException(e);

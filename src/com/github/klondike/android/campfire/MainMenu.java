@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
@@ -31,10 +32,11 @@ public class MainMenu extends Activity {
 	private Room room;
 	private EditText message;
 	private Button speak;
+	
+	private TextView debug;
 
 	private ProgressDialog loginDialog;
 	private boolean spoke;
-	private boolean joined;
 	private String roomId;
 	
     @Override
@@ -50,9 +52,10 @@ public class MainMenu extends Activity {
     final Handler handler = new Handler();
     final Runnable afterLogin = new Runnable() {
     	public void run() {
-    		if (campfire.session != null && joined) {
+    		if (campfire.session != null && room.joined) {
         		alert("Logged in to Campfire and joined room.");
         		speak.setEnabled(true);
+        		debug.setText(room.body);
     		}
     		else if (campfire.session == null)
     			alert("Couldn't log into Campfire. Please check your credentials.");
@@ -98,7 +101,7 @@ public class MainMenu extends Activity {
     		        	room = new Room(campfire, roomId);
     		        	
     		        	handler.post(updateLoginMessage);
-    		        	joined = room.join();
+    		        	room.join();
     		        }
     	        } catch(CampfireException e) {}
     	        handler.post(afterLogin);
@@ -140,6 +143,8 @@ public class MainMenu extends Activity {
     public void setupControls() {
         speak = (Button) this.findViewById(R.id.speak);
         message = (EditText) this.findViewById(R.id.message);
+        
+        debug = (TextView) this.findViewById(R.id.debug);
         
     	speak.setOnClickListener(new View.OnClickListener() {
     		public void onClick(View v) {

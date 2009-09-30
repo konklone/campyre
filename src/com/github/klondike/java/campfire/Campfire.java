@@ -1,21 +1,11 @@
 package com.github.klondike.java.campfire;
 
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
 
-public class Campfire {
-	public static final boolean DEBUG = true;
-	
+public class Campfire {	
 	public String subdomain, email, password;
 	public boolean ssl;
 	

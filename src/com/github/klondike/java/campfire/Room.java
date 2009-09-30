@@ -9,14 +9,20 @@ import java.net.URL;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.util.EntityUtils;
 
 public class Room {
+	public String id;
+	public boolean joined;
+	public String body;
+	
 	private Campfire campfire;
-	private String id;
 	
 	public Room(Campfire campfire, String id) {
 		this.campfire = campfire;
 		this.id = id;
+		this.joined = false;
+		this.body = null;
 	}
 	
 	/* Main methods */
@@ -24,8 +30,20 @@ public class Room {
 	public boolean join() throws CampfireException {
 		CampfireRequest request = new CampfireRequest(campfire);
 		HttpResponse response = request.get(roomUrl());
-		return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
+		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+			try {
+				this.body = EntityUtils.toString(response.getEntity());
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			}
+			
+			this.joined = true;
+			return true;
+		} else
+			return false;
 	}
+	
+	
 	
 	public boolean speak(String message) throws CampfireException {
 		CampfireRequest request = new CampfireRequest(campfire, true);
