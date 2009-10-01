@@ -25,7 +25,6 @@ public class ShareImage extends Activity {
 	private static final int UPLOADING = 0;
 	
 	private Campfire campfire;
-	private String roomId;
 	
 	private boolean uploaded;
 	private String uploadError;
@@ -60,7 +59,11 @@ public class ShareImage extends Activity {
 		Thread uploadThread = new Thread() {
 			public void run() {
 				try {
-					Room room = new Room(campfire, roomId, "no name");
+					// hardcoded while I learn about preferences
+					String roomId = "38896"; 
+					// String roomId = Preferences.getRoomId(ShareImage.this);
+					
+					Room room = new Room(campfire, roomId, "not used");
 					
 					// Don't move this code into another method, or split it up - somehow
 					// stuff gets out of scope or garbage collected and file transfers start dying

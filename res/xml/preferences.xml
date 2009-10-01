@@ -4,7 +4,7 @@
 	<EditTextPreference
 		android:key="campfire_room_id" 
 		android:title="Room ID" 
-		android:summary="A numeric room ID to auto-join. Can be seen in a room's URL." 
+		android:summary="A numeric room ID to auto-join and auto-upload to. Can be seen in a room's URL." 
 		android:inputType="number"
 		/>
 
