@@ -29,6 +29,7 @@ public class Room {
 	public String timestamp;
 	public long idleSince; // kept in seconds
 	
+	
 	public Room(Campfire campfire, String id) {
 		this.campfire = campfire;
 		this.id = id;
