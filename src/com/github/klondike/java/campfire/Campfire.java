@@ -1,8 +1,14 @@
 package com.github.klondike.java.campfire;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.util.EntityUtils;
 
 
 public class Campfire {	
@@ -54,11 +60,29 @@ public class Campfire {
         } else {
         	return null;
         }
-    	
 	}
 	
 	public Room[] getRooms() throws CampfireException {
-		return new Room[0];
+		ArrayList<Room> rooms = new ArrayList<Room>();
+		
+		CampfireRequest request = new CampfireRequest(this);
+		HttpResponse response = request.get(rootUrl());
+		String body;
+		try {
+			body = EntityUtils.toString(response.getEntity());
+		} catch(IOException e) {
+			throw new RuntimeException(e);
+		}
+		
+		Pattern pattern = Pattern.compile("<a href=\"" + rootUrl() + "room/(\\d+)\">(.*?)</a>");
+		Matcher matcher = pattern.matcher(body);
+		while (matcher.find()) {
+			String id = matcher.group(1);
+			String name = matcher.group(2);
+			rooms.add(new Room(this, id, name));
+		}
+		
+		return rooms.toArray(new Room[0]);
 	}
 	
 	public boolean loggedIn() {
@@ -86,9 +110,6 @@ public class Campfire {
 	}
 	
 	public String protocol() {
-		if (ssl)
-			return "https";
-		else
-			return "http";
+		return ssl ? "https" : "http";
 	}
 }

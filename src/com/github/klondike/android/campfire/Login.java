@@ -53,6 +53,15 @@ public class Login extends Activity {
     	passwordView = (EditText) findViewById(R.id.password);
     	subdomainView = (EditText) findViewById(R.id.subdomain);
     	
+    	SharedPreferences prefs = getSharedPreferences("campfire", 0); 
+    	String subdomain = prefs.getString("subdomain", null);
+        String email = prefs.getString("email", null);
+        String password = prefs.getString("password", null);
+        
+        subdomainView.setText(subdomain);
+        emailView.setText(email);
+        passwordView.setText(password);
+    	
     	Button loginButton = (Button) findViewById(R.id.login_button);
     	loginButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -84,11 +93,6 @@ public class Login extends Activity {
     	showDialog(LOGGING_IN);
     }
 	
-	
-//	private void storeSession(String session) {
-//    	SharedPreferences prefs = getSharedPreferences("campfire", 0);
-//    	prefs.edit().putString("session", session).commit();
-//    }
 	
 	private void storeCredentials() {
 		SharedPreferences prefs = getSharedPreferences("campfire", 0);

@@ -2,34 +2,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<EditTextPreference
-		android:key="campfire_subdomain" 
-		android:title="Subdomain" 
-		android:summary="What comes before .campfirenow.com" 
-		/>
-	<EditTextPreference
-		android:key="campfire_email" 
-		android:title="Email Address" 
-		android:summary="Your login email"
-		android:inputType="textEmailAddress" 
-		/>
-	<EditTextPreference
-		android:key="campfire_password"
-		android:title="Password" 
-		android:summary="Your password"
-		android:password="true" 
-		/>
-	<EditTextPreference
 		android:key="campfire_room_id" 
 		android:title="Room ID" 
 		android:summary="A numeric room ID to auto-join. Can be seen in a room's URL." 
 		android:inputType="number"
-		/>
-	<CheckBoxPreference 
-		android:key="campfire_ssl" 
-		android:title="Use SSL (https)" 
-		android:summary="Check only if you have a plan with SSL enabled." 
-		android:defaultValue="false"
-		android:enabled="false"
 		/>
 
 </PreferenceScreen>

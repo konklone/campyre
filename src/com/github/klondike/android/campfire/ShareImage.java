@@ -65,7 +65,7 @@ public class ShareImage extends Activity {
 						uploadError = "Couldn't log in to Campfire, image was not uploaded. Check your Campfire credentials.";
 					} else {
 						storeSession(campfire.session);
-						room = new Room(campfire, roomId);
+						room = new Room(campfire, roomId, "no name");
 						
 						
 						// Don't move this code into another method, or split it up - somehow
@@ -107,10 +107,12 @@ public class ShareImage extends Activity {
 	}
 	
 	public void loadCampfire() {
-    	String subdomain = Preferences.getSubdomain(this);
-        String email = Preferences.getEmail(this);
-        String password = Preferences.getPassword(this);
-        boolean ssl = Preferences.getSsl(this);
+		SharedPreferences prefs = getSharedPreferences("campfire", 0);
+    	String subdomain = prefs.getString("subdomain", null);
+        String email = prefs.getString("email", null);
+        String password = prefs.getString("password", null);
+        boolean ssl = prefs.getBoolean("ssl", false);
+        String session = prefs.getString("session", null);
         roomId = Preferences.getRoomId(this);
         
         campfire = new Campfire(subdomain, email, password, ssl);

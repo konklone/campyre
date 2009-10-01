@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -35,7 +36,7 @@ public class RoomList extends ListActivity {
     
     // will only be run after we are assured of being logged in
     public void onLogin() {
-    	getRooms();
+    	//getRooms();
     }
     
     final Handler handler = new Handler();
@@ -67,11 +68,12 @@ public class RoomList extends ListActivity {
     }
     
     public void loadCampfire() {
-    	String subdomain = Preferences.getSubdomain(this);
-        String email = Preferences.getEmail(this);
-        String password = Preferences.getPassword(this);
-        boolean ssl = Preferences.getSsl(this);
-        String session = getSharedPreferences("campfire", 0).getString("session", null);
+    	SharedPreferences prefs = getSharedPreferences("campfire", 0);
+    	String subdomain = prefs.getString("subdomain", null);
+        String email = prefs.getString("email", null);
+        String password = prefs.getString("password", null);
+        boolean ssl = prefs.getBoolean("ssl", false);
+        String session = prefs.getString("session", null);
         
         campfire = new Campfire(subdomain, email, password, ssl, session);
     }

@@ -17,7 +17,7 @@ import org.apache.http.util.EntityUtils;
 import android.os.PatternMatcher;
 
 public class Room {
-	public String id;
+	public String id, name;
 	public boolean joined;
 	public String body;
 	
@@ -30,9 +30,10 @@ public class Room {
 	public long idleSince; // kept in seconds
 	
 	
-	public Room(Campfire campfire, String id) {
+	public Room(Campfire campfire, String id, String name) {
 		this.campfire = campfire;
 		this.id = id;
+		this.name = name;
 		this.joined = false;
 		this.body = null;
 		
