@@ -3,6 +3,7 @@ package com.github.klondike.android.campfire;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,8 +13,7 @@ import com.github.klondike.java.campfire.Campfire;
 
 public class MainMenu extends Activity { 
 	private static final int MENU_PREFS = 0;
-	
-	private static final int RESULT_LOGIN = 1;
+	private static final int MENU_LOGOUT = 1;
 	
 	private Campfire campfire;
 	
@@ -23,8 +23,10 @@ public class MainMenu extends Activity {
         setContentView(R.layout.main);
         
         loadCampfire();
+        verifyLogin();
     }
     
+    // will only be run after we are assured of being logged in
     public void onLogin() {
     	
     }
@@ -34,27 +36,39 @@ public class MainMenu extends Activity {
         String email = Preferences.getEmail(this);
         String password = Preferences.getPassword(this);
         boolean ssl = Preferences.getSsl(this);
-        
-        SharedPreferences prefs = getSharedPreferences("campfire", 0);
-        prefs.edit().putString("session", null).commit();
-        
         String session = getSharedPreferences("campfire", 0).getString("session", null);
         
         campfire = new Campfire(subdomain, email, password, ssl, session);
-        
+    }
+    
+    public void verifyLogin() {
         if (campfire.loggedIn())
-        	alert("You are logged in.");
+        	onLogin();
         else
         	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);
     }
     
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	switch (requestCode) {
+    	case Login.RESULT_LOGIN:
+    		if (resultCode == RESULT_OK) {
+    			alert("You have been logged in successfully.");
+    			loadCampfire();
+    			onLogin();
+    		} else
+    			finish();
+    			
+    		break;
+    	}
+    }
     
     @Override 
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-        MenuItem prefs = menu.add(0, MENU_PREFS, 0, "Preferences");
-        prefs.setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_PREFS, 0, "Preferences").setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_LOGOUT, 0, "Log Out").setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         
         return result;
     }
@@ -65,6 +79,9 @@ public class MainMenu extends Activity {
     	case MENU_PREFS:
     		startActivity(new Intent(this, Preferences.class)); 
     		return true;
+    	case MENU_LOGOUT:
+    		getSharedPreferences("campfire", 0).edit().putString("session", null).commit();
+    		finish();
     	}
     	return super.onOptionsItemSelected(item);
     }
@@ -72,7 +89,5 @@ public class MainMenu extends Activity {
     public void alert(String msg) {
 		Toast.makeText(MainMenu.this, msg, Toast.LENGTH_SHORT).show();
 	}
-    
-    
     
 }
