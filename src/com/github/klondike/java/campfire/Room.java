@@ -67,6 +67,10 @@ public class Room {
 			return false;
 	}
 	
+	public String toString() {
+		return name;
+	}
+	
 	private String extract(String regex, String source) {
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(source);

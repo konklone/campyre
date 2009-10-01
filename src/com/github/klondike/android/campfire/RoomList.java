@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
@@ -36,13 +38,16 @@ public class RoomList extends ListActivity {
     
     // will only be run after we are assured of being logged in
     public void onLogin() {
-    	//getRooms();
+    	getRooms();
     }
     
     final Handler handler = new Handler();
     final Runnable afterLoad = new Runnable() {
     	public void run() {
     		if (rooms != null) {
+    			if (rooms.length <= 0)
+    				((TextView) RoomList.this.findViewById(R.id.rooms_empty)).setVisibility(View.VISIBLE);
+    			
 	    		setListAdapter(new ArrayAdapter<Room>(RoomList.this, android.R.layout.simple_list_item_1, rooms));
 	    		dismissDialog(LOADING);
     		} else {
