@@ -55,7 +55,8 @@ public class MainMenu extends Activity {
     		if (campfire.session != null && room.joined) {
         		alert("Logged in to Campfire and joined room.");
         		speak.setEnabled(true);
-        		debug.setText(room.body);
+        		
+        		debug.setText(room.membershipKey);
     		}
     		else if (campfire.session == null)
     			alert("Couldn't log into Campfire. Please check your credentials.");

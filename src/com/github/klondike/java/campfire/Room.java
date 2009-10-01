@@ -4,12 +4,17 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
+
+import android.os.PatternMatcher;
 
 public class Room {
 	public String id;
@@ -18,11 +23,22 @@ public class Room {
 	
 	private Campfire campfire;
 	
+	public String membershipKey;
+	public String userId;
+	public String lastCacheId;
+	public String timestamp;
+	public long idleSince; // kept in seconds
+	
 	public Room(Campfire campfire, String id) {
 		this.campfire = campfire;
 		this.id = id;
 		this.joined = false;
 		this.body = null;
+		
+		this.membershipKey = null;
+		this.userId = null;
+		this.lastCacheId = null;
+		this.timestamp = null;
 	}
 	
 	/* Main methods */
@@ -37,13 +53,28 @@ public class Room {
 				throw new RuntimeException(e);
 			}
 			
+			this.membershipKey = extractBody("\"membershipKey\":\\s?\"([a-z0-9]+)\"");
+			this.userId = extractBody("\"userID\":\\s?(\\d+)");
+			this.lastCacheId = extractBody("\"lastCacheID\":\\s?(\\d+)");
+			this.timestamp = extractBody("\"timestamp\":\\s?(\\d+)");
+			this.idleSince = System.currentTimeMillis() * 1000;
+			
 			this.joined = true;
 			return true;
 		} else
 			return false;
 	}
 	
+	private String extract(String regex, String source) {
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(source);
+		matcher.find();
+		return matcher.group(1);
+	}
 	
+	private String extractBody(String regex) {
+		return extract(regex, this.body);
+	}
 	
 	public boolean speak(String message) throws CampfireException {
 		CampfireRequest request = new CampfireRequest(campfire, true);
