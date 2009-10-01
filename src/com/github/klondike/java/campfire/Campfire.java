@@ -18,6 +18,15 @@ public class Campfire {
 		this.email = email;
 		this.password = password;
 		this.ssl = ssl;
+		this.session = null;
+	}
+	
+	public Campfire(String subdomain, String email, String password, boolean ssl, String session) {
+		this.subdomain = subdomain;
+		this.email = email;
+		this.password = password;
+		this.ssl = ssl;
+		this.session = session;
 	}
 	
 	public String login() throws CampfireException {
@@ -46,6 +55,10 @@ public class Campfire {
         	return null;
         }
     	
+	}
+	
+	public boolean loggedIn() {
+		return session != null;
 	}
 	
 	public String rootUrl() {

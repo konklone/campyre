@@ -12,6 +12,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity android:name=".Login" />
+        
         <activity android:name=".ShareImage"
         	android:theme="@android:style/Theme.Dialog">
         	<intent-filter>
@@ -20,6 +23,7 @@
         		<data android:mimeType="image/*" />
         	</intent-filter>
         </activity>
+        
         <activity android:name=".Preferences" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
