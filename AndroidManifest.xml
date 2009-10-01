@@ -14,6 +14,7 @@
         </activity>
         
         <activity android:name=".Login" />
+        <activity android:name=".RoomView" />
         
         <activity android:name=".ShareImage"
         	android:theme="@android:style/Theme.Dialog">

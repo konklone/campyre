@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,7 +26,6 @@ public class ShareImage extends Activity {
 	
 	private Campfire campfire;
 	private String roomId;
-	private Room room;
 	
 	private boolean uploaded;
 	private String uploadError;
@@ -36,7 +36,10 @@ public class ShareImage extends Activity {
 		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
-		loadCampfire();
+		verifyLogin();
+	}
+	
+	public void onLogin() {
 		uploadImage();
 	}
 	
@@ -57,38 +60,28 @@ public class ShareImage extends Activity {
 		Thread uploadThread = new Thread() {
 			public void run() {
 				try {
-					if (campfire.session == null)
-						campfire.login();
+					Room room = new Room(campfire, roomId, "no name");
 					
-					if (campfire.session == null) {
+					// Don't move this code into another method, or split it up - somehow
+					// stuff gets out of scope or garbage collected and file transfers start dying
+					Bundle extras = ShareImage.this.getIntent().getExtras();
+					Uri uri = (Uri) extras.get("android.intent.extra.STREAM");
+					
+					ContentResolver cr = ShareImage.this.getContentResolver();
+				
+					ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
+					FileDescriptor fd = pfd.getFileDescriptor();
+					FileInputStream image = new FileInputStream(fd);
+					
+					if (image == null) {
 						uploaded = false;
-						uploadError = "Couldn't log in to Campfire, image was not uploaded. Check your Campfire credentials.";
+						uploadError = "Error processing photo, image was not uploaded.";
 					} else {
-						storeSession(campfire.session);
-						room = new Room(campfire, roomId, "no name");
-						
-						
-						// Don't move this code into another method, or split it up - somehow
-						// stuff gets out of scope or garbage collected and file transfers start dying
-						Bundle extras = ShareImage.this.getIntent().getExtras();
-						Uri uri = (Uri) extras.get("android.intent.extra.STREAM");
-						
-						ContentResolver cr = ShareImage.this.getContentResolver();
-					
-						ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
-						FileDescriptor fd = pfd.getFileDescriptor();
-						FileInputStream image = new FileInputStream(fd);
-						
-						if (image == null) {
+						if (room.uploadFile(image))
+							uploaded = true;
+						else {
 							uploaded = false;
-							uploadError = "Error processing photo, image was not uploaded.";
-						} else {
-							if (room.uploadFile(image))
-								uploaded = true;
-							else {
-								uploaded = false;
-								uploadError = "Couldn't upload file to Campfire.";
-							}
+							uploadError = "Couldn't upload file to Campfire.";
 						}
 					}
 				} catch (FileNotFoundException e) {
@@ -106,17 +99,25 @@ public class ShareImage extends Activity {
 		showDialog(UPLOADING);
 	}
 	
-	public void loadCampfire() {
-		SharedPreferences prefs = getSharedPreferences("campfire", 0);
-    	String subdomain = prefs.getString("subdomain", null);
-        String email = prefs.getString("email", null);
-        String password = prefs.getString("password", null);
-        boolean ssl = prefs.getBoolean("ssl", false);
-        String session = prefs.getString("session", null);
-        roomId = Preferences.getRoomId(this);
-        
-        campfire = new Campfire(subdomain, email, password, ssl);
-        campfire.session = getSharedPreferences("campfire", 0).getString("session", null);
+	public void verifyLogin() {
+    	campfire = Login.getCampfire(this);
+        if (campfire.loggedIn())
+        	onLogin();
+        else
+        	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);
+    }
+	
+	@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	switch (requestCode) {
+    	case Login.RESULT_LOGIN:
+    		if (resultCode == RESULT_OK) {
+    			alert("You have been logged in successfully.");
+    			campfire = Login.getCampfire(this);
+    			onLogin();
+    		} else
+    			finish();
+    	}
     }
 	
 	protected Dialog onCreateDialog(int id) {
@@ -134,15 +135,5 @@ public class ShareImage extends Activity {
 	public void alert(String msg) {
 		Toast.makeText(ShareImage.this, msg, Toast.LENGTH_SHORT).show();
 	}
-	
-	public void storeSession(String session) {
-    	SharedPreferences prefs = getSharedPreferences("campfire", 0);
-    	prefs.edit().putString("session", session).commit();
-    }
-    
-    public String loadSession() {
-    	SharedPreferences prefs = getSharedPreferences("campfire", 0);
-    	return prefs.getString("session", null);
-    }
 	
 }

@@ -3,6 +3,7 @@ package com.github.klondike.android.campfire;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -92,6 +93,18 @@ public class Login extends Activity {
     	
     	showDialog(LOGGING_IN);
     }
+	
+	// Service to provide a Campfire loaded with stored credentials
+	public static Campfire getCampfire(Context context) {
+    	SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
+    	String subdomain = prefs.getString("subdomain", null);
+        String email = prefs.getString("email", null);
+        String password = prefs.getString("password", null);
+        boolean ssl = prefs.getBoolean("ssl", false);
+        String session = prefs.getString("session", null);
+        
+        return new Campfire(subdomain, email, password, ssl, session);
+	}
 	
 	
 	private void storeCredentials() {

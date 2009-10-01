@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +33,6 @@ public class RoomList extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.room_list);
         
-        loadCampfire();
         verifyLogin();
     }
     
@@ -57,6 +57,18 @@ public class RoomList extends ListActivity {
     	}
     };
     
+    public void onListItemClick(ListView parent, View v, int position, long id) {
+    	Room room = (Room) parent.getItemAtPosition(position);    	
+    	
+    	Intent intent = new Intent(Intent.ACTION_MAIN);
+		intent.setClassName("com.github.klondike.android.campfire", "com.github.klondike.android.campfire.RoomView");
+    	Bundle extras = new Bundle();
+    	extras.putString("room_id", room.id);
+    	intent.putExtras(extras);
+    	
+    	startActivity(intent);
+    }
+    
     public void getRooms() {
     	Thread loadRooms = new Thread() {
     		public void run() {
@@ -72,18 +84,8 @@ public class RoomList extends ListActivity {
     	showDialog(LOADING);
     }
     
-    public void loadCampfire() {
-    	SharedPreferences prefs = getSharedPreferences("campfire", 0);
-    	String subdomain = prefs.getString("subdomain", null);
-        String email = prefs.getString("email", null);
-        String password = prefs.getString("password", null);
-        boolean ssl = prefs.getBoolean("ssl", false);
-        String session = prefs.getString("session", null);
-        
-        campfire = new Campfire(subdomain, email, password, ssl, session);
-    }
-    
     public void verifyLogin() {
+    	campfire = Login.getCampfire(this);
         if (campfire.loggedIn())
         	onLogin();
         else
@@ -96,12 +98,10 @@ public class RoomList extends ListActivity {
     	case Login.RESULT_LOGIN:
     		if (resultCode == RESULT_OK) {
     			alert("You have been logged in successfully.");
-    			loadCampfire();
+    			campfire = Login.getCampfire(this);
     			onLogin();
     		} else
     			finish();
-    			
-    		break;
     	}
     }
     
