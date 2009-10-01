@@ -57,6 +57,10 @@ public class Campfire {
     	
 	}
 	
+	public Room[] getRooms() throws CampfireException {
+		return new Room[0];
+	}
+	
 	public boolean loggedIn() {
 		return session != null;
 	}

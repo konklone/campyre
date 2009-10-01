@@ -1,26 +1,33 @@
 package com.github.klondike.android.campfire;
 
-import android.app.Activity;
+import android.app.Dialog;
+import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
+import com.github.klondike.java.campfire.CampfireException;
+import com.github.klondike.java.campfire.Room;
 
-public class MainMenu extends Activity { 
+public class RoomList extends ListActivity { 
 	private static final int MENU_PREFS = 0;
 	private static final int MENU_LOGOUT = 1;
 	
+	private static final int LOADING = 1;
+	
 	private Campfire campfire;
+	private Room[] rooms;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.room_list);
         
         loadCampfire();
         verifyLogin();
@@ -28,7 +35,35 @@ public class MainMenu extends Activity {
     
     // will only be run after we are assured of being logged in
     public void onLogin() {
-    	
+    	getRooms();
+    }
+    
+    final Handler handler = new Handler();
+    final Runnable afterLoad = new Runnable() {
+    	public void run() {
+    		if (rooms != null) {
+	    		setListAdapter(new ArrayAdapter<Room>(RoomList.this, android.R.layout.simple_list_item_1, rooms));
+	    		dismissDialog(LOADING);
+    		} else {
+    			alert("Error connecting to Campfire. Please try again later.");
+    			finish();
+    		}
+    	}
+    };
+    
+    public void getRooms() {
+    	Thread loadRooms = new Thread() {
+    		public void run() {
+    			try {
+    				rooms = campfire.getRooms();
+    			} catch (CampfireException e) {
+    				rooms = null;
+    			}
+    			handler.post(afterLoad);
+    		}
+    	};
+    	loadRooms.start();
+    	showDialog(LOADING);
     }
     
     public void loadCampfire() {
@@ -63,6 +98,18 @@ public class MainMenu extends Activity {
     	}
     }
     
+    protected Dialog onCreateDialog(int id) {
+        switch(id) {
+        case LOADING:
+            ProgressDialog loadingDialog = new ProgressDialog(this);
+            loadingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            loadingDialog.setMessage("Loading rooms...");
+            return loadingDialog;
+        default:
+            return null;
+        }
+    }
+    
     @Override 
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
@@ -87,7 +134,7 @@ public class MainMenu extends Activity {
     }
     
     public void alert(String msg) {
-		Toast.makeText(MainMenu.this, msg, Toast.LENGTH_SHORT).show();
+		Toast.makeText(RoomList.this, msg, Toast.LENGTH_SHORT).show();
 	}
     
 }
