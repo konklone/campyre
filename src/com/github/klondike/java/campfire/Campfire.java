@@ -79,7 +79,9 @@ public class Campfire {
 		while (matcher.find()) {
 			String id = matcher.group(1);
 			String name = matcher.group(2);
-			rooms.add(new Room(this, id, name));
+			Room room = new Room(this, id);
+			room.name = name;
+			rooms.add(room);
 		}
 		
 		return rooms.toArray(new Room[0]);

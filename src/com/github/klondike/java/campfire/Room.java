@@ -30,10 +30,10 @@ public class Room {
 	public long idleSince; // kept in seconds
 	
 	
-	public Room(Campfire campfire, String id, String name) {
+	public Room(Campfire campfire, String id) {
 		this.campfire = campfire;
 		this.id = id;
-		this.name = name;
+		this.name = null;
 		this.joined = false;
 		this.body = null;
 		

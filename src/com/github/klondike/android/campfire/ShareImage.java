@@ -63,7 +63,7 @@ public class ShareImage extends Activity {
 					String roomId = "38896"; 
 					// String roomId = Preferences.getRoomId(ShareImage.this);
 					
-					Room room = new Room(campfire, roomId, "not used");
+					Room room = new Room(campfire, roomId);
 					
 					// Don't move this code into another method, or split it up - somehow
 					// stuff gets out of scope or garbage collected and file transfers start dying
