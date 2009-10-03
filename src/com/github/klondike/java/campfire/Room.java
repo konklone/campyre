@@ -55,6 +55,7 @@ public class Room {
 				throw new RuntimeException(e);
 			}
 			
+			this.name = extractBody("<h1 id=\"room_name\">(.*?)</h1>"); 
 			this.membershipKey = extractBody("\"membershipKey\":\\s?\"([a-z0-9]+)\"");
 			this.userId = extractBody("\"userID\":\\s?(\\d+)");
 			this.lastCacheId = extractBody("\"lastCacheID\":\\s?(\\d+)");

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  >
+  
+	<ScrollView android:id="@+id/room_container"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:fillViewport="false"
+		>
+		
+		<TextView android:id="@+id/debug"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textSize="30sp"
+			
+			/>
+	</ScrollView>
+	
+	<RelativeLayout android:id="@+id/room_bottom"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		>
+		<EditText android:id="@+id/room_message"
+			android:layout_width="220sp"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			
+			android:maxLines="2"
+			android:enabled="false"
+			android:inputType="textCapSentences|textMultiLine"
+			/>
+			
+		<Button android:id="@+id/room_speak"
+			android:layout_width="80sp"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			
+			android:enabled="false"
+			
+			android:textSize="18sp"
+			android:text="Post"
+			/>
+	</RelativeLayout>
+</RelativeLayout>

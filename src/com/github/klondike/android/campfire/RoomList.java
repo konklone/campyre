@@ -110,6 +110,7 @@ public class RoomList extends ListActivity {
         case LOADING:
             ProgressDialog loadingDialog = new ProgressDialog(this);
             loadingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            loadingDialog.setCancelable(false);
             loadingDialog.setMessage("Loading rooms...");
             return loadingDialog;
         default:
