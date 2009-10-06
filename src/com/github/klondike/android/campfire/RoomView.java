@@ -183,24 +183,13 @@ public class RoomView extends ListActivity {
 	private void poll() {
 		Thread pollThread = new Thread() {
 			public void run() {
-				//try {
-					newEvents = new RoomEvent[10];
-					newEvents[0] = new RoomEvent("string1");
-					newEvents[1] = new RoomEvent("string2");
-					newEvents[2] = new RoomEvent("string3");
-					newEvents[3] = new RoomEvent("string4");
-					newEvents[4] = new RoomEvent("string5");
-					newEvents[5] = new RoomEvent("string6");
-					newEvents[6] = new RoomEvent("string7");
-					newEvents[7] = new RoomEvent("string8");
-					newEvents[8] = new RoomEvent("string9");
-					newEvents[9] = new RoomEvent("string10");
-					
+				try {
+					newEvents = room.listen();
 					handler.post(pollSuccess);
 					
-//				} catch(CampfireException e) {
-//					handler.post(pollFailure);
-//				}
+				} catch(CampfireException e) {
+					handler.post(pollFailure);
+				}
 			}
 		};
 		pollThread.start();

@@ -89,8 +89,12 @@ public class Room {
 		
 		String[] lines = body.split("\r\n");
 		
-		for (int i=0; i<lines.length; i++)
-			events.add(new RoomEvent(lines[i]));
+		for (int i=0; i<(lines.length-1); i++) {
+			if (lines[i].length() > 0)
+				events.add(new RoomEvent(lines[i]));
+		}
+		 
+		this.lastCacheId = this.extract("lastCacheID\\s?=\\s(\\d+)", lines[lines.length-1]);
 		
 		return events.toArray(new RoomEvent[0]);
 	}
