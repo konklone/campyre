@@ -18,37 +18,28 @@
 			/>
 	</ScrollView>
 	
-	<RelativeLayout android:id="@+id/room_bottom"
+	<LinearLayout android:id="@+id/room_bottom"
+		android:orientation="horizontal"
+		
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_weight="0"
 		>
 		
 		<EditText android:id="@+id/room_message"
-			android:layout_width="160sp"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:layout_alignParentLeft="true"
+			android:layout_weight="1"
 			
 			android:maxLines="2"
 			android:enabled="false"
 			android:inputType="textCapSentences|textMultiLine"
 			/>
 			
-		<Button android:id="@+id/room_refresh"
-			android:layout_width="80sp"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			
-			android:enabled="false"
-			
-			android:textSize="16sp"
-			android:text="Refresh"
-			/>
-		
 		<Button android:id="@+id/room_speak"
 			android:layout_width="80sp"
 			android:layout_height="wrap_content"
-			android:layout_toLeftOf="@id/room_refresh"
+			android:layout_weight="0"
 			
 			android:enabled="false"
 			
@@ -56,6 +47,17 @@
 			android:text="Post"
 			/>
 			
-	</RelativeLayout>
+		<Button android:id="@+id/room_refresh"
+			android:layout_width="80sp"
+			android:layout_height="wrap_content"
+			android:layout_weight="0"
+			
+			android:enabled="false"
+			
+			android:textSize="16sp"
+			android:text="Refresh"
+			/>
+			
+	</LinearLayout>
 	
 </LinearLayout>
