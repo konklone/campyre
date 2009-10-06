@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:layout_height="fill_parent"
+  android:orientation="vertical"
   >
   
 	<ScrollView android:id="@+id/room_container"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:fillViewport="false"
+		android:layout_height="fill_parent"
+		android:layout_weight="1"
+		android:fillViewport="true"
 		>
 		
-		<TextView android:id="@+id/debug"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textSize="30sp"
-			
+		<ListView android:id="@android:id/list"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
 			/>
 	</ScrollView>
 	
 	<RelativeLayout android:id="@+id/room_bottom"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
+		android:layout_weight="0"
 		>
+		
 		<EditText android:id="@+id/room_message"
-			android:layout_width="220sp"
+			android:layout_width="160sp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
 			
@@ -34,15 +34,28 @@
 			android:inputType="textCapSentences|textMultiLine"
 			/>
 			
-		<Button android:id="@+id/room_speak"
+		<Button android:id="@+id/room_refresh"
 			android:layout_width="80sp"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
 			
 			android:enabled="false"
 			
+			android:textSize="16sp"
+			android:text="Refresh"
+			/>
+		
+		<Button android:id="@+id/room_speak"
+			android:layout_width="80sp"
+			android:layout_height="wrap_content"
+			android:layout_toLeftOf="@id/room_refresh"
+			
+			android:enabled="false"
+			
 			android:textSize="18sp"
 			android:text="Post"
 			/>
+			
 	</RelativeLayout>
-</RelativeLayout>
+	
+</LinearLayout>

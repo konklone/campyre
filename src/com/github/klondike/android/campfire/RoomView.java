@@ -1,7 +1,7 @@
 package com.github.klondike.android.campfire;
 
-import android.app.Activity;
 import android.app.Dialog;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,20 +18,24 @@ import android.widget.Toast;
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
 import com.github.klondike.java.campfire.Room;
+import com.github.klondike.java.campfire.RoomEvent;
 
-public class RoomView extends Activity {
+public class RoomView extends ListActivity {
 	private static final int MENU_PREFS = 0;
 	private static final int MENU_LOGOUT = 1;
 
 	private static final int JOINING = 0;
 	private static final int SPEAKING = 1;
+	private static final int POLLING = 2;
 
 	private Campfire campfire;
 	private String roomId;
 	private Room room;
+	private RoomEvent[] events = new RoomEvent[20];
+	private RoomEvent[] newEvents;
 	
 	private EditText message;
-	private Button speak;
+	private Button speak, refresh;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,14 +58,15 @@ public class RoomView extends Activity {
 		setupControls();
 	}
 	
+	private void onPoll() {
+		events = newEvents;
+		loadEvents();
+	}
+	
 	private void setupControls() {
-		// set name of room
+		//TODO still:
+		// set name of room in window title
 		// populate original messages (forthcoming)
-		// enable text field, buttons
-		// wire up post and refresh buttons
-		
-		TextView title = (TextView) this.findViewById(R.id.debug);
-		title.setText(room.name);
 		
 		message = (EditText) this.findViewById(R.id.room_message);
 		message.setEnabled(true);
@@ -77,6 +83,19 @@ public class RoomView extends Activity {
 				}
 			}
 		});
+		
+		refresh = (Button) this.findViewById(R.id.room_refresh);
+		refresh.setEnabled(true);
+		refresh.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				poll();
+			}
+		});
+	}
+	
+	private void loadEvents() {
+		setListAdapter(new ArrayAdapter<RoomEvent>(this, android.R.layout.simple_list_item_1, events));
 	}
 	
 	final Handler handler = new Handler();
@@ -103,10 +122,24 @@ public class RoomView extends Activity {
 	};
 	final Runnable speakError = new Runnable() {
 		public void run() {
-			alert("Connection error. Get some more signal and try again.");
+			alert("Connection error.");
 			dismissDialog(SPEAKING);
 			
 			speak.setEnabled(true);
+		}
+	};
+	
+	final Runnable pollSuccess = new Runnable() {
+		public void run() {
+			dismissDialog(POLLING);
+			onPoll();
+		}
+	};
+	
+	final Runnable pollFailure = new Runnable() {
+		public void run() {
+			dismissDialog(POLLING);
+			alert("Connection error.");
 		}
 	};
 	
@@ -145,6 +178,34 @@ public class RoomView extends Activity {
 		joinThread.start();
 		
 		showDialog(JOINING);
+	}
+	
+	private void poll() {
+		Thread pollThread = new Thread() {
+			public void run() {
+				//try {
+					newEvents = new RoomEvent[10];
+					newEvents[0] = new RoomEvent("string1");
+					newEvents[1] = new RoomEvent("string2");
+					newEvents[2] = new RoomEvent("string3");
+					newEvents[3] = new RoomEvent("string4");
+					newEvents[4] = new RoomEvent("string5");
+					newEvents[5] = new RoomEvent("string6");
+					newEvents[6] = new RoomEvent("string7");
+					newEvents[7] = new RoomEvent("string8");
+					newEvents[8] = new RoomEvent("string9");
+					newEvents[9] = new RoomEvent("string10");
+					
+					handler.post(pollSuccess);
+					
+//				} catch(CampfireException e) {
+//					handler.post(pollFailure);
+//				}
+			}
+		};
+		pollThread.start();
+		
+		showDialog(POLLING);
 	}
 	
 	private void verifyLogin() {
@@ -202,6 +263,9 @@ public class RoomView extends Activity {
         	loadingDialog.setMessage("Joining room...");
         	loadingDialog.setCancelable(false);
             return loadingDialog;
+        case POLLING:
+        	loadingDialog.setMessage("Polling...");
+        	return loadingDialog;
         default:
             return null;
         }

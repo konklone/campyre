@@ -7,15 +7,18 @@ package com.github.klondike.java.campfire;
  *
  */
 public class RoomEvent {
-
-	public String id, type;
-	public String user_id, person;
+	private static final int MESSAGE = 0;
+	private static final int PASTE = 1;
+	private static final int ENTRY = 2;
+	
+	public int type;
+	public String id, user_id, person;
 	public String message;
 	
 	
 	// RoomEvent knows how to construct itself from the HTML returned from Campfire
 	public RoomEvent(String original) {
-		this.type = "message";
+		this.type = MESSAGE;
 		
 		this.id = "id";
 		this.user_id = "user_id";
@@ -23,7 +26,7 @@ public class RoomEvent {
 		this.message = original;
 	}
 	
-	public boolean isMessage() {
-		return this.type.equals("message"); 
+	public String toString() {
+		return message;
 	}
 }

@@ -4,9 +4,9 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,8 +14,6 @@ import java.util.regex.Pattern;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
-
-import android.os.PatternMatcher;
 
 public class Room {
 	public String id, name;
@@ -68,6 +66,36 @@ public class Room {
 		} else
 			return false;
 	}
+	
+	public RoomEvent[] listen() throws CampfireException {
+		ArrayList<RoomEvent> events = new ArrayList<RoomEvent>();
+		
+		CampfireRequest request = new CampfireRequest(campfire, true);
+    	request.addParam("l", lastCacheId);
+    	request.addParam("m", membershipKey);
+    	request.addParam("s", timestamp);
+    	request.addParam("t", "" + System.currentTimeMillis());
+        
+        HttpResponse response = request.post(listenUrl());
+        
+        String body;
+        try {
+			body = EntityUtils.toString(response.getEntity());
+		} catch(IOException e) {
+			throw new RuntimeException(e);
+		}
+		if (body.length() <= 1)
+			return new RoomEvent[0];
+		
+		String[] lines = body.split("\r\n");
+		
+		for (int i=0; i<lines.length; i++)
+			events.add(new RoomEvent(lines[i]));
+		
+		return events.toArray(new RoomEvent[0]);
+	}
+	
+	/** Helper methods */
 	
 	public String toString() {
 		return name;
@@ -174,15 +202,13 @@ public class Room {
 		
 	}
 	
-	public String getRoomTopic()
-	{
+	public String getRoomTopic() {
 		String topic = "";
 		
 		Pattern topicPattern = 
 			Pattern.compile(".*\\<h2 id=\"topic\">([a-zA-Z0-9 ]*)\\</h2>.*");
 		Matcher topicMatcher = topicPattern.matcher(this.body);
-		if (topicMatcher.find() != false)
-		{
+		if (topicMatcher.find() != false) {
 			topic = topicMatcher.group();
 			//if the user has edit topic privileges, remove the edit link
 			topic = topic.replaceAll("\\<.*?\\>", "");
@@ -191,8 +217,7 @@ public class Room {
 		return topic;
 	}
 	
-	public void getRoomFiles()
-	{
+	public void getRoomFiles() {
 		//TODO: not complete
 		List<String> fileNames;
 		List<Integer> fileIDs;
@@ -207,19 +232,18 @@ public class Room {
 		{ return; }
 		files = filesMatcher.group();
 		
-		//then loop through the html elements to find the pieces we need
-		//we need file URL, file ID, and file name (and icon? maybe, or we do our own)
-		//example html:
-		//<li id="file_898737">
-		//  <img align="absmiddle" alt="Icon_jpg_small" class="file_icon" height="18" 
-		//  src="/images/icons/icon_JPG_small.gif?1250184453" width="24" /> 
-		//  <a href="/room/38896/uploads/898737/from_phone.jpg" target="_blank">from_phone.jpg</a>
-		//</li>
+		// then loop through the html elements to find the pieces we need
+		// we need file URL, file ID, and file name (and icon? maybe, or we do our own)
+		// example html:
+		// <li id="file_898737">
+		//   <img align="absmiddle" alt="Icon_jpg_small" class="file_icon" height="18" 
+		//   src="/images/icons/icon_JPG_small.gif?1250184453" width="24" /> 
+		//   <a href="/room/38896/uploads/898737/from_phone.jpg" target="_blank">from_phone.jpg</a>
+		// </li>
 		Pattern filePattern = 
 			Pattern.compile(".*\\<li id=\"file_[0-9]+\">([a-zA-Z0-9 ]*)\\</li>.*");
 		Matcher fileMatcher = filePattern.matcher(files);
-		while (fileMatcher.find())
-		{
+		while (fileMatcher.find()) {
 			String fileItem = fileMatcher.group();
 			fileItem.replaceFirst("<li id=\"file_", ""); //remove first chunk
 			int index = fileItem.indexOf("\"");
@@ -228,7 +252,6 @@ public class Room {
 			fileItem = fileItem.substring(index);
 			index = fileItem.indexOf("\"");
 			String fileURL =  fileItem.substring(0, index);
-			
 		}	
 	}
 	
@@ -240,6 +263,10 @@ public class Room {
 	
 	public String speakUrl() {
 		return roomUrl() + "/speak";
+	}
+	
+	public String listenUrl() {
+		return campfire.rootUrl() + "poll.cgi";
 	}
 	
 	public String uploadUrl() {
