@@ -49,7 +49,7 @@ public class RoomList extends ListActivity {
     				((TextView) RoomList.this.findViewById(R.id.rooms_empty)).setVisibility(View.VISIBLE);
     			
 	    		setListAdapter(new ArrayAdapter<Room>(RoomList.this, android.R.layout.simple_list_item_1, rooms));
-	    		dismissDialog(LOADING);
+	    		removeDialog(LOADING);
     		} else {
     			alert("Error connecting to Campfire. Please try again later.");
     			finish();

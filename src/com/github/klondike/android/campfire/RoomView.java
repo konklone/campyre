@@ -101,12 +101,13 @@ public class RoomView extends ListActivity {
 	final Handler handler = new Handler();
 	final Runnable joinSuccess = new Runnable() {
 		public void run() {
-			dismissDialog(JOINING);
+			removeDialog(JOINING);
 			onJoined();
 		}
 	};
 	final Runnable joinFailure = new Runnable() {
 		public void run() {
+			removeDialog(JOINING);
 			alert("Couldn't join room. Select the Re-join menu option to try again.");
 		}
 	};
@@ -114,7 +115,7 @@ public class RoomView extends ListActivity {
 	final Runnable speakSuccess = new Runnable() {
 		public void run() {
 			alert("Posted to Campfire.");
-			dismissDialog(SPEAKING);
+			removeDialog(SPEAKING);
 			
 			message.setText("");
 			speak.setEnabled(true);
@@ -123,7 +124,7 @@ public class RoomView extends ListActivity {
 	final Runnable speakError = new Runnable() {
 		public void run() {
 			alert("Connection error.");
-			dismissDialog(SPEAKING);
+			removeDialog(SPEAKING);
 			
 			speak.setEnabled(true);
 		}
@@ -131,14 +132,14 @@ public class RoomView extends ListActivity {
 	
 	final Runnable pollSuccess = new Runnable() {
 		public void run() {
-			dismissDialog(POLLING);
+			removeDialog(POLLING);
 			onPoll();
 		}
 	};
 	
 	final Runnable pollFailure = new Runnable() {
 		public void run() {
-			dismissDialog(POLLING);
+			removeDialog(POLLING);
 			alert("Connection error.");
 		}
 	};
