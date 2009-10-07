@@ -36,7 +36,7 @@ public class RoomView extends ListActivity {
 	private Campfire campfire;
 	private String roomId;
 	private Room room;
-	private RoomEvent[] events = new RoomEvent[20];
+	private RoomEvent[] events = null;
 	private RoomEvent[] newEvents;
 	
 	private EditText message;
@@ -64,7 +64,17 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void onPoll() {
-		events = newEvents;
+		// update the main events array with the new events
+		if (events == null)
+			events = newEvents;
+		else {
+			int newSize = events.length + newEvents.length;
+			RoomEvent[] toBeEvents = new RoomEvent[newSize];
+			System.arraycopy(events, 0, toBeEvents, 0, events.length);
+			System.arraycopy(newEvents, 0, toBeEvents, events.length, newEvents.length);
+			events = toBeEvents;
+		}
+		
 		loadEvents();
 	}
 	
