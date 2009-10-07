@@ -1,17 +1,22 @@
 package com.github.klondike.android.campfire;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -95,7 +100,7 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void loadEvents() {
-		setListAdapter(new ArrayAdapter<RoomEvent>(this, android.R.layout.simple_list_item_1, events));
+		setListAdapter(new RoomAdapter(this, events));
 	}
 	
 	final Handler handler = new Handler();
@@ -264,4 +269,57 @@ public class RoomView extends ListActivity {
 	public void alert(String msg) {
 		Toast.makeText(RoomView.this, msg, Toast.LENGTH_SHORT).show();
 	}
+	
+	protected class RoomAdapter extends BaseAdapter {
+    	private RoomEvent[] events;
+    	LayoutInflater inflater;
+
+        public RoomAdapter(Activity context, RoomEvent[] events) {
+            this.events = events;
+            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+		public int getCount() {
+			return events.length;
+		}
+
+		public Object getItem(int position) {
+			return events[position];
+		}
+
+		public long getItemId(int position) {
+			return ((long) position);
+		}
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+			RoomEvent item = (RoomEvent) getItem(position);
+			
+			LinearLayout view;
+			if (convertView == null) {
+				view = (LinearLayout) inflater.inflate(viewForType(item.type), null);
+			} else {
+				view = (LinearLayout) convertView;
+			}
+			
+			((TextView) view.findViewById(R.id.text)).setText(item.message);
+			
+			if (item.type != RoomEvent.TIMESTAMP) {
+				((TextView) view.findViewById(R.id.person)).setText(item.person);
+			}
+			
+			return view;
+		}
+		
+		public int viewForType(int type) {
+			switch (type) {
+			case RoomEvent.TEXT:
+				return R.layout.event_text;
+			case RoomEvent.TIMESTAMP:
+				return R.layout.event_timestamp;
+			default:
+				return R.layout.event_text;
+			}
+		}
+
+    }
 }

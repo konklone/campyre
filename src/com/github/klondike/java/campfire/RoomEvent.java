@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
  *
  */
 public class RoomEvent {
-	private static final int TEXT = 0;
-	private static final int TIMESTAMP = 1;
+	public static final int TEXT = 0;
+	public static final int TIMESTAMP = 1;
 	
 	public int type;
 	public String id, user_id, person;
