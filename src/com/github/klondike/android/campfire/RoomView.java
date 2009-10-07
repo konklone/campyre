@@ -97,6 +97,8 @@ public class RoomView extends ListActivity {
 				poll();
 			}
 		});
+		
+		getListView().setFocusable(false);
 	}
 	
 	private void loadEvents() {
