@@ -90,6 +90,7 @@ public class Room {
 		String[] lines = body.split("\r?\n");
 		
 		for (int i=0; i<(lines.length-1); i++) {
+			// non-empty lines, and not participant update commands
 			if (lines[i].length() > 0 && !lines[i].startsWith("Element.update"))
 				events.add(new RoomEvent(lines[i]));
 		}
