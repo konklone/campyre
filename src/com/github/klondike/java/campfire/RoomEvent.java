@@ -12,6 +12,9 @@ import java.util.regex.Pattern;
 public class RoomEvent {
 	public static final int TEXT = 0;
 	public static final int TIMESTAMP = 1;
+	public static final int ENTRY = 2;
+	
+	private static final boolean DEBUG = true;
 	
 	public int type;
 	public String id, user_id, person;
@@ -32,14 +35,14 @@ public class RoomEvent {
 		else {
 			this.message = extractBody("\\\\u003Ctd class=\\\\\"body\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E");
 			this.user_id = extractBody("user_(\\d+)");
-			this.person = extractBody("\\\\u003Ctd class=\\\\\"person\\\\\"(?:\\\\u003E\\\\u003Cspan\\\\u003E)?(.+?)(?:\\\\u003C/span\\\\u003E)\\\\u003C/td\\\\u003E");
+			this.person = extractBody("\\\\u003Ctd class=\\\\\"person\\\\\"\\\\u003E(?:\\\\u003Cspan\\\\u003E)?(.+?)(?:\\\\u003C/span\\\\u003E)?\\\\u003C/td\\\\u003E");
 		}
 		
 		// backups
 		this.id = (this.id != null ? this.id : "unknown");
 		this.user_id = (this.user_id != null ? this.user_id : "unknown");
 		this.person = (this.person != null ? this.person : "unknown");
-		this.message = (this.message != null ? this.message : "[Bug: could not parse message.]");
+		this.message = (this.message != null ? this.message : (DEBUG ? this.body : "[Bug: could not parse message.]"));
 	}
 	
 	public String toString() {
@@ -53,6 +56,12 @@ public class RoomEvent {
 			return TEXT;
 		else if (type.equals("timestamp"))
 			return TIMESTAMP;
+		else if (type.equals("leave"))
+			return ENTRY;
+		else if (type.equals("enter"))
+			return ENTRY;
+		else if (type.equals("kick"))
+			return ENTRY;
 		else
 			return TEXT;
 	}

@@ -318,6 +318,8 @@ public class RoomView extends ListActivity {
 				return R.layout.event_text;
 			case RoomEvent.TIMESTAMP:
 				return R.layout.event_timestamp;
+			case RoomEvent.ENTRY:
+				return R.layout.event_entry;
 			default:
 				return R.layout.event_text;
 			}

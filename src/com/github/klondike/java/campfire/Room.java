@@ -87,10 +87,10 @@ public class Room {
 		if (body.length() <= 1)
 			return new RoomEvent[0];
 		
-		String[] lines = body.split("\r\n");
+		String[] lines = body.split("\r?\n");
 		
 		for (int i=0; i<(lines.length-1); i++) {
-			if (lines[i].length() > 0)
+			if (lines[i].length() > 0 && !lines[i].startsWith("Element.update"))
 				events.add(new RoomEvent(lines[i]));
 		}
 		 
