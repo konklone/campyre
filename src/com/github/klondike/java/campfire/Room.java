@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -191,24 +192,18 @@ public class Room {
 		return topic;
 	}
 	
-	public void getRoomFiles()
+	public List<CampfireFile> getRoomFiles()
 	{
-		//TODO: not complete
-		List<String> fileNames;
-		List<Integer> fileIDs;
-		List<String> fileURLs;
-		
+		List<CampfireFile> retFiles = new ArrayList<CampfireFile>();
 		//first, get the section that includes all the files
 		String files;
 		Pattern filesPattern = 
 			Pattern.compile(".*\\<ul id=\"file_list\">([a-zA-Z0-9 ]*)\\</ul>.*");
 		Matcher filesMatcher = filesPattern.matcher(this.body);
 		if (filesMatcher.find() != false)
-		{ return; }
+		{ return retFiles; }
 		files = filesMatcher.group();
-		
-		//then loop through the html elements to find the pieces we need
-		//we need file URL, file ID, and file name (and icon? maybe, or we do our own)
+
 		//example html:
 		//<li id="file_898737">
 		//  <img align="absmiddle" alt="Icon_jpg_small" class="file_icon" height="18" 
@@ -221,15 +216,45 @@ public class Room {
 		while (fileMatcher.find())
 		{
 			String fileItem = fileMatcher.group();
-			fileItem.replaceFirst("<li id=\"file_", ""); //remove first chunk
-			int index = fileItem.indexOf("\"");
-			String fileID = fileItem.substring(0, index);
-			index = fileItem.indexOf("<a href=\"");
+			// Find the stuff between the quotes, which is the URL
+			int index = fileItem.indexOf("<a href=\"");
 			fileItem = fileItem.substring(index);
 			index = fileItem.indexOf("\"");
 			String fileURL =  fileItem.substring(0, index);
-			
+			CampfireFile file = new CampfireFile(fileURL);
+			retFiles.add(file);
 		}	
+		return retFiles;
+	}
+	
+	public class CampfireFile
+	{
+		public String FileName;
+		public String FileURL;
+		public int FileID;
+		
+		public CampfireFile(String fileName, Integer fileID, String fileURL)
+		{
+			this.FileID = fileID;
+			this.FileName = fileName;
+			this.FileURL = fileURL;
+		}
+		
+		public CampfireFile(String fileURL)
+		{
+			this.FileURL = fileURL;
+			
+			// /room/38896/uploads/898737/from_phone.jpg
+			String bits[] = fileURL.split("/");
+			// we're assuming that the URL format is always the same. So far, it always is.
+			this.FileID = Integer.decode(bits[3]);
+			this.FileName = bits[4];
+		}
+		
+		public String GetFileExtension()
+		{
+			return this.FileName.substring(this.FileName.lastIndexOf("."));
+		}
 	}
 	
 	/* Routes */
