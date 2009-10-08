@@ -4,7 +4,6 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -15,8 +14,6 @@ import java.util.regex.Pattern;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
-
-import android.os.PatternMatcher;
 
 public class Room {
 	public String id, name;
@@ -69,6 +66,41 @@ public class Room {
 		} else
 			return false;
 	}
+	
+	public RoomEvent[] listen() throws CampfireException {
+		ArrayList<RoomEvent> events = new ArrayList<RoomEvent>();
+		
+		CampfireRequest request = new CampfireRequest(campfire, true);
+    	request.addParam("l", lastCacheId);
+    	request.addParam("m", membershipKey);
+    	request.addParam("s", timestamp);
+    	request.addParam("t", "" + System.currentTimeMillis());
+        
+        HttpResponse response = request.post(listenUrl());
+        
+        String body;
+        try {
+			body = EntityUtils.toString(response.getEntity());
+		} catch(IOException e) {
+			throw new RuntimeException(e);
+		}
+		if (body.length() <= 1)
+			return new RoomEvent[0];
+		
+		String[] lines = body.split("\r?\n");
+		
+		for (int i=0; i<(lines.length-1); i++) {
+			// non-empty lines, and not participant update commands
+			if (lines[i].length() > 0 && !lines[i].startsWith("Element.update"))
+				events.add(new RoomEvent(lines[i]));
+		}
+		 
+		this.lastCacheId = this.extract("lastCacheID\\s?=\\s(\\d+)", lines[lines.length-1]);
+		
+		return events.toArray(new RoomEvent[0]);
+	}
+	
+	/** Helper methods */
 	
 	public String toString() {
 		return name;
@@ -175,15 +207,13 @@ public class Room {
 		
 	}
 	
-	public String getRoomTopic()
-	{
+	public String getRoomTopic() {
 		String topic = "";
 		
 		Pattern topicPattern = 
 			Pattern.compile(".*\\<h2 id=\"topic\">([a-zA-Z0-9 ]*)\\</h2>.*");
 		Matcher topicMatcher = topicPattern.matcher(this.body);
-		if (topicMatcher.find() != false)
-		{
+		if (topicMatcher.find() != false) {
 			topic = topicMatcher.group();
 			//if the user has edit topic privileges, remove the edit link
 			topic = topic.replaceAll("\\<.*?\\>", "");
@@ -195,6 +225,7 @@ public class Room {
 	public List<CampfireFile> getRoomFiles()
 	{
 		List<CampfireFile> retFiles = new ArrayList<CampfireFile>();
+
 		//first, get the section that includes all the files
 		String files;
 		Pattern filesPattern = 
@@ -203,6 +234,7 @@ public class Room {
 		if (filesMatcher.find() != false)
 		{ return retFiles; }
 		files = filesMatcher.group();
+
 
 		//example html:
 		//<li id="file_898737">
@@ -213,8 +245,7 @@ public class Room {
 		Pattern filePattern = 
 			Pattern.compile(".*\\<li id=\"file_[0-9]+\">([a-zA-Z0-9 ]*)\\</li>.*");
 		Matcher fileMatcher = filePattern.matcher(files);
-		while (fileMatcher.find())
-		{
+		while (fileMatcher.find()) {
 			String fileItem = fileMatcher.group();
 			// Find the stuff between the quotes, which is the URL
 			int index = fileItem.indexOf("<a href=\"");
@@ -265,6 +296,10 @@ public class Room {
 	
 	public String speakUrl() {
 		return roomUrl() + "/speak";
+	}
+	
+	public String listenUrl() {
+		return campfire.rootUrl() + "poll.cgi";
 	}
 	
 	public String uploadUrl() {
