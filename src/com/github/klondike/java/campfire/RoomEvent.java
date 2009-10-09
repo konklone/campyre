@@ -19,30 +19,34 @@ public class RoomEvent {
 	public int type;
 	public String id, user_id, person;
 	public String message;
-	public String body;
 	
+	public RoomEvent(int type, String id, String user_id, String person, String message) {
+		this.type = type;
+		this.id = id;
+		this.person = person;
+		this.user_id = user_id;
+		this.message = message;
+	}
 	
 	// RoomEvent knows how to construct itself from the HTML returned from Campfire
 	public RoomEvent(String body) {
-		this.body = body;
-		
 		// common to all types
-		this.type = typeFor(extractBody("(\\w+)_message"));
-		this.id = extractBody("id=\\\\\"message_(\\d+)\\\\\"");
+		this.type = typeFor(extract("(\\w+)_message", body));
+		this.id = extract("id=\\\\\"message_(\\d+)\\\\\"", body);
 		
 		if (type == TIMESTAMP)
-			this.message = extractBody("\\\\u003Ctd class=\\\\\"time\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E");
+			this.message = extract("\\\\u003Ctd class=\\\\\"time\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E", body);
 		else {
-			this.message = extractBody("\\\\u003Ctd class=\\\\\"body\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E");
-			this.user_id = extractBody("user_(\\d+)");
-			this.person = extractBody("\\\\u003Ctd class=\\\\\"person\\\\\"\\\\u003E(?:\\\\u003Cspan\\\\u003E)?(.+?)(?:\\\\u003C/span\\\\u003E)?\\\\u003C/td\\\\u003E");
+			this.message = extract("\\\\u003Ctd class=\\\\\"body\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E", body);
+			this.user_id = extract("user_(\\d+)", body);
+			this.person = extract("\\\\u003Ctd class=\\\\\"person\\\\\"\\\\u003E(?:\\\\u003Cspan\\\\u003E)?(.+?)(?:\\\\u003C/span\\\\u003E)?\\\\u003C/td\\\\u003E", body);
 		}
 		
 		// backups
 		this.id = (this.id != null ? this.id : "unknown");
 		this.user_id = (this.user_id != null ? this.user_id : "unknown");
 		this.person = (this.person != null ? this.person : "unknown");
-		this.message = (this.message != null ? this.message : (DEBUG ? this.body : "[Bug: could not parse message.]"));
+		this.message = (this.message != null ? this.message : (DEBUG ? body : "[Bug: could not parse message.]"));
 	}
 	
 	public String toString() {
@@ -66,6 +70,31 @@ public class RoomEvent {
 			return TEXT;
 	}
 	
+	public static RoomEvent fromStart(String body) {
+//		<tr class="leave_message message user_491002" id="message_164863117" style=""> 
+//		  <td class="person">Chewie</td> 
+//		  <td class="body"><div>has left the room</div></td> 
+//		</tr>
+		String user_id = null;
+		String person = null;
+		String message;
+		
+		String id = extract("id=\"message_(\\d+)\"", body);
+		int type = typeFor(extract("class=\"(.*?)_message", body));
+		
+		if (type == TIMESTAMP) {
+			String day = extract("td class=\"date\"><span>(.*?)</span>", body);
+			message = extract("td class=\"time\"><div>(.*?)</div>", body);
+			if (day != null) message = day + ", " + message;
+		} else {
+			user_id = extract("user_(\\d+)\"", body);
+			person = extract("td class=\"person\">(?:<span(?:\\s*style=\"display:\\s*none\")?>)?(.*?)(?:</span>)?</td>", body);
+			message = extract("td class=\"body\"><div>(.*?)</div>", body);
+		}
+		
+		return new RoomEvent(type, id, user_id, person, message);
+	}
+	
 	private static String extract(String regex, String source) {
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(source);
@@ -73,9 +102,5 @@ public class RoomEvent {
 			return matcher.group(1);
 		else
 			return null;
-	}
-	
-	private String extractBody(String regex) {
-		return extract(regex, body);
 	}
 }

@@ -100,6 +100,33 @@ public class Room {
 		return events.toArray(new RoomEvent[0]);
 	}
 	
+	public RoomEvent[] startingEvents(int max) {
+		ArrayList<RoomEvent> events = new ArrayList<RoomEvent>();
+		String body = this.body;
+		
+		int start = body.indexOf("<table class=\"chat\"");
+		int end = body.indexOf("<div id=\"last_message\"");
+		String subBody = body.substring(start, end);
+		
+		
+		String[] messages;
+		String[] rows = subBody.split("</tr>\r*\n*<tr");
+		if (rows.length > max) {
+			messages = new String[max];
+			System.arraycopy(rows, rows.length - max, messages, 0, max);
+		} else {
+			messages = rows;
+		}
+		
+		for (int i=0; i<messages.length; i++) {
+			// non-empty lines, and not participant update commands
+			if (messages[i].length() > 0 && messages[i].contains("id=\"message_"))
+				events.add(RoomEvent.fromStart(messages[i]));
+		}
+		
+		return events.toArray(new RoomEvent[0]);
+	}
+	
 	/** Helper methods */
 	
 	public String toString() {

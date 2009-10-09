@@ -34,6 +34,8 @@ public class RoomView extends ListActivity {
 	private static final int JOINING = 0;
 	private static final int SPEAKING = 1;
 	private static final int POLLING = 2;
+	
+	private static final int MAX_STARTING_MESSAGES = 10;
 
 	private Campfire campfire;
 	private String roomId;
@@ -64,24 +66,15 @@ public class RoomView extends ListActivity {
 	private void onJoined() {
 		setupControls();
 		
-		events = new RoomEvent[0];
+		events = room.startingEvents(MAX_STARTING_MESSAGES);
 		
 		loadEvents();
 	}
 	
+	// newEvents has been populated by a helper thread with the new events
 	private void onPoll() {
-		// update the main events array with the new events
-//		if (events == null)
-//			events = newEvents;
-//		else {
-//			int newSize = events.length + newEvents.length;
-//			RoomEvent[] toBeEvents = new RoomEvent[newSize];
-//			System.arraycopy(events, 0, toBeEvents, 0, events.length);
-//			System.arraycopy(newEvents, 0, toBeEvents, events.length, newEvents.length);
-//			events = toBeEvents;
-//		}
-		
 		((RoomAdapter)getListAdapter()).addNewEvents(newEvents);
+		//TODO: Scroll down to bottom of list
 	}
 	
 	private void setupControls() {
