@@ -210,40 +210,35 @@ public class Room {
 	public String getRoomTopic() {
 		String topic = "";
 		
-		Pattern topicPattern = 
-			Pattern.compile(".*\\<h2 id=\"topic\">([a-zA-Z0-9 ]*)\\</h2>.*");
+		Pattern topicPattern = Pattern.compile(".*\\<h2 id=\"topic\">([a-zA-Z0-9 ]*)\\</h2>.*");
 		Matcher topicMatcher = topicPattern.matcher(this.body);
-		if (topicMatcher.find() != false) {
-			topic = topicMatcher.group();
-			//if the user has edit topic privileges, remove the edit link
-			topic = topic.replaceAll("\\<.*?\\>", "");
-		}
+		
+		// if the user has edit topic privileges, remove the edit link
+		if (topicMatcher.find())
+			topic = topicMatcher.group().replaceAll("\\<.*?\\>", "");
 		
 		return topic;
 	}
 	
-	public List<CampfireFile> getRoomFiles()
-	{
+	public List<CampfireFile> getRoomFiles() {
 		List<CampfireFile> retFiles = new ArrayList<CampfireFile>();
 
-		//first, get the section that includes all the files
+		// first, get the section that includes all the files
 		String files;
-		Pattern filesPattern = 
-			Pattern.compile(".*\\<ul id=\"file_list\">([a-zA-Z0-9 ]*)\\</ul>.*");
+		Pattern filesPattern = Pattern.compile(".*\\<ul id=\"file_list\">([a-zA-Z0-9 ]*)\\</ul>.*");
 		Matcher filesMatcher = filesPattern.matcher(this.body);
-		if (filesMatcher.find() != false)
-		{ return retFiles; }
+		if (filesMatcher.find())
+			return retFiles;
 		files = filesMatcher.group();
 
 
-		//example html:
-		//<li id="file_898737">
-		//  <img align="absmiddle" alt="Icon_jpg_small" class="file_icon" height="18" 
-		//  src="/images/icons/icon_JPG_small.gif?1250184453" width="24" /> 
-		//  <a href="/room/38896/uploads/898737/from_phone.jpg" target="_blank">from_phone.jpg</a>
-		//</li>
-		Pattern filePattern = 
-			Pattern.compile(".*\\<li id=\"file_[0-9]+\">([a-zA-Z0-9 ]*)\\</li>.*");
+		// example html:
+		// <li id="file_898737">
+		//   <img align="absmiddle" alt="Icon_jpg_small" class="file_icon" height="18" 
+		//   src="/images/icons/icon_JPG_small.gif?1250184453" width="24" /> 
+		//   <a href="/room/38896/uploads/898737/from_phone.jpg" target="_blank">from_phone.jpg</a>
+		// </li>
+		Pattern filePattern = Pattern.compile(".*\\<li id=\"file_[0-9]+\">([a-zA-Z0-9 ]*)\\</li>.*");
 		Matcher fileMatcher = filePattern.matcher(files);
 		while (fileMatcher.find()) {
 			String fileItem = fileMatcher.group();
@@ -252,40 +247,9 @@ public class Room {
 			fileItem = fileItem.substring(index);
 			index = fileItem.indexOf("\"");
 			String fileURL =  fileItem.substring(0, index);
-			CampfireFile file = new CampfireFile(fileURL);
-			retFiles.add(file);
+			retFiles.add(new CampfireFile(fileURL));
 		}	
 		return retFiles;
-	}
-	
-	public class CampfireFile
-	{
-		public String FileName;
-		public String FileURL;
-		public int FileID;
-		
-		public CampfireFile(String fileName, Integer fileID, String fileURL)
-		{
-			this.FileID = fileID;
-			this.FileName = fileName;
-			this.FileURL = fileURL;
-		}
-		
-		public CampfireFile(String fileURL)
-		{
-			this.FileURL = fileURL;
-			
-			// /room/38896/uploads/898737/from_phone.jpg
-			String bits[] = fileURL.split("/");
-			// we're assuming that the URL format is always the same. So far, it always is.
-			this.FileID = Integer.decode(bits[3]);
-			this.FileName = bits[4];
-		}
-		
-		public String GetFileExtension()
-		{
-			return this.FileName.substring(this.FileName.lastIndexOf("."));
-		}
 	}
 	
 	/* Routes */
