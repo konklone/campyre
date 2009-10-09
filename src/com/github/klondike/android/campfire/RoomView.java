@@ -96,6 +96,8 @@ public class RoomView extends ListActivity {
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_DONE)
 					speak();
+				else if (event != null) // the event will only be present for "Enter"
+					speak();
 				return false;
 			}
 		});
