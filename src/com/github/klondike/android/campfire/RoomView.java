@@ -124,7 +124,8 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void loadEvents() {
-		setListAdapter(new RoomAdapter(this, events));
+		//setListAdapter(new RoomAdapter(this, events));
+		setListAdapter(new ArrayAdapter<RoomEvent>(this, android.R.layout.simple_list_item_1, events));
 	}
 	
 	final Handler handler = new Handler();

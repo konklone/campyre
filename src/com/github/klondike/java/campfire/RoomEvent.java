@@ -29,7 +29,12 @@ public class RoomEvent {
 	}
 	
 	public String toString() {
-		return message;
+		if (type == ENTRY)
+			return person + " " + message;
+		else if (type == TIMESTAMP)
+			return message;
+		else // if (type == TEXT)
+			return person + ": " + message;
 	}
 	
 	// RoomEvent knows how to construct itself from the HTML returned from Campfire
