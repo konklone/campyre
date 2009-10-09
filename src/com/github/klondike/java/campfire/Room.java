@@ -67,7 +67,7 @@ public class Room {
 			return false;
 	}
 	
-	public RoomEvent[] listen() throws CampfireException {
+	public ArrayList<RoomEvent> listen() throws CampfireException {
 		ArrayList<RoomEvent> events = new ArrayList<RoomEvent>();
 		
 		CampfireRequest request = new CampfireRequest(campfire, true);
@@ -85,22 +85,22 @@ public class Room {
 			throw new RuntimeException(e);
 		}
 		if (body.length() <= 1)
-			return new RoomEvent[0];
+			return events;
 		
 		String[] lines = body.split("\r?\n");
 		
 		for (int i=0; i<(lines.length-1); i++) {
 			// non-empty lines, and not participant update commands
 			if (lines[i].length() > 0 && !lines[i].startsWith("Element.update"))
-				events.add(new RoomEvent(lines[i]));
+				events.add(RoomEvent.fromPoll(lines[i]));
 		}
 		 
 		this.lastCacheId = this.extract("lastCacheID\\s?=\\s(\\d+)", lines[lines.length-1]);
 		
-		return events.toArray(new RoomEvent[0]);
+		return events;
 	}
 	
-	public RoomEvent[] startingEvents(int max) {
+	public ArrayList<RoomEvent> startingEvents(int max) {
 		ArrayList<RoomEvent> events = new ArrayList<RoomEvent>();
 		String body = this.body;
 		
@@ -124,7 +124,7 @@ public class Room {
 				events.add(RoomEvent.fromStart(messages[i]));
 		}
 		
-		return events.toArray(new RoomEvent[0]);
+		return events;
 	}
 	
 	/** Helper methods */

@@ -1,10 +1,11 @@
 package com.github.klondike.android.campfire;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,7 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -40,8 +41,8 @@ public class RoomView extends ListActivity {
 	private Campfire campfire;
 	private String roomId;
 	private Room room;
-	private RoomEvent[] events = null;
-	private RoomEvent[] newEvents;
+	private ArrayList<RoomEvent> events;
+	private ArrayList<RoomEvent> newEvents;
 	
 	private EditText message;
 	private Button speak, refresh;
@@ -73,14 +74,22 @@ public class RoomView extends ListActivity {
 	
 	// newEvents has been populated by a helper thread with the new events
 	private void onPoll() {
-		((RoomAdapter)getListAdapter()).addNewEvents(newEvents);
 		//TODO: Scroll down to bottom of list
+		
+		if (events == null || events.size() == 0)
+			events = newEvents;
+		else {
+			int size = newEvents.size();
+			for (int i=0; i<size; i++)
+				events.add(newEvents.get(i));
+		}
+		
+		loadEvents();
 	}
 	
 	private void setupControls() {
 		//TODO still:
 		// set name of room in window title
-		// populate original messages (forthcoming)
 		
 		message = (EditText) this.findViewById(R.id.room_message);
 		message.setEnabled(true);
@@ -290,43 +299,16 @@ public class RoomView extends ListActivity {
 		Toast.makeText(RoomView.this, msg, Toast.LENGTH_SHORT).show();
 	}
 	
-	protected class RoomAdapter extends BaseAdapter {
-    	private RoomEvent[] events;
-    	LayoutInflater inflater;
-
-        public RoomAdapter(Activity context, RoomEvent[] events) {
-            this.events = events;
-            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	protected class RoomAdapter extends ArrayAdapter<RoomEvent> {
+        public RoomAdapter(Activity context, ArrayList<RoomEvent> events) {
+            super(context, 0, events);
         }
 
-		public int getCount() {
-			return events.length;
-		}
-
-		public Object getItem(int position) {
-			return events[position];
-		}
-
-		public long getItemId(int position) {
-			return ((long) position);
-		}
-		
-		public void addNewEvents(RoomEvent[] newEvents) {
-			if (events == null || events.length == 0)
-				events = newEvents;
-			else {
-				int newSize = events.length + newEvents.length;
-				RoomEvent[] toBeEvents = new RoomEvent[newSize];
-				System.arraycopy(events, 0, toBeEvents, 0, events.length);
-				System.arraycopy(newEvents, 0, toBeEvents, events.length, newEvents.length);
-				events = toBeEvents;
-			}
-			
-			notifyDataSetChanged();
-		}
-
 		public View getView(int position, View convertView, ViewGroup parent) {
-			RoomEvent item = (RoomEvent) getItem(position);
+			RoomEvent item = getItem(position);
+			
+			Activity activity = (Activity) getContext();
+			LayoutInflater inflater = activity.getLayoutInflater();
 			
 			LinearLayout view;
 			if (convertView == null) {

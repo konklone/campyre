@@ -28,53 +28,31 @@ public class RoomEvent {
 		this.message = message;
 	}
 	
-	// RoomEvent knows how to construct itself from the HTML returned from Campfire
-	public RoomEvent(String body) {
-		// common to all types
-		this.type = typeFor(extract("(\\w+)_message", body));
-		this.id = extract("id=\\\\\"message_(\\d+)\\\\\"", body);
-		
-		if (type == TIMESTAMP)
-			this.message = extract("\\\\u003Ctd class=\\\\\"time\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E", body);
-		else {
-			this.message = extract("\\\\u003Ctd class=\\\\\"body\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E", body);
-			this.user_id = extract("user_(\\d+)", body);
-			this.person = extract("\\\\u003Ctd class=\\\\\"person\\\\\"\\\\u003E(?:\\\\u003Cspan\\\\u003E)?(.+?)(?:\\\\u003C/span\\\\u003E)?\\\\u003C/td\\\\u003E", body);
-		}
-		
-		// backups
-		this.id = (this.id != null ? this.id : "unknown");
-		this.user_id = (this.user_id != null ? this.user_id : "unknown");
-		this.person = (this.person != null ? this.person : "unknown");
-		this.message = (this.message != null ? this.message : (DEBUG ? body : "[Bug: could not parse message.]"));
-	}
-	
 	public String toString() {
 		return message;
 	}
 	
-	private static int typeFor(String type) {
-		if (type == null)
-			return TEXT;
-		else if (type.equals("text"))
-			return TEXT;
-		else if (type.equals("timestamp"))
-			return TIMESTAMP;
-		else if (type.equals("leave"))
-			return ENTRY;
-		else if (type.equals("enter"))
-			return ENTRY;
-		else if (type.equals("kick"))
-			return ENTRY;
-		else
-			return TEXT;
+	// RoomEvent knows how to construct itself from the HTML returned from Campfire
+	public static RoomEvent fromPoll(String body) {
+		String user_id = null;
+		String person = null;
+		String message;
+		
+		int type = typeFor(extract("(\\w+)_message", body));
+		String id = extract("id=\\\\\"message_(\\d+)\\\\\"", body);
+		
+		if (type == TIMESTAMP)
+			message = extract("\\\\u003Ctd class=\\\\\"time\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E", body);
+		else {
+			message = extract("\\\\u003Ctd class=\\\\\"body\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E", body);
+			user_id = extract("user_(\\d+)", body);
+			person = extract("\\\\u003Ctd class=\\\\\"person\\\\\"\\\\u003E(?:\\\\u003Cspan\\\\u003E)?(.+?)(?:\\\\u003C/span\\\\u003E)?\\\\u003C/td\\\\u003E", body);
+		}
+		
+		return new RoomEvent(type, id, user_id, person, message);
 	}
 	
 	public static RoomEvent fromStart(String body) {
-//		<tr class="leave_message message user_491002" id="message_164863117" style=""> 
-//		  <td class="person">Chewie</td> 
-//		  <td class="body"><div>has left the room</div></td> 
-//		</tr>
 		String user_id = null;
 		String person = null;
 		String message;
@@ -102,5 +80,22 @@ public class RoomEvent {
 			return matcher.group(1);
 		else
 			return null;
+	}
+	
+	private static int typeFor(String type) {
+		if (type == null)
+			return TEXT;
+		else if (type.equals("text"))
+			return TEXT;
+		else if (type.equals("timestamp"))
+			return TIMESTAMP;
+		else if (type.equals("leave"))
+			return ENTRY;
+		else if (type.equals("enter"))
+			return ENTRY;
+		else if (type.equals("kick"))
+			return ENTRY;
+		else
+			return TEXT;
 	}
 }
