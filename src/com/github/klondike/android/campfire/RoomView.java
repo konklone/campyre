@@ -8,11 +8,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -89,17 +91,21 @@ public class RoomView extends ListActivity {
 		
 		message = (EditText) this.findViewById(R.id.room_message);
 		message.setEnabled(true);
+		message.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_DONE)
+					speak();
+				return false;
+			}
+		});
 		
 		speak = (Button) this.findViewById(R.id.room_speak);
 		speak.setEnabled(true);
 		speak.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String msg = message.getText().toString();
-				if (!msg.equals("")) {
-					speak.setEnabled(false);
-					speak(msg);
-				}
+				speak();
 			}
 		});
 		
@@ -163,8 +169,13 @@ public class RoomView extends ListActivity {
 		}
 	};
 	
-	private void speak(String message) {
-		final String msg = message;
+	private void speak() {
+		final String msg = message.getText().toString();
+		if (msg.equals(""))
+			return;
+		
+		speak.setEnabled(false);
+		
 		Thread speakThread = new Thread() {
 			public void run() {
 				try {

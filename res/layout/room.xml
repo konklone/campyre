@@ -33,7 +33,11 @@
 			
 			android:maxLines="2"
 			android:enabled="false"
-			android:inputType="textCapSentences|textMultiLine"
+			android:inputType="textCapSentences"
+			
+			android:imeOptions="actionDone"
+			android:imeActionId="6"
+			android:imeActionLabel="Post"
 			/>
 			
 		<Button android:id="@+id/room_speak"
