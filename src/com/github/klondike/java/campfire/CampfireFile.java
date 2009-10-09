@@ -1,8 +1,7 @@
 package com.github.klondike.java.campfire;
 
 public class CampfireFile {
-	public String fileName;
-	public String fileURL;
+	public String fileName, fileURL;
 	public int fileID;
 	
 	public CampfireFile(String fileName, Integer fileID, String fileURL) {
@@ -21,7 +20,7 @@ public class CampfireFile {
 		this.fileName = bits[4];
 	}
 	
-	public String GetFileExtension() {
+	public String getFileExtension() {
 		return this.fileName.substring(this.fileName.lastIndexOf("."));
 	}
 }
