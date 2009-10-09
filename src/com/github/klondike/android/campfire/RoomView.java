@@ -61,21 +61,25 @@ public class RoomView extends ListActivity {
 	// Will only happen after we are both logged in and the room has been joined
 	private void onJoined() {
 		setupControls();
+		
+		events = new RoomEvent[0];
+		
+		loadEvents();
 	}
 	
 	private void onPoll() {
 		// update the main events array with the new events
-		if (events == null)
-			events = newEvents;
-		else {
-			int newSize = events.length + newEvents.length;
-			RoomEvent[] toBeEvents = new RoomEvent[newSize];
-			System.arraycopy(events, 0, toBeEvents, 0, events.length);
-			System.arraycopy(newEvents, 0, toBeEvents, events.length, newEvents.length);
-			events = toBeEvents;
-		}
+//		if (events == null)
+//			events = newEvents;
+//		else {
+//			int newSize = events.length + newEvents.length;
+//			RoomEvent[] toBeEvents = new RoomEvent[newSize];
+//			System.arraycopy(events, 0, toBeEvents, 0, events.length);
+//			System.arraycopy(newEvents, 0, toBeEvents, events.length, newEvents.length);
+//			events = toBeEvents;
+//		}
 		
-		loadEvents();
+		((RoomAdapter)getListAdapter()).addNewEvents(newEvents);
 	}
 	
 	private void setupControls() {
@@ -299,6 +303,20 @@ public class RoomView extends ListActivity {
 
 		public long getItemId(int position) {
 			return ((long) position);
+		}
+		
+		public void addNewEvents(RoomEvent[] newEvents) {
+			if (events == null || events.length == 0)
+				events = newEvents;
+			else {
+				int newSize = events.length + newEvents.length;
+				RoomEvent[] toBeEvents = new RoomEvent[newSize];
+				System.arraycopy(events, 0, toBeEvents, 0, events.length);
+				System.arraycopy(newEvents, 0, toBeEvents, events.length, newEvents.length);
+				events = toBeEvents;
+			}
+			
+			notifyDataSetChanged();
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
