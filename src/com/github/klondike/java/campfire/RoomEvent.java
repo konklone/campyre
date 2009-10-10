@@ -68,7 +68,7 @@ public class RoomEvent {
 			message = extract("td class=\"time\"><div>(.*?)</div>", body);
 			if (day != null) message = day + ", " + message;
 		} else {
-			user_id = extract("user_(\\d+)\"", body);
+			user_id = extract("user_(\\d+)[\"\\s]", body);
 			person = extract("td class=\"person\">(?:<span(?:\\s*style=\"display:\\s*none\")?>)?(.*?)(?:</span>)?</td>", body);
 			message = extract("td class=\"body\"><div>(.*?)</div>", body);
 		}
