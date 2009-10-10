@@ -16,7 +16,7 @@
 		
 		android:layout_marginTop="5sp"
 		android:layout_marginBottom="5sp"
-		android:layout_marginLeft="10sp"
+		android:layout_marginLeft="30sp"
 		
 		android:textSize="12sp"
 		android:textColor="#999999"
