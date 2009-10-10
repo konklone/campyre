@@ -77,7 +77,7 @@ public class RoomView extends ListActivity {
 		setupControls();
 		loadEvents();
 		
-		autoPoll();
+		if (autoPoll) autoPoll();
 	}
 	
 	// newEvents has been populated by a helper thread with the new events
@@ -136,7 +136,7 @@ public class RoomView extends ListActivity {
 		refresh.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				poll();
+				pollOnce();
 			}
 		});
 	}
@@ -244,16 +244,10 @@ public class RoomView extends ListActivity {
 		showDialog(JOINING);
 	}
 	
-	private void poll() {
+	private void pollOnce() {
 		new Thread() {
 			public void run() {
-				handler.post(pollStart);
-				try {
-					newEvents = room.listen();
-					handler.post(pollSuccess);
-				} catch(CampfireException e) {
-					handler.post(pollFailure);
-				}
+				poll();
 			}
 		}.start();
 	}
@@ -261,25 +255,26 @@ public class RoomView extends ListActivity {
 	private void autoPoll() {
 		new Thread() {
 			public void run() {
-				while(true) {
-					if (autoPoll) {
-						handler.post(pollStart);
-						try {
-							newEvents = room.listen();
-							handler.post(pollSuccess);
-						} catch(CampfireException e) {
-							handler.post(pollFailure);
-						}
-						
-						try {
-							sleep(AUTOPOLL_INTERVAL * 1000);
-						} catch(InterruptedException ex) {
-							// well, I never
-						}
+				while(autoPoll) {
+					poll();
+					try {
+						sleep(AUTOPOLL_INTERVAL * 1000);
+					} catch(InterruptedException ex) {
+						// well, I never
 					}
 				}
 			}
 		}.start();
+	}
+	
+	private void poll() {
+		handler.post(pollStart);
+		try {
+			newEvents = room.listen();
+			handler.post(pollSuccess);
+		} catch(CampfireException e) {
+			handler.post(pollFailure);
+		}
 	}
 	
 	private void verifyLogin() {
@@ -336,6 +331,7 @@ public class RoomView extends ListActivity {
     		// no synchronization required
     		autoPoll = !autoPoll;
     		refresh.setVisibility(autoPoll ? View.GONE : View.VISIBLE);
+    		if (autoPoll) autoPoll();
     		return true;
     	case MENU_LOGOUT:
     		getSharedPreferences("campfire", 0).edit().putString("session", null).commit();
