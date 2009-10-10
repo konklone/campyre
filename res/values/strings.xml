@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">Campfire</string>
     <string name="no_rooms">No rooms found for this Campfire.</string>
+    <string name="autopoll_on">Turn On Auto-Refresh</string>
+    <string name="autopoll_off">Turn Off Auto-Refresh</string>
 </resources>

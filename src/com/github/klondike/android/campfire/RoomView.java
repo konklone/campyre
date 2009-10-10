@@ -30,7 +30,8 @@ import com.github.klondike.java.campfire.RoomEvent;
 
 public class RoomView extends ListActivity {
 	private static final int MENU_PREFS = 0;
-	private static final int MENU_LOGOUT = 1;
+	private static final int MENU_AUTOPOLL = 1;
+	private static final int MENU_LOGOUT = 2;
 
 	private static final int JOINING = 0;
 	private static final int SPEAKING = 1;
@@ -38,7 +39,7 @@ public class RoomView extends ListActivity {
 	
 	private static final int MAX_STARTING_MESSAGES = 20;
 	private static final int MAX_MESSAGES = 20;
-	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
+	private static final int AUTOPOLL_INTERVAL = 8; // in seconds
 
 	private Campfire campfire;
 	private String roomId;
@@ -260,18 +261,20 @@ public class RoomView extends ListActivity {
 		new Thread() {
 			public void run() {
 				while(true) {
-					handler.post(pollStart);
-					try {
-						newEvents = room.listen();
-						handler.post(pollSuccess);
-					} catch(CampfireException e) {
-						handler.post(pollFailure);
-					}
-					
-					try {
-						sleep(AUTOPOLL_INTERVAL * 1000);
-					} catch(InterruptedException ex) {
-						// well, I never
+					if (autoPoll) {
+						handler.post(pollStart);
+						try {
+							newEvents = room.listen();
+							handler.post(pollSuccess);
+						} catch(CampfireException e) {
+							handler.post(pollFailure);
+						}
+						
+						try {
+							sleep(AUTOPOLL_INTERVAL * 1000);
+						} catch(InterruptedException ex) {
+							// well, I never
+						}
 					}
 				}
 			}
@@ -303,11 +306,23 @@ public class RoomView extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-        menu.add(0, MENU_PREFS, 0, "Preferences").setIcon(android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_LOGOUT, 0, "Log Out").setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-        
+        menu.add(0, MENU_PREFS, MENU_PREFS, "Preferences")
+        	.setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_AUTOPOLL, MENU_AUTOPOLL, autoPoll ? R.string.autopoll_off : R.string.autopoll_on)
+        	.setIcon(android.R.drawable.ic_menu_rotate);
+        menu.add(0, MENU_LOGOUT, MENU_LOGOUT, "Log Out")
+        	.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         return result;
     }
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		boolean result = super.onPrepareOptionsMenu(menu);
+		
+		menu.getItem(MENU_AUTOPOLL).setTitle(autoPoll ? R.string.autopoll_off : R.string.autopoll_on);
+		
+		return result;
+	}
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -315,9 +330,15 @@ public class RoomView extends ListActivity {
     	case MENU_PREFS:
     		startActivity(new Intent(this, Preferences.class)); 
     		return true;
+    	case MENU_AUTOPOLL:
+    		// until there exist race conditions on this variable (multiple actors writing to it), 
+    		// no synchronization required
+    		autoPoll = !autoPoll; 
+    		return true;
     	case MENU_LOGOUT:
     		getSharedPreferences("campfire", 0).edit().putString("session", null).commit();
     		finish();
+    		return true;
     	}
     	return super.onOptionsItemSelected(item);
     }
