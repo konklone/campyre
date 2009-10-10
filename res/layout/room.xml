@@ -50,6 +50,7 @@
 			android:layout_weight="0"
 			
 			android:enabled="false"
+			android:visibility="gone"
 			
 			android:textSize="16sp"
 			android:text="Refresh"

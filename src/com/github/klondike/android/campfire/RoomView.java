@@ -132,6 +132,7 @@ public class RoomView extends ListActivity {
 		
 		refresh = (Button) this.findViewById(R.id.room_refresh);
 		refresh.setEnabled(true);
+		refresh.setVisibility(autoPoll ? View.GONE : View.VISIBLE);
 		refresh.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -333,7 +334,8 @@ public class RoomView extends ListActivity {
     	case MENU_AUTOPOLL:
     		// until there exist race conditions on this variable (multiple actors writing to it), 
     		// no synchronization required
-    		autoPoll = !autoPoll; 
+    		autoPoll = !autoPoll;
+    		refresh.setVisibility(autoPoll ? View.GONE : View.VISIBLE);
     		return true;
     	case MENU_LOGOUT:
     		getSharedPreferences("campfire", 0).edit().putString("session", null).commit();
