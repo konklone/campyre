@@ -66,11 +66,9 @@ public class RoomView extends ListActivity {
 	}
 	
 	// Will only happen after we are both logged in and the room has been joined
+	// events has been populated with the starting messages of a room
 	private void onJoined() {
 		setupControls();
-		
-		events = room.startingEvents(MAX_STARTING_MESSAGES);
-		
 		loadEvents();
 	}
 	
@@ -131,9 +129,7 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void loadEvents() {
-		//setListAdapter(new RoomAdapter(this, events));
-		setListAdapter(new ArrayAdapter<RoomEvent>(this, android.R.layout.simple_list_item_1, events));
-		
+		setListAdapter(new RoomAdapter(this, events));
 		// keep it scrolled to the bottom
 		getListView().setSelection(events.size()-1);
 	}
@@ -213,8 +209,10 @@ public class RoomView extends ListActivity {
 			public void run() {
 				room = new Room(campfire, roomId);
 				try {
-					if (room.join())
+					if (room.join()) {
+						events = room.startingEvents(MAX_STARTING_MESSAGES);
 						handler.post(joinSuccess);
+					}
 					else
 						handler.post(joinFailure);
 				} catch(CampfireException e) {
@@ -321,19 +319,19 @@ public class RoomView extends ListActivity {
 			
 			Activity activity = (Activity) getContext();
 			LayoutInflater inflater = activity.getLayoutInflater();
-			
+
 			LinearLayout view;
 			if (convertView == null) {
 				view = (LinearLayout) inflater.inflate(viewForType(item.type), null);
 			} else {
 				view = (LinearLayout) convertView;
 			}
-			
 			((TextView) view.findViewById(R.id.text)).setText(item.message);
 			
 			if (item.type != RoomEvent.TIMESTAMP) {
 				((TextView) view.findViewById(R.id.person)).setText(item.person);
-			}
+			} else
+				((TextView) view.findViewById(R.id.person)).setText("");
 			
 			return view;
 		}
@@ -343,7 +341,7 @@ public class RoomView extends ListActivity {
 			case RoomEvent.TEXT:
 				return R.layout.event_text;
 			case RoomEvent.TIMESTAMP:
-				return R.layout.event_timestamp;
+				return R.layout.event_text;
 			case RoomEvent.ENTRY:
 				return R.layout.event_entry;
 			default:
