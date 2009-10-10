@@ -37,6 +37,8 @@ public class RoomView extends ListActivity {
 	private static final int POLLING = 2;
 	
 	private static final int MAX_STARTING_MESSAGES = 20;
+	private static final int MAX_MESSAGES = 20;
+	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
 
 	private Campfire campfire;
 	private String roomId;
@@ -49,12 +51,15 @@ public class RoomView extends ListActivity {
 	private EditText message;
 	private Button speak, refresh;
 	
+	private boolean autoPoll;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.room);
 		
 		roomId = getIntent().getStringExtra("room_id");
+		autoPoll = true;
 		
 		verifyLogin();
 	}
@@ -70,6 +75,8 @@ public class RoomView extends ListActivity {
 	private void onJoined() {
 		setupControls();
 		loadEvents();
+		
+		autoPoll();
 	}
 	
 	// newEvents has been populated by a helper thread with the new events
@@ -80,6 +87,10 @@ public class RoomView extends ListActivity {
 			int size = newEvents.size();
 			for (int i=0; i<size; i++)
 				events.add(newEvents.get(i));
+			if (events.size() > MAX_MESSAGES) {
+				for (int i=0; i < (events.size() - MAX_MESSAGES); i++)
+					events.remove(0);
+			}
 		}
 		
 		loadEvents();
@@ -166,6 +177,12 @@ public class RoomView extends ListActivity {
 		}
 	};
 	
+	final Runnable pollStart = new Runnable() {
+		public void run() {
+			showDialog(POLLING);
+		}
+	};
+	
 	final Runnable pollSuccess = new Runnable() {
 		public void run() {
 			removeDialog(POLLING);
@@ -226,20 +243,39 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void poll() {
-		Thread pollThread = new Thread() {
+		new Thread() {
 			public void run() {
+				handler.post(pollStart);
 				try {
 					newEvents = room.listen();
 					handler.post(pollSuccess);
-					
 				} catch(CampfireException e) {
 					handler.post(pollFailure);
 				}
 			}
-		};
-		pollThread.start();
-		
-		showDialog(POLLING);
+		}.start();
+	}
+	
+	private void autoPoll() {
+		new Thread() {
+			public void run() {
+				while(true) {
+					handler.post(pollStart);
+					try {
+						newEvents = room.listen();
+						handler.post(pollSuccess);
+					} catch(CampfireException e) {
+						handler.post(pollFailure);
+					}
+					
+					try {
+						sleep(AUTOPOLL_INTERVAL * 1000);
+					} catch(InterruptedException ex) {
+						// well, I never
+					}
+				}
+			}
+		}.start();
 	}
 	
 	private void verifyLogin() {
