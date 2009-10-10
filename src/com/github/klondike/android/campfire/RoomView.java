@@ -255,8 +255,8 @@ public class RoomView extends ListActivity {
 	private void autoPoll() {
 		new Thread() {
 			public void run() {
-				// sleep first so that this doesn't needlessly poll when we first join the room
 				while(autoPoll) {
+					// sleep first so that this doesn't needlessly poll when we first join the room
 					try {
 						sleep(AUTOPOLL_INTERVAL * 1000);
 					} catch(InterruptedException ex) {
