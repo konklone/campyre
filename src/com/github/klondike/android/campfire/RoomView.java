@@ -36,7 +36,7 @@ public class RoomView extends ListActivity {
 	private static final int SPEAKING = 1;
 	private static final int POLLING = 2;
 	
-	private static final int MAX_STARTING_MESSAGES = 10;
+	private static final int MAX_STARTING_MESSAGES = 20;
 
 	private Campfire campfire;
 	private String roomId;
@@ -314,24 +314,22 @@ public class RoomView extends ListActivity {
 		
         public RoomAdapter(Activity context, ArrayList<RoomEvent> events) {
             super(context, 0, events);
-            inflater = context.getLayoutInflater();
+            inflater = LayoutInflater.from(context);
         }
 
 		public View getView(int position, View convertView, ViewGroup parent) {
 			RoomEvent item = getItem(position);
 			
 			LinearLayout view;
-			if (convertView == null)
+//			if (convertView == null)
 				view = (LinearLayout) inflater.inflate(viewForType(item.type), null);
-			else
-				view = (LinearLayout) convertView;
+//			else
+//				view = (LinearLayout) convertView;
 			
 			((TextView) view.findViewById(R.id.text)).setText(item.message);
 			
-			if (item.type != RoomEvent.TIMESTAMP) {
+			if (item.type != RoomEvent.TIMESTAMP)
 				((TextView) view.findViewById(R.id.person)).setText(item.person);
-			} else
-				((TextView) view.findViewById(R.id.person)).setText("");
 			
 			return view;
 		}
@@ -341,7 +339,7 @@ public class RoomView extends ListActivity {
 			case RoomEvent.TEXT:
 				return R.layout.event_text;
 			case RoomEvent.TIMESTAMP:
-				return R.layout.event_text;
+				return R.layout.event_timestamp;
 			case RoomEvent.ENTRY:
 				return R.layout.event_entry;
 			default:
