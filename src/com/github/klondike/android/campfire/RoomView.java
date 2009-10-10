@@ -309,7 +309,7 @@ public class RoomView extends ListActivity {
 		Toast.makeText(RoomView.this, msg, Toast.LENGTH_SHORT).show();
 	}
 	
-	protected class RoomAdapter extends ArrayAdapter<RoomEvent> {
+	private static class RoomAdapter extends ArrayAdapter<RoomEvent> {
 		private LayoutInflater inflater;
 		
         public RoomAdapter(Activity context, ArrayList<RoomEvent> events) {
@@ -320,18 +320,29 @@ public class RoomView extends ListActivity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			RoomEvent item = getItem(position);
 			
-			LinearLayout view;
-//			if (convertView == null)
-				view = (LinearLayout) inflater.inflate(viewForType(item.type), null);
-//			else
-//				view = (LinearLayout) convertView;
+			ViewHolder holder;
+			if (convertView != null)
+				holder = (ViewHolder) convertView.getTag();
+			else
+				holder = null;
 			
-			((TextView) view.findViewById(R.id.text)).setText(item.message);
+			if (convertView == null || holder.type != item.type) {
+				convertView = inflater.inflate(viewForType(item.type), null);
+				
+				holder = new ViewHolder();
+				holder.message = (TextView) convertView.findViewById(R.id.text);
+				holder.type = item.type;
+				if (item.person != null)
+					holder.person = (TextView) convertView.findViewById(R.id.person);
+				
+				convertView.setTag(holder);
+			}
 			
-			if (item.type != RoomEvent.TIMESTAMP)
-				((TextView) view.findViewById(R.id.person)).setText(item.person);
+			holder.message.setText(item.message);
+			if (item.person != null)
+				holder.person.setText(item.person);
 			
-			return view;
+			return convertView;
 		}
 		
 		public int viewForType(int type) {
@@ -346,6 +357,11 @@ public class RoomView extends ListActivity {
 				return R.layout.event_text;
 			}
 		}
+		
+		static class ViewHolder {
+            TextView message, person;
+            int type;
+        }
 
     }
 }
