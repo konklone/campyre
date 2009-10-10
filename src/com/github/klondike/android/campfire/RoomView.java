@@ -19,7 +19,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,8 +37,8 @@ public class RoomView extends ListActivity {
 	private static final int SPEAKING = 1;
 	private static final int POLLING = 2;
 	
-	private static final int MAX_STARTING_MESSAGES = 20;
-	private static final int MAX_MESSAGES = 20;
+	private static final int MAX_STARTING_MESSAGES = 30;
+	private static final int MAX_MESSAGES = 30;
 	private static final int AUTOPOLL_INTERVAL = 8; // in seconds
 
 	private Campfire campfire;
@@ -75,33 +75,33 @@ public class RoomView extends ListActivity {
 	// events has been populated with the starting messages of a room
 	private void onJoined() {
 		setupControls();
-		loadEvents();
+		
+		setListAdapter(new RoomAdapter(this, events));
+		scrollToBottom();
 		
 		if (autoPoll) autoPoll();
 	}
 	
 	// newEvents has been populated by a helper thread with the new events
 	private void onPoll() {
-		if (events.size() == 0)
-			events = newEvents;
-		else {
-			int size = newEvents.size();
-			for (int i=0; i<size; i++)
-				events.add(newEvents.get(i));
-			if (events.size() > MAX_MESSAGES) {
-				for (int i=0; i < (events.size() - MAX_MESSAGES); i++)
-					events.remove(0);
-			}
+		RoomAdapter adapter = (RoomAdapter) getListAdapter();
+		for (int i=0; i<newEvents.size(); i++)
+			adapter.add(newEvents.get(i));
+		
+		int size = adapter.getCount();
+		if (size > MAX_MESSAGES) {
+			for (int i=0; i < (size - MAX_MESSAGES); i++)
+				adapter.remove(adapter.getItem(0));
 		}
 		
-		loadEvents();
+		scrollToBottom();
 	}
 	
 	// newPost has been populated with the last message the user just posted
 	// and which (currently) is guaranteed to be actually posted
 	private void onSpeak() {
-		events.add(newPost);
-		loadEvents();
+		((RoomAdapter)getListAdapter()).add(newPost);
+		scrollToBottom();
 	}
 	
 	private void setupControls() {
@@ -141,10 +141,8 @@ public class RoomView extends ListActivity {
 		});
 	}
 	
-	private void loadEvents() {
-		setListAdapter(new RoomAdapter(this, events));
-		// keep it scrolled to the bottom
-		getListView().setSelection(events.size()-1);
+	private void scrollToBottom() {
+		getListView().setSelection(getListAdapter().getCount()-1);
 	}
 	
 	final Handler handler = new Handler();
@@ -263,7 +261,9 @@ public class RoomView extends ListActivity {
 						// well, I never
 					}
 					
-					poll();
+					// the user might have turned off autoPoll while we were sleeping!
+					if (autoPoll)
+						poll();
 				}
 			}
 		}.start();
