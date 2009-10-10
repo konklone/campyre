@@ -76,9 +76,7 @@ public class RoomView extends ListActivity {
 	
 	// newEvents has been populated by a helper thread with the new events
 	private void onPoll() {
-		//TODO: Scroll down to bottom of list
-		
-		if (events == null || events.size() == 0)
+		if (events.size() == 0)
 			events = newEvents;
 		else {
 			int size = newEvents.size();
@@ -86,6 +84,13 @@ public class RoomView extends ListActivity {
 				events.add(newEvents.get(i));
 		}
 		
+		loadEvents();
+	}
+	
+	// newPost has been populated with the last message the user just posted
+	// and which (currently) is guaranteed to be actually posted
+	private void onSpeak() {
+		events.add(newPost);
 		loadEvents();
 	}
 	
@@ -129,6 +134,7 @@ public class RoomView extends ListActivity {
 		//setListAdapter(new RoomAdapter(this, events));
 		setListAdapter(new ArrayAdapter<RoomEvent>(this, android.R.layout.simple_list_item_1, events));
 		
+		// keep it scrolled to the bottom
 		getListView().setSelection(events.size()-1);
 	}
 	
@@ -148,11 +154,11 @@ public class RoomView extends ListActivity {
 	
 	final Runnable speakSuccess = new Runnable() {
 		public void run() {
-			alert("Posted to Campfire.");
 			removeDialog(SPEAKING);
-			
 			message.setText("");
 			speak.setEnabled(true);
+			
+			onSpeak();
 		}
 	};
 	final Runnable speakError = new Runnable() {
