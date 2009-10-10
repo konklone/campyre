@@ -310,22 +310,22 @@ public class RoomView extends ListActivity {
 	}
 	
 	protected class RoomAdapter extends ArrayAdapter<RoomEvent> {
+		private LayoutInflater inflater;
+		
         public RoomAdapter(Activity context, ArrayList<RoomEvent> events) {
             super(context, 0, events);
+            inflater = context.getLayoutInflater();
         }
 
 		public View getView(int position, View convertView, ViewGroup parent) {
 			RoomEvent item = getItem(position);
 			
-			Activity activity = (Activity) getContext();
-			LayoutInflater inflater = activity.getLayoutInflater();
-
 			LinearLayout view;
-			if (convertView == null) {
+			if (convertView == null)
 				view = (LinearLayout) inflater.inflate(viewForType(item.type), null);
-			} else {
+			else
 				view = (LinearLayout) convertView;
-			}
+			
 			((TextView) view.findViewById(R.id.text)).setText(item.message);
 			
 			if (item.type != RoomEvent.TIMESTAMP) {
