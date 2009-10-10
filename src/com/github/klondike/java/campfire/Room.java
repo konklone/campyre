@@ -142,6 +142,14 @@ public class Room {
 		return extract(regex, this.body);
 	}
 	
+	private static String formatUsername(String username) {
+		String[] bits = username.split("\\s+");
+		if (bits.length > 1)
+			return bits[0] + " " + bits[1].charAt(0) + ".";
+		else
+			return username;
+	}
+	
 	public RoomEvent speak(String message) throws CampfireException {
 		CampfireRequest request = new CampfireRequest(campfire, true);
 		
@@ -157,9 +165,9 @@ public class Room {
         
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 			if (paste)
-				return new RoomEvent(RoomEvent.TEXT, null, this.userId, this.username, message);
+				return new RoomEvent(RoomEvent.TEXT, null, this.userId, formatUsername(this.username), message);
 			else
-				return new RoomEvent(RoomEvent.TEXT, null, this.userId, this.username, message);
+				return new RoomEvent(RoomEvent.TEXT, null, this.userId, formatUsername(this.username), message);
 		} else
 			return null;
 	}
