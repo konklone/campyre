@@ -41,8 +41,10 @@ public class RoomView extends ListActivity {
 	private Campfire campfire;
 	private String roomId;
 	private Room room;
+	
 	private ArrayList<RoomEvent> events;
 	private ArrayList<RoomEvent> newEvents;
+	private RoomEvent newPost;
 	
 	private EditText message;
 	private Button speak, refresh;
@@ -186,7 +188,8 @@ public class RoomView extends ListActivity {
 		Thread speakThread = new Thread() {
 			public void run() {
 				try {
-					if (room.speak(msg))
+					newPost = room.speak(msg);
+					if (newPost != null)
 						handler.post(speakSuccess);
 					else
 						handler.post(speakError);

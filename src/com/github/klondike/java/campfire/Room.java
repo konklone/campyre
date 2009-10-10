@@ -22,10 +22,7 @@ public class Room {
 	
 	private Campfire campfire;
 	
-	public String membershipKey;
-	public String userId;
-	public String lastCacheId;
-	public String timestamp;
+	public String username, membershipKey, userId, lastCacheId, timestamp;
 	public long idleSince; // kept in seconds
 	
 	
@@ -59,6 +56,7 @@ public class Room {
 			this.userId = extractBody("\"userID\":\\s?(\\d+)");
 			this.lastCacheId = extractBody("\"lastCacheID\":\\s?(\\d+)");
 			this.timestamp = extractBody("\"timestamp\":\\s?(\\d+)");
+			this.username = extractBody("\"username\":\\s?\"(.*?)\"");
 			this.idleSince = System.currentTimeMillis() * 1000;
 			
 			this.joined = true;
@@ -144,18 +142,26 @@ public class Room {
 		return extract(regex, this.body);
 	}
 	
-	public boolean speak(String message) throws CampfireException {
+	public RoomEvent speak(String message) throws CampfireException {
 		CampfireRequest request = new CampfireRequest(campfire, true);
 		
 		request.addParam("message", message);
 		request.addParam("t", System.currentTimeMillis() + "");
         
-		if (message.contains("\n") == true)
+		boolean paste = message.contains("\n"); 
+		
+		if (paste)
         	request.addParam("paste", "1");
         
         HttpResponse response = request.post(speakUrl());
         
-		return (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK);
+		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+			if (paste)
+				return new RoomEvent(RoomEvent.TEXT, null, this.userId, this.username, message);
+			else
+				return new RoomEvent(RoomEvent.TEXT, null, this.userId, this.username, message);
+		} else
+			return null;
 	}
 	
 	public boolean uploadFile(FileInputStream stream) throws CampfireException {
