@@ -14,8 +14,6 @@ public class RoomEvent {
 	public static final int TIMESTAMP = 1;
 	public static final int ENTRY = 2;
 	
-	private static final boolean DEBUG = true;
-	
 	public int type;
 	public String id, user_id, person;
 	public String message;
