@@ -84,17 +84,13 @@ public class RoomView extends ListActivity {
 	
 	// newEvents has been populated by a helper thread with the new events
 	private void onPoll() {
+		// add the new items
 		RoomAdapter adapter = (RoomAdapter) getListAdapter();
 		for (int i=0; i<newEvents.size(); i++)
 			adapter.add(newEvents.get(i));
 		
-		int size = adapter.getCount();
-		if (size > MAX_MESSAGES) {
-			for (int i=0; i < (size - MAX_MESSAGES); i++)
-				adapter.remove(adapter.getItem(0));
-		}
-		
-		scrollToBottom();
+		if (scrolledToBottom())
+			scrollToBottom();	
 	}
 	
 	// newPost has been populated with the last message the user just posted
@@ -143,6 +139,10 @@ public class RoomView extends ListActivity {
 	
 	private void scrollToBottom() {
 		getListView().setSelection(getListAdapter().getCount()-1);
+	}
+	
+	private boolean scrolledToBottom() {
+		return (getListView().getLastVisiblePosition() == (getListAdapter().getCount()-1));
 	}
 	
 	final Handler handler = new Handler();
