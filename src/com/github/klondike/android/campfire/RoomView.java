@@ -19,7 +19,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +39,7 @@ public class RoomView extends ListActivity {
 	
 	private static final int MAX_STARTING_MESSAGES = 30;
 	private static final int MAX_MESSAGES = 30;
-	private static final int AUTOPOLL_INTERVAL = 8; // in seconds
+	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
 
 	private Campfire campfire;
 	private String roomId;
@@ -51,6 +51,7 @@ public class RoomView extends ListActivity {
 	
 	private EditText message;
 	private Button speak, refresh;
+	private ImageView polling;
 	
 	private boolean autoPoll;
 	
@@ -84,12 +85,14 @@ public class RoomView extends ListActivity {
 	
 	// newEvents has been populated by a helper thread with the new events
 	private void onPoll() {
+		boolean wasAtBottom = scrolledToBottom();
+		
 		// add the new items
 		RoomAdapter adapter = (RoomAdapter) getListAdapter();
 		for (int i=0; i<newEvents.size(); i++)
 			adapter.add(newEvents.get(i));
 		
-		if (scrolledToBottom())
+		if (wasAtBottom)
 			scrollToBottom();	
 	}
 	
@@ -103,6 +106,7 @@ public class RoomView extends ListActivity {
 	private void setupControls() {
 		//TODO still:
 		// set name of room in window title
+		polling = (ImageView) findViewById(R.id.room_polling);
 		
 		message = (EditText) this.findViewById(R.id.room_message);
 		message.setEnabled(true);
@@ -179,20 +183,26 @@ public class RoomView extends ListActivity {
 	
 	final Runnable pollStart = new Runnable() {
 		public void run() {
-			showDialog(POLLING);
+			refresh.setVisibility(View.GONE);
+			polling.setVisibility(View.VISIBLE);
 		}
 	};
 	
 	final Runnable pollSuccess = new Runnable() {
 		public void run() {
-			removeDialog(POLLING);
+			if (autoPoll)
+				refresh.setVisibility(View.INVISIBLE);
+			else
+				refresh.setVisibility(View.VISIBLE);
+			polling.setVisibility(View.GONE);
 			onPoll();
 		}
 	};
 	
 	final Runnable pollFailure = new Runnable() {
 		public void run() {
-			removeDialog(POLLING);
+			refresh.setVisibility(View.VISIBLE);
+			polling.setVisibility(View.GONE);
 			alert("Connection error.");
 		}
 	};
@@ -332,7 +342,7 @@ public class RoomView extends ListActivity {
     		// until there exist race conditions on this variable (multiple actors writing to it), 
     		// no synchronization required
     		autoPoll = !autoPoll;
-    		refresh.setVisibility(autoPoll ? View.GONE : View.VISIBLE);
+    		refresh.setVisibility(autoPoll ? View.INVISIBLE: View.VISIBLE);
     		if (autoPoll) autoPoll();
     		return true;
     	case MENU_LOGOUT:
