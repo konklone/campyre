@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -28,10 +27,16 @@ public class RoomList extends ListActivity {
 	private Campfire campfire;
 	private Room[] rooms;
 	
+	private boolean forResult = false;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.room_list);
+        
+        Bundle extras = getIntent().getExtras();
+        if (extras != null)
+        	forResult = extras.getBoolean("for_result", false);
         
         verifyLogin();
     }
@@ -39,6 +44,26 @@ public class RoomList extends ListActivity {
     // will only be run after we are assured of being logged in
     public void onLogin() {
     	getRooms();
+    }
+    
+    public void selectRoom(Room room) {
+    	if (forResult) {
+    		Intent intent = new Intent();
+    		Bundle extras = new Bundle();
+        	extras.putString("room_id", room.id);
+        	intent.putExtras(extras);
+        	
+        	setResult(RESULT_OK, intent);
+        	finish();
+    	} else {
+    		Intent intent = new Intent(Intent.ACTION_MAIN);
+    		intent.setClassName("com.github.klondike.android.campfire", "com.github.klondike.android.campfire.RoomView");
+        	Bundle extras = new Bundle();
+        	extras.putString("room_id", room.id);
+        	intent.putExtras(extras);
+        	
+        	startActivity(intent);
+    	}
     }
     
     final Handler handler = new Handler();
@@ -59,14 +84,7 @@ public class RoomList extends ListActivity {
     
     public void onListItemClick(ListView parent, View v, int position, long id) {
     	Room room = (Room) parent.getItemAtPosition(position);    	
-    	
-    	Intent intent = new Intent(Intent.ACTION_MAIN);
-		intent.setClassName("com.github.klondike.android.campfire", "com.github.klondike.android.campfire.RoomView");
-    	Bundle extras = new Bundle();
-    	extras.putString("room_id", room.id);
-    	intent.putExtras(extras);
-    	
-    	startActivity(intent);
+    	selectRoom(room);
     }
     
     public void getRooms() {

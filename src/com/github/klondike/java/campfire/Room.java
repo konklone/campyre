@@ -185,9 +185,14 @@ public class Room {
             conn.setUseCaches(false);
             conn.setRequestMethod("POST");
 
+            conn.setRequestProperty("User-Agent", CampfireRequest.USER_AGENT);
             conn.setRequestProperty("Connection","Keep-Alive");
             conn.setRequestProperty("Content-Type","multipart/form-data, boundary="+boundary);
             conn.setRequestProperty("Cookie", campfire.session);
+            
+            // for CSRF purposes, following example set here:
+            // http://github.com/collectiveidea/tinder/commit/ed53208800557e78cda9ef1e066203ca801abd6d
+            conn.setRequestProperty("X-Requested-With", "XmlHttpRequest"); 
 
             DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
             
@@ -230,6 +235,7 @@ public class Room {
             // close streams
             stream.close();
             dos.flush();
+            dos.close();
 
             InputStream is = conn.getInputStream();
             int ch;
@@ -240,10 +246,9 @@ public class Room {
             }
 
             String s = b.toString();
-            dos.close();
             return (s.contains("waitForMessage"));
         } catch (IOException e) {
-        	throw new CampfireException(e.getMessage());
+        	throw new CampfireException(e.getClass().getCanonicalName() + "\n" + e.getMessage());
         } 
 		
 	}

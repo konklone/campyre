@@ -9,7 +9,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,8 +22,10 @@ import com.github.klondike.java.campfire.Room;
 
 public class ShareImage extends Activity {
 	private static final int UPLOADING = 0;
+	private static final int RESULT_ROOM_ID = 0;
 	
 	private Campfire campfire;
+	private Room room;
 	
 	private boolean uploaded;
 	private String uploadError;
@@ -32,26 +33,34 @@ public class ShareImage extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
 		verifyLogin();
 	}
 	
+	// guaranteed to be logged in and the "campfire" variable set
 	public void onLogin() {
+		getRoom();
+	}
+	
+	// guaranteed to have a room selected and the "room" variable set
+	public void onGetRoom() {
 		uploadImage();
+	}
+	
+	public void onUploadImage() {
+		if (uploaded)
+			alert("Uploaded image to Campfire.");
+		else
+			alert(uploadError);
+		finish();
 	}
 	
 	final Handler handler = new Handler();
 	final Runnable afterUpload = new Runnable() {
 		public void run() {
-			if (uploaded)
-				alert("Uploaded image to Campfire.");
-			else
-				alert(uploadError);
-			
 			dismissDialog(UPLOADING);
-			finish();
+			onUploadImage();
 		}
 	};
 	
@@ -59,12 +68,6 @@ public class ShareImage extends Activity {
 		Thread uploadThread = new Thread() {
 			public void run() {
 				try {
-					// hardcoded while I learn about preferences
-					String roomId = "38896"; 
-					// String roomId = Preferences.getRoomId(ShareImage.this);
-					
-					Room room = new Room(campfire, roomId);
-					
 					// Don't move this code into another method, or split it up - somehow
 					// stuff gets out of scope or garbage collected and file transfers start dying
 					Bundle extras = ShareImage.this.getIntent().getExtras();
@@ -110,6 +113,12 @@ public class ShareImage extends Activity {
         	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);
     }
 	
+	public void getRoom() {
+		Intent intent = new Intent(this, RoomList.class);
+		intent.putExtra("for_result", true);
+		startActivityForResult(intent, RESULT_ROOM_ID);
+	}
+	
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
@@ -120,6 +129,15 @@ public class ShareImage extends Activity {
     			onLogin();
     		} else
     			finish();
+    		break;
+    	case RESULT_ROOM_ID:
+			if (resultCode == RESULT_OK) {
+				String roomId = data.getExtras().getString("room_id");
+				room = new Room(campfire, roomId);
+				onGetRoom();
+			} else
+				finish();
+			break;
     	}
     }
 	

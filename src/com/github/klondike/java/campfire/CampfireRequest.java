@@ -15,7 +15,7 @@ import org.apache.http.protocol.HttpContext;
 
 
 public class CampfireRequest {
-	private static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
+	public static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
 	
 	private Campfire campfire;
 	private List<NameValuePair> params;
