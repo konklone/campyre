@@ -10,17 +10,13 @@ Also, you can Share images from your Gallery through the phone.  Campfire will a
 
 ## Missing Crucial Features
 
-It doesn't show you others' messages.
-
-Only works for non-SSL accounts.
-
-Select rooms from a list, not entering an ID.
-
 Only uploads JPGs, needs to upload any type of image.
 
-First time it runs it should bring you to preferences.
+Don't crap out on images and YouTube videos
 
 ## Missing Desired Features
+
+Work for SSL accounts.
 
 Allow a photo upload to be accompanied by a "caption" (post-upload message).
 
