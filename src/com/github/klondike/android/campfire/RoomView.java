@@ -38,7 +38,6 @@ public class RoomView extends ListActivity {
 	private static final int POLLING = 2;
 	
 	private static final int MAX_STARTING_MESSAGES = 30;
-	private static final int MAX_MESSAGES = 30;
 	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
 
 	private Campfire campfire;
@@ -104,8 +103,6 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void setupControls() {
-		//TODO still:
-		// set name of room in window title
 		polling = (ImageView) findViewById(R.id.room_polling);
 		
 		message = (EditText) this.findViewById(R.id.room_message);
@@ -115,7 +112,7 @@ public class RoomView extends ListActivity {
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_DONE)
 					speak();
-				else if (event != null) // the event will only be present for "Enter"
+				else if (event != null) // the event will only be non-null for a press of the "Enter" key
 					speak();
 				return false;
 			}
@@ -159,7 +156,8 @@ public class RoomView extends ListActivity {
 	final Runnable joinFailure = new Runnable() {
 		public void run() {
 			removeDialog(JOINING);
-			alert("Couldn't join room. Select the Re-join menu option to try again.");
+			alert("Couldn't join room for some reason. Click the room to try again.");
+			finish();
 		}
 	};
 	
