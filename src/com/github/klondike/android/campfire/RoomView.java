@@ -53,6 +53,7 @@ public class RoomView extends ListActivity {
 	private ImageView polling;
 	
 	private boolean autoPoll = true;
+	private boolean joined = false;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -64,7 +65,28 @@ public class RoomView extends ListActivity {
 		if (savedInstanceState != null)
 			autoPoll = savedInstanceState.getBoolean("autoPoll", true);
 		
-		verifyLogin();
+		// on screen flip, attempt to restore state without rejoining everything
+		RoomViewHolder holder = (RoomViewHolder) getLastNonConfigurationInstance();
+		if (holder != null) {
+			this.campfire = holder.campfire;
+			this.room = holder.room;
+			this.events = holder.events;
+			onJoined();
+		} else
+			verifyLogin();
+	}
+	
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		// only store all this state if we made it all the way through the login/join process
+		if (joined) {
+			RoomViewHolder holder = new RoomViewHolder();
+			holder.campfire = this.campfire;
+			holder.room = this.room;
+			holder.events = this.events;
+			return holder;
+		} else
+			return null;
 	}
 	
 	@Override
@@ -81,6 +103,8 @@ public class RoomView extends ListActivity {
 	// Will only happen after we are both logged in and the room has been joined
 	// events has been populated with the starting messages of a room
 	private void onJoined() {
+		joined = true;
+		
 		setupControls();
 		
 		setListAdapter(new RoomAdapter(this, events));
@@ -436,4 +460,10 @@ public class RoomView extends ListActivity {
         }
 
     }
+	
+	static class RoomViewHolder {
+		Campfire campfire;
+		Room room;
+		ArrayList<RoomEvent> events;
+	}
 }
