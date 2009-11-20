@@ -41,9 +41,14 @@ public class RoomList extends ListActivity {
         verifyLogin();
     }
     
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+    	return rooms;
+    }
+    
     // will only be run after we are assured of being logged in
     public void onLogin() {
-    	getRooms();
+    	loadRooms();
     }
     
     public void selectRoom(Room room) {
@@ -70,10 +75,7 @@ public class RoomList extends ListActivity {
     final Runnable afterLoad = new Runnable() {
     	public void run() {
     		if (rooms != null) {
-    			if (rooms.length <= 0)
-    				((TextView) RoomList.this.findViewById(R.id.rooms_empty)).setVisibility(View.VISIBLE);
-    			
-	    		setListAdapter(new ArrayAdapter<Room>(RoomList.this, android.R.layout.simple_list_item_1, rooms));
+    			displayRooms();
 	    		removeDialog(LOADING);
     		} else {
     			alert("Error connecting to Campfire. Please try again later.");
@@ -82,13 +84,19 @@ public class RoomList extends ListActivity {
     	}
     };
     
+    public void displayRooms() {
+    	if (rooms.length <= 0)
+			((TextView) findViewById(R.id.rooms_empty)).setVisibility(View.VISIBLE);
+		setListAdapter(new ArrayAdapter<Room>(RoomList.this, android.R.layout.simple_list_item_1, rooms));
+    }
+    
     public void onListItemClick(ListView parent, View v, int position, long id) {
     	Room room = (Room) parent.getItemAtPosition(position);    	
     	selectRoom(room);
     }
     
-    public void getRooms() {
-    	Thread loadRooms = new Thread() {
+    public void loadRooms() {
+    	Thread loading = new Thread() {
     		public void run() {
     			try {
     				rooms = campfire.getRooms();
@@ -98,8 +106,13 @@ public class RoomList extends ListActivity {
     			handler.post(afterLoad);
     		}
     	};
-    	loadRooms.start();
-    	showDialog(LOADING);
+    	
+    	rooms = (Room[]) getLastNonConfigurationInstance();
+    	if (rooms == null) {
+	    	loading.start();
+	    	showDialog(LOADING);
+    	} else
+    		displayRooms();
     }
     
     public void verifyLogin() {
