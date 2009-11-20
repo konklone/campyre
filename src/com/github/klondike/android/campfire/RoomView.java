@@ -52,7 +52,7 @@ public class RoomView extends ListActivity {
 	private Button speak, refresh;
 	private ImageView polling;
 	
-	private boolean autoPoll;
+	private boolean autoPoll = true;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -60,9 +60,16 @@ public class RoomView extends ListActivity {
 		setContentView(R.layout.room);
 		
 		roomId = getIntent().getStringExtra("room_id");
-		autoPoll = true;
+		
+		if (savedInstanceState != null)
+			autoPoll = savedInstanceState.getBoolean("autoPoll", true);
 		
 		verifyLogin();
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putBoolean("autoPoll", autoPoll);
 	}
 	
 	// Will only happen after we are definitely logged in, 
@@ -98,7 +105,7 @@ public class RoomView extends ListActivity {
 	// newPost has been populated with the last message the user just posted
 	// and which (currently) is guaranteed to be actually posted
 	private void onSpeak() {
-		((RoomAdapter)getListAdapter()).add(newPost);
+		((RoomAdapter) getListAdapter()).add(newPost);
 		scrollToBottom();
 	}
 	
