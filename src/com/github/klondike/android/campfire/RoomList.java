@@ -100,7 +100,7 @@ public class RoomList extends ListActivity {
     	// then we can trust its onPostExecute to load the rooms when it's done
     	if (loadRoomsTask == null) {
 	    	if (rooms == null)
-		    	new LoadRoomsTask().execute(this);
+		    	new LoadRoomsTask(this).execute();
 	    	else
 	    		displayRooms();
     	}
@@ -162,20 +162,24 @@ public class RoomList extends ListActivity {
         dialog.show();
     }
     
-    private class LoadRoomsTask extends AsyncTask<RoomList,Void,Room[]> {
+    private class LoadRoomsTask extends AsyncTask<Void,Void,Room[]> {
     	public RoomList context;
     	
-    	// I consider this method safe to execute without worrying about the context member variable. 
+    	public LoadRoomsTask(RoomList context) {
+    		super();
+    		
+    		// link the task to the context
+    		this.context = context;
+    		this.context.loadRoomsTask = this;
+    	}
+    	 
        	@Override
     	protected void onPreExecute() {
-            loadingDialog();
+            context.loadingDialog();
     	}
     	
     	@Override
-    	protected Room[] doInBackground(RoomList... originalContext) {
-    		context = originalContext[0];
-    		context.loadRoomsTask = this;
-    		
+    	protected Room[] doInBackground(Void... nothing) {
     		try {
 				return context.campfire.getRooms();
 			} catch (CampfireException e) {
