@@ -25,7 +25,7 @@ public class RoomList extends ListActivity {
 	private Room[] rooms = null;
 	
 	private LoadRoomsTask loadRoomsTask = null;
-	private ProgressDialog dialog;
+	private ProgressDialog dialog = null;
 	
 	private boolean forResult = false;
 	
@@ -42,8 +42,10 @@ public class RoomList extends ListActivity {
         if (holder != null) {
 	    	rooms = holder.rooms;
 	    	loadRoomsTask = holder.loadRoomsTask;
-//	    	if (loadRoomsTask != null)
-//	    		loadRoomsTask.context = this;
+	    	if (loadRoomsTask != null) {
+	    		loadRoomsTask.context = this;
+	    		loadingDialog();
+	    	}
         }
         
         verifyLogin();
@@ -55,13 +57,6 @@ public class RoomList extends ListActivity {
     	holder.rooms = this.rooms;
     	holder.loadRoomsTask = this.loadRoomsTask;
     	return holder;
-    }
-    
-    @Override
-    public void onSaveInstanceState(Bundle state) {
-    	if (dialog != null && dialog.isShowing())
-    		dialog.dismiss();
-    	super.onSaveInstanceState(state);
     }
     
     // will only be run after we are assured of being logged in
@@ -101,12 +96,14 @@ public class RoomList extends ListActivity {
     }
     
     public void loadRooms() {
-//    	if (loadRoomsTask == null) {
+    	// if a LoadRoomsTask is running, and we've updated its context to be our instance in onCreate,
+    	// then we can trust its onPostExecute to load the rooms when it's done
+    	if (loadRoomsTask == null) {
 	    	if (rooms == null)
-		    	new LoadRoomsTask().execute();
+		    	new LoadRoomsTask().execute(this);
 	    	else
 	    		displayRooms();
-//    	}
+    	}
     }
     
     public void verifyLogin() {
@@ -157,24 +154,30 @@ public class RoomList extends ListActivity {
 		Toast.makeText(RoomList.this, msg, Toast.LENGTH_SHORT).show();
 	}
     
+    public void loadingDialog() {
+    	dialog = new ProgressDialog(RoomList.this);
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setCancelable(false);
+        dialog.setMessage("Loading rooms...");
+        dialog.show();
+    }
+    
     private class LoadRoomsTask extends AsyncTask<RoomList,Void,Room[]> {
-    	//public RoomList context;
+    	public RoomList context;
     	
+    	// I consider this method safe to execute without worrying about the context member variable. 
        	@Override
     	protected void onPreExecute() {
-            dialog = new ProgressDialog(RoomList.this);
-            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            dialog.setCancelable(false);
-            dialog.setMessage("Loading rooms...");
-            dialog.show();
+            loadingDialog();
     	}
     	
     	@Override
     	protected Room[] doInBackground(RoomList... originalContext) {
-    		//context = originalContext[0];
+    		context = originalContext[0];
+    		context.loadRoomsTask = this;
     		
     		try {
-				return campfire.getRooms();
+				return context.campfire.getRooms();
 			} catch (CampfireException e) {
 				return null;
 			}
@@ -182,14 +185,15 @@ public class RoomList extends ListActivity {
     	
     	@Override
     	protected void onPostExecute(Room[] foundRooms) {
-    		dialog.dismiss();
-    		
     		if (foundRooms != null) {
-    			rooms = foundRooms;
-            	displayRooms();
+    			context.rooms = foundRooms;
+            	context.displayRooms();
+            	if (context.dialog != null && context.dialog.isShowing())
+        			context.dialog.dismiss();
+        		context.loadRoomsTask = null;
     		} else {
-    			alert("Error connecting to Campfire. Please try again later.");
-    			finish();
+    			context.alert("Error connecting to Campfire. Please try again later.");
+    			context.finish();
     		}
     	}
     }
