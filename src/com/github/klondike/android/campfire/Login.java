@@ -50,6 +50,13 @@ public class Login extends Activity {
     	}
     };
     
+    final Runnable loginError = new Runnable() {
+    	public void run() {
+    		dismissDialog(LOGGING_IN);
+    		alert("Error while attempting to log in, please try again.");
+    	}
+    };
+    
     public void setupControls() {
     	emailView = (EditText) findViewById(R.id.email);
     	passwordView = (EditText) findViewById(R.id.password);
@@ -84,10 +91,10 @@ public class Login extends Activity {
     				
     				campfire = new Campfire(subdomain, email, password, ssl);
 					campfire.login();
+					handler.post(afterLogin);
     	        } catch(CampfireException e) {
-    	        	alert("Error while attempting to log in, please try again.");
+    	        	handler.post(loginError);
     	        }
-    	        handler.post(afterLogin);
     		}
     	};
     	loginThread.start();
