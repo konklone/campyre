@@ -40,11 +40,11 @@ public class ShareImage extends Activity {
 	
 	// guaranteed to be logged in and the "campfire" variable set
 	public void onLogin() {
-		getRoom();
+		loadRoom();
 	}
 	
 	// guaranteed to have a room selected and the "room" variable set
-	public void onGetRoom() {
+	public void onLoadRoom() {
 		uploadImage();
 	}
 	
@@ -113,7 +113,7 @@ public class ShareImage extends Activity {
         	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);
     }
 	
-	public void getRoom() {
+	public void loadRoom() {
 		Intent intent = new Intent(this, RoomList.class);
 		intent.putExtra("for_result", true);
 		startActivityForResult(intent, RESULT_ROOM_ID);
@@ -134,7 +134,7 @@ public class ShareImage extends Activity {
 			if (resultCode == RESULT_OK) {
 				String roomId = data.getExtras().getString("room_id");
 				room = new Room(campfire, roomId);
-				onGetRoom();
+				onLoadRoom();
 			} else
 				finish();
 			break;
