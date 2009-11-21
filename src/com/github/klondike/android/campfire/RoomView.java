@@ -92,6 +92,7 @@ public class RoomView extends ListActivity {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		outState.putBoolean("autoPoll", autoPoll);
+		super.onSaveInstanceState(outState);
 	}
 	
 	// Will only happen after we are definitely logged in, 
