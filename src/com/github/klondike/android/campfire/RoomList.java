@@ -21,10 +21,11 @@ public class RoomList extends ListActivity {
 	private static final int MENU_PREFS = 0;
 	private static final int MENU_LOGOUT = 1;
 	
-	private ProgressDialog dialog;
+	private Campfire campfire = null;
+	private Room[] rooms = null;
 	
-	private Campfire campfire;
-	private Room[] rooms;
+	private LoadRoomsTask loadRoomsTask = null;
+	private ProgressDialog dialog;
 	
 	private boolean forResult = false;
 	
@@ -37,12 +38,23 @@ public class RoomList extends ListActivity {
         if (extras != null)
         	forResult = extras.getBoolean("for_result", false);
         
+        RoomListHolder holder = (RoomListHolder) getLastNonConfigurationInstance();
+        if (holder != null) {
+	    	rooms = holder.rooms;
+	    	loadRoomsTask = holder.loadRoomsTask;
+//	    	if (loadRoomsTask != null)
+//	    		loadRoomsTask.context = this;
+        }
+        
         verifyLogin();
     }
     
     @Override
     public Object onRetainNonConfigurationInstance() {
-    	return rooms;
+    	RoomListHolder holder = new RoomListHolder();
+    	holder.rooms = this.rooms;
+    	holder.loadRoomsTask = this.loadRoomsTask;
+    	return holder;
     }
     
     @Override
@@ -89,11 +101,12 @@ public class RoomList extends ListActivity {
     }
     
     public void loadRooms() {
-    	rooms = (Room[]) getLastNonConfigurationInstance();
-    	if (rooms == null)
-	    	new LoadRoomsTask().execute();
-    	else
-    		displayRooms();
+//    	if (loadRoomsTask == null) {
+	    	if (rooms == null)
+		    	new LoadRoomsTask().execute();
+	    	else
+	    		displayRooms();
+//    	}
     }
     
     public void verifyLogin() {
@@ -144,7 +157,8 @@ public class RoomList extends ListActivity {
 		Toast.makeText(RoomList.this, msg, Toast.LENGTH_SHORT).show();
 	}
     
-    private class LoadRoomsTask extends AsyncTask<Void,Void,Room[]> {
+    private class LoadRoomsTask extends AsyncTask<RoomList,Void,Room[]> {
+    	//public RoomList context;
     	
        	@Override
     	protected void onPreExecute() {
@@ -156,7 +170,9 @@ public class RoomList extends ListActivity {
     	}
     	
     	@Override
-    	protected Room[] doInBackground(Void... nothing) {
+    	protected Room[] doInBackground(RoomList... originalContext) {
+    		//context = originalContext[0];
+    		
     		try {
 				return campfire.getRooms();
 			} catch (CampfireException e) {
@@ -165,17 +181,22 @@ public class RoomList extends ListActivity {
     	}
     	
     	@Override
-    	protected void onPostExecute(Room[] rooms) {
+    	protected void onPostExecute(Room[] foundRooms) {
     		dialog.dismiss();
     		
-    		if (rooms != null) {
-    			RoomList.this.rooms = rooms;
+    		if (foundRooms != null) {
+    			rooms = foundRooms;
             	displayRooms();
     		} else {
     			alert("Error connecting to Campfire. Please try again later.");
     			finish();
     		}
     	}
+    }
+    
+    static class RoomListHolder {
+    	Room[] rooms;
+    	LoadRoomsTask loadRoomsTask;
     }
     
 }
