@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -22,7 +23,7 @@ public class RoomList extends ListActivity {
 	private static final int MENU_PREFS = 0;
 	private static final int MENU_LOGOUT = 1;
 	
-	private static final int LOADING = 1;
+	private ProgressDialog dialog;
 	
 	private Campfire campfire;
 	private Room[] rooms;
@@ -44,6 +45,13 @@ public class RoomList extends ListActivity {
     @Override
     public Object onRetainNonConfigurationInstance() {
     	return rooms;
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+    	if (dialog != null && dialog.isShowing())
+    		dialog.dismiss();
+    	super.onSaveInstanceState(state);
     }
     
     // will only be run after we are assured of being logged in
@@ -71,19 +79,6 @@ public class RoomList extends ListActivity {
     	}
     }
     
-    final Handler handler = new Handler();
-    final Runnable afterLoad = new Runnable() {
-    	public void run() {
-    		if (rooms != null) {
-    			displayRooms();
-	    		removeDialog(LOADING);
-    		} else {
-    			alert("Error connecting to Campfire. Please try again later.");
-    			finish();
-    		}
-    	}
-    };
-    
     public void displayRooms() {
     	if (rooms.length <= 0)
 			((TextView) findViewById(R.id.rooms_empty)).setVisibility(View.VISIBLE);
@@ -96,22 +91,10 @@ public class RoomList extends ListActivity {
     }
     
     public void loadRooms() {
-    	Thread loading = new Thread() {
-    		public void run() {
-    			try {
-    				rooms = campfire.getRooms();
-    			} catch (CampfireException e) {
-    				rooms = null;
-    			}
-    			handler.post(afterLoad);
-    		}
-    	};
-    	
     	rooms = (Room[]) getLastNonConfigurationInstance();
-    	if (rooms == null) {
-	    	loading.start();
-	    	showDialog(LOADING);
-    	} else
+    	if (rooms == null)
+	    	new LoadRoomsTask().execute();
+    	else
     		displayRooms();
     }
     
@@ -134,19 +117,6 @@ public class RoomList extends ListActivity {
     		} else
     			finish();
     	}
-    }
-    
-    protected Dialog onCreateDialog(int id) {
-        switch(id) {
-        case LOADING:
-            ProgressDialog loadingDialog = new ProgressDialog(this);
-            loadingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            loadingDialog.setCancelable(false);
-            loadingDialog.setMessage("Loading rooms...");
-            return loadingDialog;
-        default:
-            return null;
-        }
     }
     
     @Override 
@@ -175,5 +145,39 @@ public class RoomList extends ListActivity {
     public void alert(String msg) {
 		Toast.makeText(RoomList.this, msg, Toast.LENGTH_SHORT).show();
 	}
+    
+    private class LoadRoomsTask extends AsyncTask<Void,Void,Room[]> {
+    	
+       	@Override
+    	protected void onPreExecute() {
+            dialog = new ProgressDialog(RoomList.this);
+            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            dialog.setCancelable(false);
+            dialog.setMessage("Loading rooms...");
+            dialog.show();
+    	}
+    	
+    	@Override
+    	protected Room[] doInBackground(Void... nothing) {
+    		try {
+				return campfire.getRooms();
+			} catch (CampfireException e) {
+				return null;
+			}
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(Room[] rooms) {
+    		dialog.dismiss();
+    		
+    		if (rooms != null) {
+    			RoomList.this.rooms = rooms;
+            	displayRooms();
+    		} else {
+    			alert("Error connecting to Campfire. Please try again later.");
+    			finish();
+    		}
+    	}
+    }
     
 }
