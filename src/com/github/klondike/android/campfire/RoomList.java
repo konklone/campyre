@@ -91,8 +91,7 @@ public class RoomList extends ListActivity {
     }
     
     public void onListItemClick(ListView parent, View v, int position, long id) {
-    	Room room = (Room) parent.getItemAtPosition(position);    	
-    	selectRoom(room);
+    	//selectRoom((Room) parent.getItemAtPosition(position));
     }
     
     public void loadRooms() {
@@ -108,7 +107,7 @@ public class RoomList extends ListActivity {
     
     public void verifyLogin() {
     	campfire = Login.getCampfire(this);
-        if (campfire.loggedIn())
+        if (campfire != null)
         	onLogin();
         else
         	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);

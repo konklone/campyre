@@ -24,8 +24,7 @@ public class Login extends Activity {
 	public static final int RESULT_LOGIN = 1000;
 	
 	private Campfire campfire;
-	
-	private EditText emailView, passwordView, subdomainView;
+	private EditText tokenView, subdomainView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,17 +35,20 @@ public class Login extends Activity {
 	}
 	
 	final Handler handler = new Handler();
-    final Runnable afterLogin = new Runnable() {
+    final Runnable loginSuccess = new Runnable() {
     	public void run() {
     		dismissDialog(LOGGING_IN);
     		
-    		if (campfire.loggedIn()) {
-    			storeCredentials();
-    			setResult(RESULT_OK, new Intent());
-    			finish();
-    		} else {
-    			alert("Invalid credentials.");
-    		}
+    		storeCredentials();
+			setResult(RESULT_OK, new Intent());
+			finish();
+    	}
+    };
+    
+    final Runnable loginFailure = new Runnable() {
+    	public void run() {
+    		dismissDialog(LOGGING_IN);
+    		alert("Invalid credentials.");
     	}
     };
     
@@ -58,18 +60,15 @@ public class Login extends Activity {
     };
     
     public void setupControls() {
-    	emailView = (EditText) findViewById(R.id.email);
-    	passwordView = (EditText) findViewById(R.id.password);
+    	tokenView = (EditText) findViewById(R.id.token);
     	subdomainView = (EditText) findViewById(R.id.subdomain);
     	
     	SharedPreferences prefs = getSharedPreferences("campfire", 0); 
     	String subdomain = prefs.getString("subdomain", null);
-        String email = prefs.getString("email", null);
-        String password = prefs.getString("password", null);
+        String token = prefs.getString("token", null);
         
         subdomainView.setText(subdomain);
-        emailView.setText(email);
-        passwordView.setText(password);
+        tokenView.setText(token);
     	
     	Button loginButton = (Button) findViewById(R.id.login_button);
     	loginButton.setOnClickListener(new View.OnClickListener() {
@@ -85,13 +84,14 @@ public class Login extends Activity {
     		public void run() {
     			try {
     				String subdomain = subdomainView.getText().toString();
-    				String email = emailView.getText().toString();
-    				String password = passwordView.getText().toString();
-    				boolean ssl = false;
+    				String token = tokenView.getText().toString();
+    				boolean ssl = false; //TODO: Support SSL
     				
-    				campfire = new Campfire(subdomain, email, password, ssl);
-					campfire.login();
-					handler.post(afterLogin);
+    				campfire = new Campfire(subdomain, token, ssl);
+					if (campfire.validate())
+						handler.post(loginSuccess);
+					else
+						handler.post(loginFailure);
     	        } catch(CampfireException e) {
     	        	handler.post(loginError);
     	        }
@@ -106,12 +106,13 @@ public class Login extends Activity {
 	public static Campfire getCampfire(Context context) {
     	SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
     	String subdomain = prefs.getString("subdomain", null);
-        String email = prefs.getString("email", null);
-        String password = prefs.getString("password", null);
+        String token = prefs.getString("token", null);
         boolean ssl = prefs.getBoolean("ssl", false);
-        String session = prefs.getString("session", null);
         
-        return new Campfire(subdomain, email, password, ssl, session);
+        if (token != null)
+        	return new Campfire(subdomain, token, ssl);
+        else
+        	return null;
 	}
 	
 	
@@ -120,10 +121,8 @@ public class Login extends Activity {
 		Editor editor = prefs.edit();
 	
 		editor.putString("subdomain", campfire.subdomain);
-		editor.putString("email", campfire.email);
-		editor.putString("password", campfire.password);
+		editor.putString("token", campfire.token);
 		editor.putBoolean("ssl", campfire.ssl);
-		editor.putString("session", campfire.session);
 		
 		editor.commit();
 	}

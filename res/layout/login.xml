@@ -63,40 +63,17 @@
 				android:layout_height="wrap_content"
 				
 				android:textSize="20sp"
-				android:text="Email Address"
+				android:text="API Token"
 				/>
 			
-			<EditText android:id="@+id/email"
+			<EditText android:id="@+id/token"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="10sp"
 				
-				android:inputType="textEmailAddress"
-				/>
+				android:inputType="text"
 				
-		</LinearLayout>
-		
-		<LinearLayout
-			android:orientation="vertical"
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content"
-			>
-			
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				
-				android:textSize="20sp"
-				android:text="Password"
-				/>
-			
-			<EditText android:id="@+id/password"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="10sp"
-				
-				android:inputType="textPassword"
-				android:password="true"
+				android:hint="Paste or type your API token"
 				/>
 				
 		</LinearLayout>

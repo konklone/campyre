@@ -107,7 +107,7 @@ public class ShareImage extends Activity {
 	
 	public void verifyLogin() {
     	campfire = Login.getCampfire(this);
-        if (campfire.loggedIn())
+        if (campfire != null)
         	onLogin();
         else
         	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);

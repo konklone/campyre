@@ -265,16 +265,7 @@ public class RoomView extends ListActivity {
 		Thread joinThread = new Thread() {
 			public void run() {
 				room = new Room(campfire, roomId);
-				try {
-					if (room.join()) {
-						events = room.startingEvents(MAX_STARTING_MESSAGES);
-						handler.post(joinSuccess);
-					}
-					else
-						handler.post(joinFailure);
-				} catch(CampfireException e) {
-					handler.post(joinFailure);
-				}
+				handler.post(joinSuccess);
 			}
 		};
 		joinThread.start();
@@ -321,7 +312,7 @@ public class RoomView extends ListActivity {
 	
 	private void verifyLogin() {
 		campfire = Login.getCampfire(this);
-        if (campfire.loggedIn())
+        if (campfire != null)
         	onLogin();
         else
         	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);

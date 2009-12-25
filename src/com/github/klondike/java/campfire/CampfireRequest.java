@@ -16,20 +16,13 @@ import org.apache.http.protocol.HttpContext;
 
 public class CampfireRequest {
 	public static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
+	private String format = ".json";
 	
 	private Campfire campfire;
 	private List<NameValuePair> params;
-	public boolean ajax;
 	
 	public CampfireRequest(Campfire campfire) {
 		this.campfire = campfire;
-		this.ajax = false;
-		this.params = new ArrayList<NameValuePair>();
-	}
-	
-	public CampfireRequest(Campfire campfire, boolean ajax) {
-		this.campfire = campfire;
-		this.ajax = ajax;
 		this.params = new ArrayList<NameValuePair>();
 	}
 	
@@ -41,14 +34,7 @@ public class CampfireRequest {
 		HttpPost request = new HttpPost(url);
 		
 		request.addHeader("User-Agent", USER_AGENT);
-		if (campfire.session != null)
-			request.addHeader("Cookie", campfire.session);
 		request.addHeader("Content-Type", "application/x-www-form-urlencoded");
-		
-		if (this.ajax) {
-			request.addHeader("X-Requested-With", "XMLHttpRequest");
-	        request.addHeader("X-Prototype-Version", "1.5.1.1");
-		}
 		
 		try {
         	request.setEntity(new UrlEncodedFormEntity(params));
@@ -67,8 +53,6 @@ public class CampfireRequest {
 		HttpGet request = new HttpGet(url);
 		
 		request.addHeader("User-Agent", USER_AGENT);
-		if (campfire.session != null)
-			request.addHeader("Cookie", campfire.session);
 		
 		try {
         	DefaultHttpClient client = new DefaultHttpClient();
@@ -79,6 +63,14 @@ public class CampfireRequest {
         } catch(Exception e) {
         	throw new CampfireException(e);
         }
+	}
+	
+	public String domain() {
+		return (campfire.ssl ? "https" : "http") + "://" + campfire.subdomain + ".campfirenow.com";
+	}
+	
+	public String url(String path) {
+		return domain() + path + format;
 	}
 }
 

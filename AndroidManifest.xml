@@ -16,14 +16,14 @@
         <activity android:name=".Login" />
         <activity android:name=".RoomView" />
         
-        <activity android:name=".ShareImage"
-        	android:theme="@android:style/Theme.Dialog">
-        	<intent-filter>
-        		<action android:name="android.intent.action.SEND" />
-        		<category android:name="android.intent.category.DEFAULT" />
-        		<data android:mimeType="image/*" />
-        	</intent-filter>
-        </activity>
+<!--        <activity android:name=".ShareImage"-->
+<!--        	android:theme="@android:style/Theme.Dialog">-->
+<!--        	<intent-filter>-->
+<!--        		<action android:name="android.intent.action.SEND" />-->
+<!--        		<category android:name="android.intent.category.DEFAULT" />-->
+<!--        		<data android:mimeType="image/*" />-->
+<!--        	</intent-filter>-->
+<!--        </activity>-->
         
         <activity android:name=".Preferences" />
     </application>
