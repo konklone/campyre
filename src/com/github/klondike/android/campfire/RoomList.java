@@ -1,5 +1,7 @@
 package com.github.klondike.android.campfire;
 
+import org.json.JSONException;
+
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -177,6 +179,8 @@ public class RoomList extends ListActivity {
     		try {
 				return context.campfire.getRooms();
 			} catch (CampfireException e) {
+				return null;
+			} catch (JSONException e) {
 				return null;
 			}
     	}
