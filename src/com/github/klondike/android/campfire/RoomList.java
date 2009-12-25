@@ -18,8 +18,7 @@ import com.github.klondike.java.campfire.CampfireException;
 import com.github.klondike.java.campfire.Room;
 
 public class RoomList extends ListActivity { 
-	private static final int MENU_PREFS = 0;
-	private static final int MENU_LOGOUT = 1;
+	private static final int MENU_CLEAR = 0;
 	
 	private Campfire campfire = null;
 	private Room[] rooms = null;
@@ -130,8 +129,7 @@ public class RoomList extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-        menu.add(0, MENU_PREFS, 0, "Preferences").setIcon(android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_LOGOUT, 0, "Log Out").setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+        menu.add(0, MENU_CLEAR, 0, "Clear Credentials").setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         
         return result;
     }
@@ -139,11 +137,8 @@ public class RoomList extends ListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) { 
-    	case MENU_PREFS:
-    		startActivity(new Intent(this, Preferences.class)); 
-    		return true;
-    	case MENU_LOGOUT:
-    		getSharedPreferences("campfire", 0).edit().putString("session", null).commit();
+    	case MENU_CLEAR:
+    		Login.clearCampfire(this);
     		finish();
     	}
     	return super.onOptionsItemSelected(item);

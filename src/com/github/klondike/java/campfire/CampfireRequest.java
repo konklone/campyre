@@ -1,17 +1,17 @@
 package com.github.klondike.java.campfire;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class CampfireRequest {
@@ -19,15 +19,9 @@ public class CampfireRequest {
 	private String format = ".json";
 	
 	private Campfire campfire;
-	private List<NameValuePair> params;
 	
 	public CampfireRequest(Campfire campfire) {
 		this.campfire = campfire;
-		this.params = new ArrayList<NameValuePair>();
-	}
-	
-	public void addParam(String key, String value) {
-		params.add(new BasicNameValuePair(key, value));
 	}
 	
 	public HttpResponse post(String url) throws CampfireException {
@@ -37,7 +31,7 @@ public class CampfireRequest {
 		request.addHeader("Content-Type", "application/x-www-form-urlencoded");
 		
 		try {
-        	request.setEntity(new UrlEncodedFormEntity(params));
+        	//request.setEntity(new UrlEncodedFormEntity(params));
     		
     		DefaultHttpClient client = new DefaultHttpClient();
     		client.setRedirectHandler(new NoRedirectHandler());
@@ -63,6 +57,44 @@ public class CampfireRequest {
         } catch(Exception e) {
         	throw new CampfireException(e);
         }
+	}
+	
+	public JSONObject getOne(String path) throws CampfireException {
+		String json = getJSON(path);
+		try {
+			return new JSONObject(json);
+		} catch (JSONException e) {
+			throw new CampfireException(e);
+		}
+	}
+	
+	public JSONArray getArray(String path) throws CampfireException {
+		String json = getJSON(path);
+		try {
+			return new JSONArray(json);
+		} catch (JSONException e) {
+			throw new CampfireException(e);
+		}
+	}
+	
+	public String getJSON(String path) throws CampfireException {
+		HttpGet request = new HttpGet(url(path));
+        request.addHeader("User-Agent", USER_AGENT);
+		
+        DefaultHttpClient client = new DefaultHttpClient();
+        try {
+	        HttpResponse response = client.execute(request);
+	        int statusCode = response.getStatusLine().getStatusCode();
+	        
+	        if (statusCode == HttpStatus.SC_OK) {
+	        	String body = EntityUtils.toString(response.getEntity());
+	        	return body;
+	        } else {
+	        	throw new CampfireException("Bad status code");
+	        }
+        } catch (Exception e) {
+	    	throw new CampfireException(e);
+	    }
 	}
 	
 	public String domain() {

@@ -9,6 +9,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Room {
 	public String id, name;
 	private Campfire campfire;
@@ -17,6 +20,12 @@ public class Room {
 		this.campfire = campfire;
 		this.id = id;
 		this.name = null;
+	}
+	
+	public Room(Campfire campfire, JSONObject json) throws JSONException {
+		this.campfire = campfire;
+		this.id = json.getString("id");
+		this.name = json.getString("name");
 	}
 	
 	/* Main methods */

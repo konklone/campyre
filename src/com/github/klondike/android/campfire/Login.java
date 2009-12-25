@@ -39,7 +39,7 @@ public class Login extends Activity {
     	public void run() {
     		dismissDialog(LOGGING_IN);
     		
-    		storeCredentials();
+    		Login.saveCampfire(Login.this, campfire);
 			setResult(RESULT_OK, new Intent());
 			finish();
     	}
@@ -115,14 +115,24 @@ public class Login extends Activity {
         	return null;
 	}
 	
-	
-	private void storeCredentials() {
-		SharedPreferences prefs = getSharedPreferences("campfire", 0);
+	public static void saveCampfire(Context context, Campfire campfire) {
+		SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
 		Editor editor = prefs.edit();
 	
 		editor.putString("subdomain", campfire.subdomain);
 		editor.putString("token", campfire.token);
 		editor.putBoolean("ssl", campfire.ssl);
+		
+		editor.commit();
+	}
+	
+	public static void clearCampfire(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
+		Editor editor = prefs.edit();
+	
+		editor.putString("subdomain", null);
+		editor.putString("token", null);
+		editor.putBoolean("ssl", false);
 		
 		editor.commit();
 	}
