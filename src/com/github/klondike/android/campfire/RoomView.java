@@ -45,14 +45,14 @@ public class RoomView extends ListActivity {
 	private String roomId;
 	private Room room;
 	
-	private ArrayList<RoomEvent> events;
-	private RoomEvent newPost;
+	private ArrayList<RoomEvent> messages = new ArrayList<RoomEvent>();
+	private HashMap<String,User> users = new HashMap<String,User>();
 	
 	private EditText message;
 	private Button speak, refresh;
 	private ImageView polling;
 	
-	private HashMap<String,User> users;
+	
 	
 	private boolean autoPoll = true;
 	private boolean joined = false;
@@ -72,7 +72,7 @@ public class RoomView extends ListActivity {
 		if (holder != null) {
 			this.campfire = holder.campfire;
 			this.room = holder.room;
-			this.events = holder.events;
+			this.messages = holder.messages;
 			this.users = holder.users;
 			onJoined();
 		} else
@@ -86,7 +86,7 @@ public class RoomView extends ListActivity {
 			RoomViewHolder holder = new RoomViewHolder();
 			holder.campfire = this.campfire;
 			holder.room = this.room;
-			holder.events = this.events;
+			holder.messages = this.messages;
 			holder.users = this.users;
 			return holder;
 		} else
@@ -106,23 +106,23 @@ public class RoomView extends ListActivity {
 	}
 	
 	// Will only happen after we are both logged in and the room has been joined
-	// events has been populated with the starting messages of a room
 	private void onJoined() {
-		joined = true;
-		
 		setupControls();
 		
-		setListAdapter(new RoomAdapter(this, events));
-		scrollToBottom();
+		// messages is an empty array at this point
+		setListAdapter(new RoomAdapter(this, messages));
 		
-		if (autoPoll) autoPoll();
+		if (autoPoll) 
+			autoPoll();
+		else
+			pollOnce();
 	}
 	
-	// newEvents has been populated by a helper thread with the new events
+	// "messages" has been populated with the latest MAX_MESSAGES events
 	private void onPoll() {
 		boolean wasAtBottom = scrolledToBottom();
 		
-		setListAdapter(new RoomAdapter(this, events));
+		setListAdapter(new RoomAdapter(this, messages));
 		
 		if (wasAtBottom)
 			scrollToBottom();	
@@ -132,7 +132,6 @@ public class RoomView extends ListActivity {
 	// and which is guaranteed to be actually posted
 	private void onSpeak() {
 		//TODO: Poll for new messages instead of adding new post to bottom
-		((RoomAdapter) getListAdapter()).add(newPost);
 		scrollToBottom();
 	}
 	
@@ -184,6 +183,7 @@ public class RoomView extends ListActivity {
 	final Runnable joinSuccess = new Runnable() {
 		public void run() {
 			removeDialog(JOINING);
+			joined = true;
 			onJoined();
 		}
 	};
@@ -249,7 +249,7 @@ public class RoomView extends ListActivity {
 		Thread speakThread = new Thread() {
 			public void run() {
 				try {
-					newPost = room.speak(msg);
+					RoomEvent newPost = room.speak(msg);
 					if (newPost != null)
 						handler.post(speakSuccess);
 					else
@@ -266,12 +266,31 @@ public class RoomView extends ListActivity {
 	private void joinRoom() {
 		Thread joinThread = new Thread() {
 			public void run() {
-				//TODO: Pull the room details from the network to make the Room, make sure it's not full
-				//TODO: Join the room
-				//TODO: Pull one's user details from the network, add it to the HashMap
-				//TODO: Call to pollOnce
-				room = new Room(campfire, roomId);
-				handler.post(joinSuccess);
+				try {
+					// Joining a room is a four-step process with 3 network requests:
+					
+					// 1) Get the room details (name, topic, etc.)
+					room = Room.find(campfire, roomId);
+					
+					// 2) Make sure the room isn't full
+					if (room.full) {
+						handler.post(joinFailure);
+						return;
+					}
+					
+					// 3) Join the room
+					if (!room.join()) {
+						handler.post(joinFailure);
+						return;
+					}
+					
+					// 4) Get the details of the logged in user and throw it in the User hash 
+					users.put(campfire.user_id, User.find(campfire, campfire.user_id));
+					
+					handler.post(joinSuccess);
+				} catch (CampfireException e) {
+					handler.post(joinFailure);
+				}
 			}
 		};
 		joinThread.start();
@@ -291,16 +310,13 @@ public class RoomView extends ListActivity {
 		new Thread() {
 			public void run() {
 				while(autoPoll) {
-					// sleep first so that this doesn't needlessly poll when we first join the room
+					poll();
+					
 					try {
 						sleep(AUTOPOLL_INTERVAL * 1000);
 					} catch(InterruptedException ex) {
 						// well, I never
-					}
-					
-					// the user might have turned off autoPoll while we were sleeping!
-					if (autoPoll)
-						poll();
+					}	
 				}
 			}
 		}.start();
@@ -312,7 +328,7 @@ public class RoomView extends ListActivity {
 			//TODO: Have this pull the latest MAX_MESSAGES events from today's transcript
 			//TODO: Store user details on the message object
 			//TODO: Look up users for any messages whose user_id's we don't know
-			events = room.listen();
+			messages = room.listen();
 			handler.post(pollSuccess);
 		} catch(CampfireException e) {
 			handler.post(pollFailure);
@@ -403,8 +419,8 @@ public class RoomView extends ListActivity {
 	private static class RoomAdapter extends ArrayAdapter<RoomEvent> {
 		private LayoutInflater inflater;
 		
-        public RoomAdapter(Activity context, ArrayList<RoomEvent> events) {
-            super(context, 0, events);
+        public RoomAdapter(Activity context, ArrayList<RoomEvent> messages) {
+            super(context, 0, messages);
             inflater = LayoutInflater.from(context);
         }
 
@@ -421,7 +437,7 @@ public class RoomView extends ListActivity {
 				convertView = inflater.inflate(viewForType(item.type), null);
 				
 				holder = new ViewHolder();
-				holder.message = (TextView) convertView.findViewById(R.id.text);
+				holder.body = (TextView) convertView.findViewById(R.id.text);
 				holder.type = item.type;
 				if (item.person != null)
 					holder.person = (TextView) convertView.findViewById(R.id.person);
@@ -429,7 +445,7 @@ public class RoomView extends ListActivity {
 				convertView.setTag(holder);
 			}
 			
-			holder.message.setText(item.message);
+			holder.body.setText(item.body);
 			if (item.person != null)
 				holder.person.setText(item.person);
 			
@@ -450,7 +466,7 @@ public class RoomView extends ListActivity {
 		}
 		
 		static class ViewHolder {
-            TextView message, person;
+            TextView body, person;
             int type;
         }
 
@@ -459,7 +475,7 @@ public class RoomView extends ListActivity {
 	static class RoomViewHolder {
 		Campfire campfire;
 		Room room;
-		ArrayList<RoomEvent> events;
+		ArrayList<RoomEvent> messages;
 		HashMap<String,User> users;
 	}
 }

@@ -25,14 +25,14 @@ public class Campfire {
 		this.subdomain = subdomain;
 		this.token = token;
 		this.ssl = ssl;
-		this.user_id = null;
+		this.user_id = user_id;
 	}
 	
 	public boolean login() throws CampfireException, JSONException {
-		HttpResponse response = new CampfireRequest(this).getResponse(checkPath());
+		HttpResponse response = new CampfireRequest(this).get(checkPath());
 		// if API key is wrong, we'll get a 401 status code (HttpStatus.SC_UNAUTHORIZED)
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-			JSONObject user = new JSONObject(CampfireRequest.toString(response)).getJSONObject("user");
+			JSONObject user = new JSONObject(CampfireRequest.responseBody(response)).getJSONObject("user");
 			this.user_id = user.getString("id");
 			return true;
 		} else
@@ -64,6 +64,14 @@ public class Campfire {
 	
 	public static String userPath(String id) {
 		return "/users/" + id;
+	}
+	
+	public static String joinPath(String room_id) {
+		return roomPath(room_id) + "/join";
+	}
+	
+	public static String uploadPath(String room_id) {
+		return roomPath(room_id) + "/uploads";
 	}
 	
 }

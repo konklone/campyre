@@ -16,23 +16,23 @@ public class RoomEvent {
 	
 	public int type;
 	public String id, user_id, person;
-	public String message;
+	public String body;
 	
-	public RoomEvent(int type, String id, String user_id, String person, String message) {
+	public RoomEvent(int type, String id, String user_id, String person, String body) {
 		this.type = type;
 		this.id = id;
 		this.person = person;
 		this.user_id = user_id;
-		this.message = message;
+		this.body = body;
 	}
 	
 	public String toString() {
 		if (type == ENTRY)
-			return person + " " + message;
+			return person + " " + body;
 		else if (type == TIMESTAMP)
-			return message;
+			return body;
 		else // if (type == TEXT)
-			return person + ": " + message;
+			return person + ": " + body;
 	}
 	
 	// RoomEvent knows how to construct itself from the HTML returned from Campfire

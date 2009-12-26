@@ -88,7 +88,7 @@ public class RoomList extends ListActivity {
     }
     
     public void onListItemClick(ListView parent, View v, int position, long id) {
-    	//selectRoom((Room) parent.getItemAtPosition(position));
+    	selectRoom((Room) parent.getItemAtPosition(position));
     }
     
     public void loadRooms() {

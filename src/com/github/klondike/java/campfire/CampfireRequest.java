@@ -1,6 +1,7 @@
 package com.github.klondike.java.campfire;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -11,6 +12,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
@@ -32,36 +35,38 @@ public class CampfireRequest {
 	}
 	
 	public JSONObject getOne(String path, String key) throws CampfireException, JSONException {
-		return new JSONObject(getContent(path)).getJSONObject(key);
+		return new JSONObject(responseBody(get(path))).getJSONObject(key);
 	}
 	
 	public JSONArray getList(String path, String key) throws CampfireException, JSONException {
-		return new JSONObject(getContent(path)).getJSONArray(key);
+		return new JSONObject(responseBody(get(path))).getJSONArray(key);
 	}
 	
-	public String getContent(String path) throws CampfireException {
-		return toString(getResponse(path));
+	public HttpResponse get(String path) throws CampfireException {
+        return makeRequest(new HttpGet(url(path)));
 	}
 	
-	// for testing
-	public static String toString(HttpResponse response) throws CampfireException {
-		int statusCode = response.getStatusLine().getStatusCode();
+	public HttpResponse post(String path) throws CampfireException {
+		return post(path, null);
+	}
+	
+	public HttpResponse post(String path, String body) throws CampfireException {
+		HttpPost request = new HttpPost(url(path));
 		
-		try {
-	        if (statusCode == HttpStatus.SC_OK)
-	        	return EntityUtils.toString(response.getEntity());
-	        else
-	        	throw new CampfireException("Bad status code: " + statusCode);
-		} catch(IOException e) {
-			throw new CampfireException(e);
+		if (body != null) {
+			try {
+				request.setEntity(new StringEntity(body));
+			} catch(UnsupportedEncodingException e) {
+				throw new CampfireException(e, "Unsupported encoding on posting to: " + path);
+			}
 		}
+		
+		return makeRequest(request);
 	}
-	
-	public HttpResponse getResponse(String path) throws CampfireException {
-		HttpGet request = new HttpGet(url(path));
-        request.addHeader("User-Agent", USER_AGENT);
         
-		// set auth credentials
+    public HttpResponse makeRequest(HttpUriRequest request) throws CampfireException {
+    	request.addHeader("User-Agent", USER_AGENT);
+    	
 		Credentials credentials = new UsernamePasswordCredentials(campfire.token, "X");
 		CredentialsProvider credsProvider = new BasicCredentialsProvider();
 		credsProvider.setCredentials(new AuthScope(domain(), 80), credentials);
@@ -77,6 +82,19 @@ public class CampfireRequest {
 			throw new CampfireException(e);
 		}
 	}
+    
+    public static String responseBody(HttpResponse response) throws CampfireException {
+		int statusCode = response.getStatusLine().getStatusCode();
+		
+		try {
+	        if (statusCode == HttpStatus.SC_OK)
+	        	return EntityUtils.toString(response.getEntity());
+	        else
+	        	throw new CampfireException("Bad status code: " + statusCode);
+		} catch(IOException e) {
+			throw new CampfireException(e);
+		}
+	}
 	
 	public String domain() {
 		return campfire.subdomain + ".campfirenow.com";
@@ -84,44 +102,6 @@ public class CampfireRequest {
 	
 	public String url(String path) {
 		return (campfire.ssl ? "https" : "http") + "://" + domain() + path + format;
-	}
-	
-	
-	/* TO BE REPLACED */
-	
-	public HttpResponse post(String url) throws CampfireException {
-		HttpPost request = new HttpPost(url);
-		
-		request.addHeader("User-Agent", USER_AGENT);
-		request.addHeader("Content-Type", "application/x-www-form-urlencoded");
-		
-		try {
-        	//request.setEntity(new UrlEncodedFormEntity(params));
-    		
-    		DefaultHttpClient client = new DefaultHttpClient();
-    		client.setRedirectHandler(new NoRedirectHandler());
-            
-    		HttpResponse response = client.execute(request);
-        	return response;
-		} catch(Exception e) {
-        	throw new CampfireException(e);
-        }
-	}
-	
-	public HttpResponse get(String url) throws CampfireException {
-		HttpGet request = new HttpGet(url);
-		
-		request.addHeader("User-Agent", USER_AGENT);
-		
-		try {
-        	DefaultHttpClient client = new DefaultHttpClient();
-        	client.setRedirectHandler(new NoRedirectHandler());
-            
-            HttpResponse response = client.execute(request);
-        	return response;
-        } catch(Exception e) {
-        	throw new CampfireException(e);
-        }
 	}
 }
 

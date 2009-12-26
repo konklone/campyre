@@ -9,23 +9,40 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Room {
 	public String id, name;
+	public boolean full = false;
 	private Campfire campfire;
 	
+	// For those times when you don't need a whole Room's details,
+	// You just have the ID and need a Room function (e.g. uploading a file)
 	public Room(Campfire campfire, String id) {
 		this.campfire = campfire;
 		this.id = id;
-		this.name = null;
 	}
 	
-	public Room(Campfire campfire, JSONObject json) throws JSONException {
+	protected Room(Campfire campfire, JSONObject json) throws JSONException {
 		this.campfire = campfire;
 		this.id = json.getString("id");
 		this.name = json.getString("name");
+		if (json.has("full"))
+			this.full = json.getBoolean("full");
+	}
+	
+	public static Room find(Campfire campfire, String id) throws CampfireException {
+		try {
+			return new Room(campfire, new CampfireRequest(campfire).getOne(Campfire.roomPath(id), "room"));
+		} catch(JSONException e) {
+			throw new CampfireException(e, "Problem loading Room from the API.");
+		}
+	}
+	
+	public boolean join() throws CampfireException {
+		return new CampfireRequest(campfire).post(Campfire.joinPath(id)).getStatusLine().getStatusCode() == HttpStatus.SC_OK;
 	}
 	
 	/* Main methods */
@@ -35,28 +52,23 @@ public class Room {
 		return events;
 	}
 	
-	public ArrayList<RoomEvent> startingEvents(int max) {
-		ArrayList<RoomEvent> events = new ArrayList<RoomEvent>();
-		return events;
-	}
-	
-	/** Helper methods */
-	
-	public String toString() {
-		return name;
-	}
-	
 	public RoomEvent speak(String message) throws CampfireException {
 		return null;
 	}
 	
+	public List<CampfireFile> getRoomFiles() {
+		List<CampfireFile> retFiles = new ArrayList<CampfireFile>();
+		return retFiles;
+	}
+	
+	//TODO: Get this to work for more than just JPGs
 	public boolean uploadFile(FileInputStream stream) throws CampfireException {
 		String filename = "from_phone.jpg";
         String lineEnd = "\r\n";
         String twoHyphens = "--";
         String boundary = "*****";
         try {
-            URL connectURL = new URL(uploadUrl());
+            URL connectURL = new URL(Campfire.uploadPath(id));
             HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
             conn.setDoInput(true);
             conn.setDoOutput(true);
@@ -125,15 +137,8 @@ public class Room {
         } 
 		
 	}
-	
-	public List<CampfireFile> getRoomFiles() {
-		List<CampfireFile> retFiles = new ArrayList<CampfireFile>();
-		return retFiles;
-	}
-	
-	/* Routes */
-	
-	public String uploadUrl() {
-		return "/room/" + id + "/uploads";
+
+	public String toString() {
+		return name;
 	}
 }
