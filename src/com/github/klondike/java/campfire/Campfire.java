@@ -6,22 +6,40 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class Campfire {	
 	public String subdomain, token;
+	public String user_email, user_name;
 	public boolean ssl;
 		
 	public Campfire(String subdomain, String token, boolean ssl) {
 		this.subdomain = subdomain;
 		this.token = token;
 		this.ssl = ssl;
+		this.user_email = null;
+		this.user_name = null;
 	}
 	
-	public boolean validate() throws CampfireException {
+	public Campfire(String subdomain, String token, boolean ssl, String user_email, String user_name) {
+		this.subdomain = subdomain;
+		this.token = token;
+		this.ssl = ssl;
+		this.user_email = user_email;
+		this.user_name = user_name;
+	}
+	
+	public boolean login() throws CampfireException, JSONException {
 		HttpResponse response = new CampfireRequest(this).getResponse(checkPath());
 		// if API key is wrong, we'll get a 401 status code (HttpStatus.SC_UNAUTHORIZED)
-		return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
+		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+			JSONObject user = new JSONObject(CampfireRequest.toString(response)).getJSONObject("user");
+			this.user_email = user.getString("email_address");
+			this.user_name = user.getString("name");
+			return true;
+		} else
+			return false;
 	}
 	
 	public Room[] getRooms() throws CampfireException, JSONException {

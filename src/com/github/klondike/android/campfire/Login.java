@@ -1,5 +1,7 @@
 package com.github.klondike.android.campfire;
 
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -88,11 +90,13 @@ public class Login extends Activity {
     				boolean ssl = false; //TODO: Support SSL
     				
     				campfire = new Campfire(subdomain, token, ssl);
-					if (campfire.validate())
+					if (campfire.login())
 						handler.post(loginSuccess);
 					else
 						handler.post(loginFailure);
     	        } catch(CampfireException e) {
+    	        	handler.post(loginError);
+    	        } catch(JSONException e) {
     	        	handler.post(loginError);
     	        }
     		}
@@ -108,9 +112,11 @@ public class Login extends Activity {
     	String subdomain = prefs.getString("subdomain", null);
         String token = prefs.getString("token", null);
         boolean ssl = prefs.getBoolean("ssl", false);
+        String user_email = prefs.getString("user_email", null); 
+        String user_name = prefs.getString("user_name", null);
         
         if (token != null)
-        	return new Campfire(subdomain, token, ssl);
+        	return new Campfire(subdomain, token, ssl, user_email, user_name);
         else
         	return null;
 	}
@@ -122,6 +128,8 @@ public class Login extends Activity {
 		editor.putString("subdomain", campfire.subdomain);
 		editor.putString("token", campfire.token);
 		editor.putBoolean("ssl", campfire.ssl);
+		editor.putString("user_email", campfire.user_email);
+		editor.putString("user_name", campfire.user_name);
 		
 		editor.commit();
 	}
@@ -133,6 +141,8 @@ public class Login extends Activity {
 		editor.putString("subdomain", null);
 		editor.putString("token", null);
 		editor.putBoolean("ssl", false);
+		editor.putString("user_email", null);
+		editor.putString("user_name", null);
 		
 		editor.commit();
 	}

@@ -31,27 +31,16 @@ public class CampfireRequest {
 		this.campfire = campfire;
 	}
 	
-	public JSONObject getOne(String path) throws CampfireException, JSONException {
-		return new JSONObject(getContent(path));
+	public JSONObject getOne(String path, String key) throws CampfireException, JSONException {
+		return new JSONObject(getContent(path)).getJSONObject(key);
 	}
 	
 	public JSONArray getList(String path, String key) throws CampfireException, JSONException {
-		String json = getContent(path);
-		return new JSONObject(json).getJSONArray(key);
+		return new JSONObject(getContent(path)).getJSONArray(key);
 	}
 	
 	public String getContent(String path) throws CampfireException {
-		HttpResponse response = getResponse(path);
-		int statusCode = response.getStatusLine().getStatusCode();
-		
-		try {
-	        if (statusCode == HttpStatus.SC_OK)
-	        	return EntityUtils.toString(response.getEntity());
-	        else
-	        	throw new CampfireException("Bad status code: " + statusCode);
-		} catch(IOException e) {
-			throw new CampfireException(e);
-		}
+		return toString(getResponse(path));
 	}
 	
 	// for testing
