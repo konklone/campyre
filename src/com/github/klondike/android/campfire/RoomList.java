@@ -68,18 +68,14 @@ public class RoomList extends ListActivity {
     public void selectRoom(Room room) {
     	if (forResult) {
     		Intent intent = new Intent();
-    		Bundle extras = new Bundle();
-        	extras.putString("room_id", room.id);
-        	intent.putExtras(extras);
+    		intent.putExtra("room_id", room.id);
         	
         	setResult(RESULT_OK, intent);
         	finish();
     	} else {
     		Intent intent = new Intent(Intent.ACTION_MAIN);
     		intent.setClassName("com.github.klondike.android.campfire", "com.github.klondike.android.campfire.RoomView");
-        	Bundle extras = new Bundle();
-        	extras.putString("room_id", room.id);
-        	intent.putExtras(extras);
+        	intent.putExtra("room_id", room.id);
         	
         	startActivity(intent);
     	}
@@ -131,7 +127,7 @@ public class RoomList extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-        menu.add(0, MENU_CLEAR, 0, "Clear Credentials").setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+        menu.add(0, MENU_CLEAR, 0, R.string.logout).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         
         return result;
     }

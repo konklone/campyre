@@ -50,16 +50,20 @@ public class Campfire {
 		return rooms.toArray(new Room[0]);
 	}
 	
-	public String checkPath() {
+	public static String checkPath() {
 		return "/users/me";
 	}
 	
-	public String roomPath(String room_id) {
+	public static String roomPath(String room_id) {
 		return "/room/" + room_id;
 	}
 	
-	public String roomsPath() {
+	public static String roomsPath() {
 		return "/rooms";
+	}
+	
+	public static String userPath(String id) {
+		return "/users/" + id;
 	}
 	
 }

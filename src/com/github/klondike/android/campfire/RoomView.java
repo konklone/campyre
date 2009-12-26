@@ -1,6 +1,7 @@
 package com.github.klondike.android.campfire;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -27,17 +28,17 @@ import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
 import com.github.klondike.java.campfire.Room;
 import com.github.klondike.java.campfire.RoomEvent;
+import com.github.klondike.java.campfire.User;
 
 public class RoomView extends ListActivity {
-	private static final int MENU_PREFS = 0;
-	private static final int MENU_AUTOPOLL = 1;
-	private static final int MENU_LOGOUT = 2;
+	private static final int MENU_AUTOPOLL = 0;
+	private static final int MENU_LOGOUT = 1;
 
 	private static final int JOINING = 0;
 	private static final int SPEAKING = 1;
 	private static final int POLLING = 2;
 	
-	private static final int MAX_STARTING_MESSAGES = 30;
+	private static final int MAX_MESSAGES = 20;
 	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
 
 	private Campfire campfire;
@@ -45,12 +46,13 @@ public class RoomView extends ListActivity {
 	private Room room;
 	
 	private ArrayList<RoomEvent> events;
-	private ArrayList<RoomEvent> newEvents;
 	private RoomEvent newPost;
 	
 	private EditText message;
 	private Button speak, refresh;
 	private ImageView polling;
+	
+	private HashMap<String,User> users;
 	
 	private boolean autoPoll = true;
 	private boolean joined = false;
@@ -71,6 +73,7 @@ public class RoomView extends ListActivity {
 			this.campfire = holder.campfire;
 			this.room = holder.room;
 			this.events = holder.events;
+			this.users = holder.users;
 			onJoined();
 		} else
 			verifyLogin();
@@ -84,6 +87,7 @@ public class RoomView extends ListActivity {
 			holder.campfire = this.campfire;
 			holder.room = this.room;
 			holder.events = this.events;
+			holder.users = this.users;
 			return holder;
 		} else
 			return null;
@@ -118,18 +122,16 @@ public class RoomView extends ListActivity {
 	private void onPoll() {
 		boolean wasAtBottom = scrolledToBottom();
 		
-		// add the new items
-		RoomAdapter adapter = (RoomAdapter) getListAdapter();
-		for (int i=0; i<newEvents.size(); i++)
-			adapter.add(newEvents.get(i));
+		setListAdapter(new RoomAdapter(this, events));
 		
 		if (wasAtBottom)
 			scrollToBottom();	
 	}
 	
 	// newPost has been populated with the last message the user just posted
-	// and which (currently) is guaranteed to be actually posted
+	// and which is guaranteed to be actually posted
 	private void onSpeak() {
+		//TODO: Poll for new messages instead of adding new post to bottom
 		((RoomAdapter) getListAdapter()).add(newPost);
 		scrollToBottom();
 	}
@@ -264,6 +266,10 @@ public class RoomView extends ListActivity {
 	private void joinRoom() {
 		Thread joinThread = new Thread() {
 			public void run() {
+				//TODO: Pull the room details from the network to make the Room, make sure it's not full
+				//TODO: Join the room
+				//TODO: Pull one's user details from the network, add it to the HashMap
+				//TODO: Call to pollOnce
 				room = new Room(campfire, roomId);
 				handler.post(joinSuccess);
 			}
@@ -303,7 +309,10 @@ public class RoomView extends ListActivity {
 	private void poll() {
 		handler.post(pollStart);
 		try {
-			newEvents = room.listen();
+			//TODO: Have this pull the latest MAX_MESSAGES events from today's transcript
+			//TODO: Store user details on the message object
+			//TODO: Look up users for any messages whose user_id's we don't know
+			events = room.listen();
 			handler.post(pollSuccess);
 		} catch(CampfireException e) {
 			handler.post(pollFailure);
@@ -335,11 +344,9 @@ public class RoomView extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-        menu.add(0, MENU_PREFS, MENU_PREFS, "Preferences")
-        	.setIcon(android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_AUTOPOLL, MENU_AUTOPOLL, autoPoll ? R.string.autopoll_off : R.string.autopoll_on)
         	.setIcon(android.R.drawable.ic_menu_rotate);
-        menu.add(0, MENU_LOGOUT, MENU_LOGOUT, "Log Out")
+        menu.add(0, MENU_LOGOUT, MENU_LOGOUT, R.string.logout)
         	.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         return result;
     }
@@ -356,18 +363,14 @@ public class RoomView extends ListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) { 
-    	case MENU_PREFS:
-    		startActivity(new Intent(this, Preferences.class)); 
-    		return true;
     	case MENU_AUTOPOLL:
-    		// until there exist race conditions on this variable (multiple actors writing to it), 
-    		// no synchronization required
+    		// until there exist race conditions on this variable, no synchronization required
     		autoPoll = !autoPoll;
     		refresh.setVisibility(autoPoll ? View.INVISIBLE: View.VISIBLE);
     		if (autoPoll) autoPoll();
     		return true;
     	case MENU_LOGOUT:
-    		getSharedPreferences("campfire", 0).edit().putString("session", null).commit();
+    		Login.clearCampfire(this);
     		finish();
     		return true;
     	}
@@ -457,5 +460,6 @@ public class RoomView extends ListActivity {
 		Campfire campfire;
 		Room room;
 		ArrayList<RoomEvent> events;
+		HashMap<String,User> users;
 	}
 }
