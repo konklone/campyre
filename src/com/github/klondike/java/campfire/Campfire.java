@@ -11,23 +11,21 @@ import org.json.JSONObject;
 
 public class Campfire {	
 	public String subdomain, token;
-	public String user_email, user_name;
+	public String user_id;
 	public boolean ssl;
 		
 	public Campfire(String subdomain, String token, boolean ssl) {
 		this.subdomain = subdomain;
 		this.token = token;
 		this.ssl = ssl;
-		this.user_email = null;
-		this.user_name = null;
+		this.user_id = null;
 	}
 	
-	public Campfire(String subdomain, String token, boolean ssl, String user_email, String user_name) {
+	public Campfire(String subdomain, String token, boolean ssl, String user_id) {
 		this.subdomain = subdomain;
 		this.token = token;
 		this.ssl = ssl;
-		this.user_email = user_email;
-		this.user_name = user_name;
+		this.user_id = null;
 	}
 	
 	public boolean login() throws CampfireException, JSONException {
@@ -35,8 +33,7 @@ public class Campfire {
 		// if API key is wrong, we'll get a 401 status code (HttpStatus.SC_UNAUTHORIZED)
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 			JSONObject user = new JSONObject(CampfireRequest.toString(response)).getJSONObject("user");
-			this.user_email = user.getString("email_address");
-			this.user_name = user.getString("name");
+			this.user_id = user.getString("id");
 			return true;
 		} else
 			return false;
