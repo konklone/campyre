@@ -47,12 +47,12 @@ public class Room {
 	
 	/* Main methods */
 	
-	public ArrayList<RoomEvent> listen() throws CampfireException {
-		ArrayList<RoomEvent> events = new ArrayList<RoomEvent>();		
-		return events;
+	public ArrayList<Message> listen() throws CampfireException {
+		ArrayList<Message> messages = new ArrayList<Message>();		
+		return messages;
 	}
 	
-	public RoomEvent speak(String message) throws CampfireException {
+	public Message speak(String body) throws CampfireException {
 		return null;
 	}
 	

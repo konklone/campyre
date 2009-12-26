@@ -27,7 +27,7 @@ import android.widget.Toast;
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
 import com.github.klondike.java.campfire.Room;
-import com.github.klondike.java.campfire.RoomEvent;
+import com.github.klondike.java.campfire.Message;
 import com.github.klondike.java.campfire.User;
 
 public class RoomView extends ListActivity {
@@ -45,14 +45,12 @@ public class RoomView extends ListActivity {
 	private String roomId;
 	private Room room;
 	
-	private ArrayList<RoomEvent> messages = new ArrayList<RoomEvent>();
+	private ArrayList<Message> messages = new ArrayList<Message>();
 	private HashMap<String,User> users = new HashMap<String,User>();
 	
 	private EditText message;
 	private Button speak, refresh;
 	private ImageView polling;
-	
-	
 	
 	private boolean autoPoll = true;
 	private boolean joined = false;
@@ -118,7 +116,7 @@ public class RoomView extends ListActivity {
 			pollOnce();
 	}
 	
-	// "messages" has been populated with the latest MAX_MESSAGES events
+	// "messages" has been populated with the latest MAX_MESSAGES messages
 	private void onPoll() {
 		boolean wasAtBottom = scrolledToBottom();
 		
@@ -249,7 +247,7 @@ public class RoomView extends ListActivity {
 		Thread speakThread = new Thread() {
 			public void run() {
 				try {
-					RoomEvent newPost = room.speak(msg);
+					Message newPost = room.speak(msg);
 					if (newPost != null)
 						handler.post(speakSuccess);
 					else
@@ -325,7 +323,7 @@ public class RoomView extends ListActivity {
 	private void poll() {
 		handler.post(pollStart);
 		try {
-			//TODO: Have this pull the latest MAX_MESSAGES events from today's transcript
+			//TODO: Have this pull the latest MAX_MESSAGES messages from today's transcript
 			//TODO: Store user details on the message object
 			//TODO: Look up users for any messages whose user_id's we don't know
 			messages = room.listen();
@@ -416,16 +414,16 @@ public class RoomView extends ListActivity {
 		Toast.makeText(RoomView.this, msg, Toast.LENGTH_SHORT).show();
 	}
 	
-	private static class RoomAdapter extends ArrayAdapter<RoomEvent> {
+	private static class RoomAdapter extends ArrayAdapter<Message> {
 		private LayoutInflater inflater;
 		
-        public RoomAdapter(Activity context, ArrayList<RoomEvent> messages) {
+        public RoomAdapter(Activity context, ArrayList<Message> messages) {
             super(context, 0, messages);
             inflater = LayoutInflater.from(context);
         }
 
 		public View getView(int position, View convertView, ViewGroup parent) {
-			RoomEvent item = getItem(position);
+			Message item = getItem(position);
 			
 			ViewHolder holder;
 			if (convertView != null)
@@ -454,11 +452,11 @@ public class RoomView extends ListActivity {
 		
 		public int viewForType(int type) {
 			switch (type) {
-			case RoomEvent.TEXT:
+			case Message.TEXT:
 				return R.layout.event_text;
-			case RoomEvent.TIMESTAMP:
+			case Message.TIMESTAMP:
 				return R.layout.event_timestamp;
-			case RoomEvent.ENTRY:
+			case Message.ENTRY:
 				return R.layout.event_entry;
 			default:
 				return R.layout.event_text;
@@ -475,7 +473,7 @@ public class RoomView extends ListActivity {
 	static class RoomViewHolder {
 		Campfire campfire;
 		Room room;
-		ArrayList<RoomEvent> messages;
+		ArrayList<Message> messages;
 		HashMap<String,User> users;
 	}
 }

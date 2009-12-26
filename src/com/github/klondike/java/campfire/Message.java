@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * @author eric
  *
  */
-public class RoomEvent {
+public class Message {
 	public static final int TEXT = 0;
 	public static final int TIMESTAMP = 1;
 	public static final int ENTRY = 2;
@@ -18,7 +18,7 @@ public class RoomEvent {
 	public String id, user_id, person;
 	public String body;
 	
-	public RoomEvent(int type, String id, String user_id, String person, String body) {
+	public Message(int type, String id, String user_id, String person, String body) {
 		this.type = type;
 		this.id = id;
 		this.person = person;
@@ -35,8 +35,8 @@ public class RoomEvent {
 			return person + ": " + body;
 	}
 	
-	// RoomEvent knows how to construct itself from the HTML returned from Campfire
-	public static RoomEvent fromPoll(String body) {
+	// Message knows how to construct itself from the HTML returned from Campfire
+	public static Message fromPoll(String body) {
 		String user_id = null;
 		String person = null;
 		String message;
@@ -52,10 +52,10 @@ public class RoomEvent {
 			person = extract("\\\\u003Ctd class=\\\\\"person\\\\\"\\\\u003E(?:\\\\u003Cspan\\\\u003E)?(.+?)(?:\\\\u003C/span\\\\u003E)?\\\\u003C/td\\\\u003E", body);
 		}
 		
-		return new RoomEvent(type, id, user_id, person, message);
+		return new Message(type, id, user_id, person, message);
 	}
 	
-	public static RoomEvent fromStart(String body) {
+	public static Message fromStart(String body) {
 		String user_id = null;
 		String person = null;
 		String message;
@@ -73,7 +73,7 @@ public class RoomEvent {
 			message = extract("td class=\"body\"><div>(.*?)</div>", body);
 		}
 		
-		return new RoomEvent(type, id, user_id, person, message);
+		return new Message(type, id, user_id, person, message);
 	}
 	
 	private static String extract(String regex, String source) {
