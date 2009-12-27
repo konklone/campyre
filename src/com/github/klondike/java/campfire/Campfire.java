@@ -39,17 +39,6 @@ public class Campfire {
 			return false;
 	}
 	
-	public Room[] getRooms() throws CampfireException, JSONException {
-		JSONArray roomList = new CampfireRequest(this).getList(roomsPath(), "rooms");
-		ArrayList<Room> rooms = new ArrayList<Room>();
-		
-		int length = roomList.length();
-		for (int i=0; i<length; i++)
-			rooms.add(new Room(this, roomList.getJSONObject(i)));
-		
-		return rooms.toArray(new Room[0]);
-	}
-	
 	public static String checkPath() {
 		return "/users/me";
 	}

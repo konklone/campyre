@@ -173,7 +173,7 @@ public class RoomList extends ListActivity {
     	@Override
     	protected Room[] doInBackground(Void... nothing) {
     		try {
-				return context.campfire.getRooms();
+				return Room.all(context.campfire);
 			} catch (CampfireException e) {
 				return null;
 			} catch (JSONException e) {

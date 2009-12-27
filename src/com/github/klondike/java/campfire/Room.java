@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.cookie.DateParseException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,6 +41,17 @@ public class Room {
 		} catch(JSONException e) {
 			throw new CampfireException(e, "Problem loading Room from the API.");
 		}
+	}
+	
+	public static Room[] all(Campfire campfire) throws CampfireException, JSONException {
+		JSONArray roomList = new CampfireRequest(campfire).getList(Campfire.roomsPath(), "rooms");
+		ArrayList<Room> rooms = new ArrayList<Room>();
+		
+		int length = roomList.length();
+		for (int i=0; i<length; i++)
+			rooms.add(new Room(campfire, roomList.getJSONObject(i)));
+		
+		return rooms.toArray(new Room[0]);
 	}
 	
 	public boolean join() throws CampfireException {
