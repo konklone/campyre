@@ -36,8 +36,9 @@ public class Message {
 	public Message(JSONObject json) throws JSONException, DateParseException {
 		this.type = typeFor(json.getString("type"));
 		this.id = json.getString("id");
-		this.user_id = json.getString("user_id");
-		this.body = json.getString("body");
+		
+		this.user_id = denull(json.getString("user_id"));
+		this.body = denull(json.getString("body"));
 		
 		this.timestamp = DateUtils.parseDate(json.getString("created_at"), inFormat);
 		
@@ -109,5 +110,12 @@ public class Message {
 	
 	public static String todayPath(String room_id) {
 		return "/room/" + room_id + "/transcript";
+	}
+	
+	private String denull(String maybeNull) {
+		if (maybeNull.equals("null"))
+			return null;
+		else
+			return maybeNull;
 	}
 }

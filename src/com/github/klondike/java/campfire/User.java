@@ -21,4 +21,13 @@ public class User {
 			throw new CampfireException(e, "Problem loading user details.");
 		}
 	}
+	
+	public String displayName() {
+		if (name == null) return "(No name)";
+		String[] names = name.split(" ");
+		if (names.length > 1)
+			return names[0] + " " + names[1].charAt(0) + ".";
+		else
+			return names[0];
+	}
 }

@@ -55,7 +55,7 @@ public class RoomView extends ListActivity {
 	private EditText message;
 	private Button speak, refresh;
 	private ImageView polling;
-	private Message newPost;
+	private Message newMessage;
 	
 	private boolean autoPoll = true;
 	private boolean joined = false;
@@ -132,7 +132,7 @@ public class RoomView extends ListActivity {
 	
 	// The message the user just posted has just been added to the bottom of the list
 	private void onSpeak() {
-		((RoomAdapter) getListAdapter()).add(newPost);
+		((RoomAdapter) getListAdapter()).add(newMessage);
 		
 		scrollToBottom();
 	}
@@ -260,11 +260,14 @@ public class RoomView extends ListActivity {
 					}
 					
 					// 2) Post to the room
-					newPost = room.speak(msg);
-					if (newPost == null) {
+					newMessage = room.speak(msg);
+					if (newMessage == null) {
 						handler.post(speakError);
 						return;
 					}
+					
+					// 3) Fill in the message with our user details 
+					fillPerson(newMessage);
 					
 					handler.post(speakSuccess);
 				} catch (CampfireException e) {
@@ -366,8 +369,23 @@ public class RoomView extends ListActivity {
 	// we use the "users" HashMap to cache Users from the network 
 	private void poll() throws CampfireException {
 		messages = Message.allToday(room, MAX_MESSAGES);
-		//TODO: Store user details on the message object
-		//TODO: Look up users for any messages whose user_id's we don't know
+		int length = messages.size();
+		for (int i=0; i<length; i++) {
+			Message message = messages.get(i);
+			if (message.user_id != null)
+				fillPerson(message);
+		}
+	}
+	
+	private void fillPerson(Message message) throws CampfireException {
+		User speaker;
+		if (users.containsKey(message.user_id))
+			speaker = (User) users.get(message.user_id);
+		else {
+			speaker = User.find(campfire, message.user_id);
+			users.put(message.user_id, speaker);
+		}
+		message.person = speaker.displayName();
 	}
 	
 	private void verifyLogin() {
