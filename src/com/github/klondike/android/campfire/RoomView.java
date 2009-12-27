@@ -116,8 +116,6 @@ public class RoomView extends ListActivity {
 		
 		if (autoPoll) 
 			autoPoll();
-		else
-			pollOnce();
 	}
 	
 	// "messages" has been populated with the latest MAX_MESSAGES messages
@@ -133,7 +131,6 @@ public class RoomView extends ListActivity {
 	// newPost has been populated with the last message the user just posted
 	// and which is guaranteed to be actually posted
 	private void onSpeak() {
-		//TODO: Poll for new messages instead of adding new post to bottom
 		scrollToBottom();
 	}
 	
@@ -252,9 +249,10 @@ public class RoomView extends ListActivity {
 			public void run() {
 				try {
 					Message newPost = room.speak(msg);
-					if (newPost != null)
+					if (newPost != null) {
+						
 						handler.post(speakSuccess);
-					else
+					} else
 						handler.post(speakError);
 				} catch (CampfireException e) {
 					handler.post(speakError);
@@ -269,7 +267,7 @@ public class RoomView extends ListActivity {
 		Thread joinThread = new Thread() {
 			public void run() {
 				try {
-					// Joining a room is a four-step process with 3 network requests:
+					// Joining a room is a five-step process with 4 network requests:
 					
 					// 1) Get the room details (name, topic, etc.)
 					room = Room.find(campfire, roomId);
@@ -289,6 +287,9 @@ public class RoomView extends ListActivity {
 					// 4) Get the details of the logged in user and throw it in the User hash 
 					users.put(campfire.user_id, User.find(campfire, campfire.user_id));
 					
+					// 5) Do an initial poll
+					poll();
+					
 					handler.post(joinSuccess);
 				} catch (CampfireException e) {
 					handler.post(joinFailure);
@@ -303,7 +304,13 @@ public class RoomView extends ListActivity {
 	private void pollOnce() {
 		new Thread() {
 			public void run() {
-				poll();
+				handler.post(pollStart);
+				try {
+					poll();
+					handler.post(pollSuccess);
+				} catch(CampfireException e) {
+					handler.post(pollFailure);
+				}
 			}
 		}.start();
 	}
@@ -312,29 +319,31 @@ public class RoomView extends ListActivity {
 		new Thread() {
 			public void run() {
 				while(autoPoll) {
-					poll();
-					
 					try {
 						sleep(AUTOPOLL_INTERVAL * 1000);
 					} catch(InterruptedException ex) {
 						// well, I never
-					}	
+					}
+					
+					// the user might have turned off autoPoll while we were sleeping!
+					if (autoPoll) {
+						handler.post(pollStart);
+						try {
+							poll();
+							handler.post(pollSuccess);
+						} catch(CampfireException e) {
+							handler.post(pollFailure);
+						}
+					}
 				}
 			}
 		}.start();
 	}
 	
-	private void poll() {
-		handler.post(pollStart);
-		try {
-			messages = Message.allToday(room, MAX_MESSAGES);
-			//TODO: Store user details on the message object
-			//TODO: Look up users for any messages whose user_id's we don't know
-			
-			handler.post(pollSuccess);
-		} catch(CampfireException e) {
-			handler.post(pollFailure);
-		}
+	private void poll() throws CampfireException {
+		messages = Message.allToday(room, MAX_MESSAGES);
+		//TODO: Store user details on the message object
+		//TODO: Look up users for any messages whose user_id's we don't know
 	}
 	
 	private void verifyLogin() {
