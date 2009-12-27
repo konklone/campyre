@@ -16,7 +16,7 @@ import org.json.JSONObject;
 public class Room {
 	public String id, name;
 	public boolean full = false;
-	private Campfire campfire;
+	public Campfire campfire;
 	
 	// For those times when you don't need a whole Room's details,
 	// You just have the ID and need a Room function (e.g. uploading a file)
@@ -45,20 +45,8 @@ public class Room {
 		return new CampfireRequest(campfire).post(Campfire.joinPath(id)).getStatusLine().getStatusCode() == HttpStatus.SC_OK;
 	}
 	
-	/* Main methods */
-	
-	public ArrayList<Message> listen() throws CampfireException {
-		ArrayList<Message> messages = new ArrayList<Message>();		
-		return messages;
-	}
-	
 	public Message speak(String body) throws CampfireException {
 		return null;
-	}
-	
-	public List<CampfireFile> getRoomFiles() {
-		List<CampfireFile> retFiles = new ArrayList<CampfireFile>();
-		return retFiles;
 	}
 	
 	//TODO: Get this to work for more than just JPGs

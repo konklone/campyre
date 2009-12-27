@@ -323,10 +323,10 @@ public class RoomView extends ListActivity {
 	private void poll() {
 		handler.post(pollStart);
 		try {
-			//TODO: Have this pull the latest MAX_MESSAGES messages from today's transcript
+			messages = Message.allToday(room, MAX_MESSAGES);
 			//TODO: Store user details on the message object
 			//TODO: Look up users for any messages whose user_id's we don't know
-			messages = room.listen();
+			
 			handler.post(pollSuccess);
 		} catch(CampfireException e) {
 			handler.post(pollFailure);
@@ -423,7 +423,7 @@ public class RoomView extends ListActivity {
         }
 
 		public View getView(int position, View convertView, ViewGroup parent) {
-			Message item = getItem(position);
+			Message message = getItem(position);
 			
 			ViewHolder holder;
 			if (convertView != null)
@@ -431,35 +431,51 @@ public class RoomView extends ListActivity {
 			else
 				holder = null;
 			
-			if (convertView == null || holder.type != item.type) {
-				convertView = inflater.inflate(viewForType(item.type), null);
+			if (convertView == null || holder.type != message.type) {
+				convertView = inflater.inflate(viewForMessage(message), null);
 				
 				holder = new ViewHolder();
 				holder.body = (TextView) convertView.findViewById(R.id.text);
-				holder.type = item.type;
-				if (item.person != null)
+				holder.type = message.type;
+				if (message.person != null)
 					holder.person = (TextView) convertView.findViewById(R.id.person);
 				
 				convertView.setTag(holder);
 			}
 			
-			holder.body.setText(item.body);
-			if (item.person != null)
-				holder.person.setText(item.person);
+			holder.body.setText(bodyForMessage(message));
+			if (message.person != null)
+				holder.person.setText(message.person);
 			
 			return convertView;
 		}
 		
-		public int viewForType(int type) {
-			switch (type) {
+		public int viewForMessage(Message message) {
+			switch (message.type) {
 			case Message.TEXT:
 				return R.layout.event_text;
 			case Message.TIMESTAMP:
 				return R.layout.event_timestamp;
 			case Message.ENTRY:
+			case Message.LEAVE:
 				return R.layout.event_entry;
 			default:
 				return R.layout.event_text;
+			}
+		}
+		
+		public String bodyForMessage(Message message) {
+			switch (message.type) {
+			case Message.TEXT:
+				return message.body; 
+			case Message.ENTRY:
+				return "has entered the room";
+			case Message.LEAVE:
+				return "has left the room";
+			case Message.TIMESTAMP:
+				return message.timestamp;
+			default:
+				return message.body;
 			}
 		}
 		

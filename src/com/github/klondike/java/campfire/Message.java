@@ -1,7 +1,10 @@
 package com.github.klondike.java.campfire;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * This class is going to handle each type of possible room event, pivoting on a "type" field.
@@ -10,95 +13,92 @@ import java.util.regex.Pattern;
  *
  */
 public class Message {
+	public static final int UNSUPPORTED = -1;
 	public static final int TEXT = 0;
 	public static final int TIMESTAMP = 1;
 	public static final int ENTRY = 2;
+	public static final int LEAVE = 3;
 	
 	public int type;
-	public String id, user_id, person;
-	public String body;
+	public String id, user_id, body, timestamp;
 	
-	public Message(int type, String id, String user_id, String person, String body) {
-		this.type = type;
-		this.id = id;
-		this.person = person;
-		this.user_id = user_id;
-		this.body = body;
-	}
+	// This is really just here to serve the Android client. 
+	// It really needs the display name to put on the Message object itself for help in adapting it to the list.
+	// It violates the intended separation between the two packages, but oh well.
+	public String person;
 	
-	public String toString() {
-		if (type == ENTRY)
-			return person + " " + body;
-		else if (type == TIMESTAMP)
-			return body;
-		else // if (type == TEXT)
-			return person + ": " + body;
-	}
-	
-	// Message knows how to construct itself from the HTML returned from Campfire
-	public static Message fromPoll(String body) {
-		String user_id = null;
-		String person = null;
-		String message;
+	public Message(JSONObject json) throws JSONException {
+		this.type = typeFor(json.getString("type"));
+		this.id = json.getString("id");
+		this.user_id = json.getString("user_id");
+		this.body = json.getString("body");
+		this.timestamp = json.getString("created_at");
 		
-		int type = typeFor(extract("(\\w+)_message", body));
-		String id = extract("id=\\\\\"message_(\\d+)\\\\\"", body);
-		
-		if (type == TIMESTAMP)
-			message = extract("\\\\u003Ctd class=\\\\\"time\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E", body);
-		else {
-			message = extract("\\\\u003Ctd class=\\\\\"body\\\\\"\\\\u003E\\\\u003Cdiv\\\\u003E(.+?)\\\\u003C/div\\\\u003E", body);
-			user_id = extract("user_(\\d+)", body);
-			person = extract("\\\\u003Ctd class=\\\\\"person\\\\\"\\\\u003E(?:\\\\u003Cspan\\\\u003E)?(.+?)(?:\\\\u003C/span\\\\u003E)?\\\\u003C/td\\\\u003E", body);
-		}
-		
-		return new Message(type, id, user_id, person, message);
-	}
-	
-	public static Message fromStart(String body) {
-		String user_id = null;
-		String person = null;
-		String message;
-		
-		String id = extract("id=\"message_(\\d+)\"", body);
-		int type = typeFor(extract("class=\"(.*?)_message", body));
-		
-		if (type == TIMESTAMP) {
-			String day = extract("td class=\"date\"><span>(.*?)</span>", body);
-			message = extract("td class=\"time\"><div>(.*?)</div>", body);
-			if (day != null) message = day + ", " + message;
-		} else {
-			user_id = extract("user_(\\d+)[\"\\s]", body);
-			person = extract("td class=\"person\">(?:<span(?:\\s*style=\"display:\\s*none\")?>)?(.*?)(?:</span>)?</td>", body);
-			message = extract("td class=\"body\"><div>(.*?)</div>", body);
-		}
-		
-		return new Message(type, id, user_id, person, message);
-	}
-	
-	private static String extract(String regex, String source) {
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(source);
-		if (matcher.find())
-			return matcher.group(1);
+		// for testing
+		if (requiresPerson(this.type))
+			this.person = "Test " + this.user_id;
 		else
-			return null;
+			this.person = null;
+	}
+	
+	public static ArrayList<Message> allToday(Room room) throws CampfireException {
+		return allToday(room, -1);
+	}
+	
+	public static ArrayList<Message> allToday(Room room, int max) throws CampfireException {
+		ArrayList<Message> messages = new ArrayList<Message>();
+		try {
+			JSONArray items = new CampfireRequest(room.campfire).getList(todayPath(room.id), "messages");
+			int length = items.length();
+			
+			// we want the bottom-most messages, up to a maximum of "max"
+			// if max is 0 or -1, then just return everything
+			int start;
+			if (max > 0 && max < length)
+				start = length - max;
+			else
+				start = 0;
+			
+			for (int i=start; i<length; i++) {
+				Message message = new Message(items.getJSONObject(i));
+				
+				if (message.type != UNSUPPORTED)
+					messages.add(message);
+			}
+			
+		} catch (JSONException e) {
+			throw new CampfireException(e, "Could not load messages from their JSON.");
+		}
+		return messages; 
 	}
 	
 	private static int typeFor(String type) {
-		if (type == null)
+		if (type.equals("TextMessage"))
 			return TEXT;
-		else if (type.equals("text"))
-			return TEXT;
-		else if (type.equals("timestamp"))
+		else if (type.equals("TimestampMessage"))
 			return TIMESTAMP;
-		else if (type.equals("leave"))
+		else if (type.equals("EnterMessage"))
 			return ENTRY;
-		else if (type.equals("enter"))
-			return ENTRY;
-		else if (type.equals("kick"))
-			return ENTRY;
+		else if (type.equals("LeaveMessage") || type.equals("KickMessage"))
+			return LEAVE;
 		else
-			return TEXT;
+			return UNSUPPORTED;
+	}
+	
+	public boolean requiresPerson(int type) {
+		switch (type) {
+		case TEXT:
+		case ENTRY:
+		case LEAVE:
+			return true;
+		case TIMESTAMP:
+			return false;
+		default:
+			return false;
+		}
+	}
+	
+	public static String todayPath(String room_id) {
+		return "/room/" + room_id + "/transcript";
 	}
 }

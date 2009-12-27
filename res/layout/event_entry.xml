@@ -20,7 +20,7 @@
 		android:textStyle="bold"
 		android:textColor="@android:color/white"
 		
-		android:text="Eric M."
+		android:text="Sir L."
 		/>
 		
 	<TextView android:id="@+id/text"
@@ -33,7 +33,7 @@
 		android:textSize="14sp"
 		android:textColor="@android:color/white"
 		
-		android:text="has left the room"
+		android:text="has loved the room"
 		/>
   	
 </LinearLayout>
