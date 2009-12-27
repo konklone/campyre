@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.impl.cookie.DateParseException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,7 +46,22 @@ public class Room {
 	}
 	
 	public Message speak(String body) throws CampfireException {
-		return null;
+		String type = (body.contains("\n")) ? "PasteMessage" : "TextMessage";
+		String url = Campfire.speakPath(id);
+		try {
+			String request = new JSONObject().put("message", new JSONObject().put("type", type).put("body", body)).toString();
+			HttpResponse response = new CampfireRequest(campfire).post(url, request);
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode == HttpStatus.SC_CREATED) {
+				String responseBody = CampfireRequest.responseBody(response);
+				return new Message(new JSONObject(responseBody).getJSONObject("message"));
+			} else
+				return null;
+		} catch(JSONException e) {
+			throw new CampfireException(e, "Couldn't create JSON object while speaking.");
+		} catch (DateParseException e) {
+			throw new CampfireException(e, "Couldn't parse date from created message while speaking.");
+		}
 	}
 	
 	//TODO: Get this to work for more than just JPGs

@@ -55,6 +55,7 @@ public class RoomView extends ListActivity {
 	private EditText message;
 	private Button speak, refresh;
 	private ImageView polling;
+	private Message newPost;
 	
 	private boolean autoPoll = true;
 	private boolean joined = false;
@@ -111,8 +112,9 @@ public class RoomView extends ListActivity {
 	private void onJoined() {
 		setupControls();
 		
-		// messages is an empty array at this point
+		// messages is already filled with a starting set of messages
 		setListAdapter(new RoomAdapter(this, messages));
+		scrollToBottom();
 		
 		if (autoPoll) 
 			autoPoll();
@@ -128,9 +130,10 @@ public class RoomView extends ListActivity {
 			scrollToBottom();	
 	}
 	
-	// newPost has been populated with the last message the user just posted
-	// and which is guaranteed to be actually posted
+	// The message the user just posted has just been added to the bottom of the list
 	private void onSpeak() {
+		((RoomAdapter) getListAdapter()).add(newPost);
+		
 		scrollToBottom();
 	}
 	
@@ -248,12 +251,22 @@ public class RoomView extends ListActivity {
 		Thread speakThread = new Thread() {
 			public void run() {
 				try {
-					Message newPost = room.speak(msg);
-					if (newPost != null) {
-						
-						handler.post(speakSuccess);
-					} else
+					// Speaking is a 2-step process
+					
+					// 1) Join the room (in case auto-polling is off and we've since been idle-kicked out)
+					if (!room.join()) {
 						handler.post(speakError);
+						return;
+					}
+					
+					// 2) Post to the room
+					newPost = room.speak(msg);
+					if (newPost == null) {
+						handler.post(speakError);
+						return;
+					}
+					
+					handler.post(speakSuccess);
 				} catch (CampfireException e) {
 					handler.post(speakError);
 				}
@@ -307,6 +320,10 @@ public class RoomView extends ListActivity {
 				handler.post(pollStart);
 				try {
 					poll();
+					
+					// ping the room so we don't get idle-kicked out
+					room.join();
+					
 					handler.post(pollSuccess);
 				} catch(CampfireException e) {
 					handler.post(pollFailure);
@@ -330,6 +347,10 @@ public class RoomView extends ListActivity {
 						handler.post(pollStart);
 						try {
 							poll();
+							
+							// ping the room so we don't get idle-kicked out
+							room.join();
+							
 							handler.post(pollSuccess);
 						} catch(CampfireException e) {
 							handler.post(pollFailure);
@@ -340,6 +361,9 @@ public class RoomView extends ListActivity {
 		}.start();
 	}
 	
+	// Fetches latest MAX_MESSAGES from the transcript, then for each message
+	// looks up the associated User to assign a display name
+	// we use the "users" HashMap to cache Users from the network 
 	private void poll() throws CampfireException {
 		messages = Message.allToday(room, MAX_MESSAGES);
 		//TODO: Store user details on the message object

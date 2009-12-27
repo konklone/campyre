@@ -62,12 +62,16 @@ public class Campfire {
 		return "/rooms";
 	}
 	
-	public static String userPath(String id) {
-		return "/users/" + id;
+	public static String userPath(String user_id) {
+		return "/users/" + user_id;
 	}
 	
 	public static String joinPath(String room_id) {
 		return roomPath(room_id) + "/join";
+	}
+	
+	public static String speakPath(String room_id) {
+		return roomPath(room_id) + "/speak";
 	}
 	
 	public static String uploadPath(String room_id) {

@@ -55,6 +55,7 @@ public class CampfireRequest {
 		
 		if (body != null) {
 			try {
+				request.addHeader("Content-type", "application/json");
 				request.setEntity(new StringEntity(body));
 			} catch(UnsupportedEncodingException e) {
 				throw new CampfireException(e, "Unsupported encoding on posting to: " + path);
@@ -87,7 +88,7 @@ public class CampfireRequest {
 		int statusCode = response.getStatusLine().getStatusCode();
 		
 		try {
-	        if (statusCode == HttpStatus.SC_OK)
+	        if (statusCode >= 200 && statusCode < 300)
 	        	return EntityUtils.toString(response.getEntity());
 	        else
 	        	throw new CampfireException("Bad status code: " + statusCode);
