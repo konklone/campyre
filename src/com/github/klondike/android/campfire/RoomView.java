@@ -1,5 +1,7 @@
 package com.github.klondike.android.campfire;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -26,8 +28,8 @@ import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
-import com.github.klondike.java.campfire.Room;
 import com.github.klondike.java.campfire.Message;
+import com.github.klondike.java.campfire.Room;
 import com.github.klondike.java.campfire.User;
 
 public class RoomView extends ListActivity {
@@ -40,6 +42,8 @@ public class RoomView extends ListActivity {
 	
 	private static final int MAX_MESSAGES = 20;
 	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
+	
+	private static String timestampFormat = "hh:mm a";
 
 	private Campfire campfire;
 	private String roomId;
@@ -473,7 +477,7 @@ public class RoomView extends ListActivity {
 			case Message.LEAVE:
 				return "has left the room";
 			case Message.TIMESTAMP:
-				return message.timestamp;
+				return new SimpleDateFormat(timestampFormat).format(message.timestamp);
 			default:
 				return message.body;
 			}

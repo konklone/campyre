@@ -1,7 +1,10 @@
 package com.github.klondike.java.campfire;
 
 import java.util.ArrayList;
+import java.util.Date;
 
+import org.apache.http.impl.cookie.DateParseException;
+import org.apache.http.impl.cookie.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,19 +23,23 @@ public class Message {
 	public static final int LEAVE = 3;
 	
 	public int type;
-	public String id, user_id, body, timestamp;
+	public String id, user_id, body;
+	public Date timestamp;
+	
+	private String[] inFormat = new String[] {"yy/MM/dd HH:mm:ss Z"};
 	
 	// This is really just here to serve the Android client. 
 	// It really needs the display name to put on the Message object itself for help in adapting it to the list.
 	// It violates the intended separation between the two packages, but oh well.
 	public String person;
 	
-	public Message(JSONObject json) throws JSONException {
+	public Message(JSONObject json) throws JSONException, DateParseException {
 		this.type = typeFor(json.getString("type"));
 		this.id = json.getString("id");
 		this.user_id = json.getString("user_id");
 		this.body = json.getString("body");
-		this.timestamp = json.getString("created_at");
+		
+		this.timestamp = DateUtils.parseDate(json.getString("created_at"), inFormat);
 		
 		// for testing
 		if (requiresPerson(this.type))
@@ -68,6 +75,8 @@ public class Message {
 			
 		} catch (JSONException e) {
 			throw new CampfireException(e, "Could not load messages from their JSON.");
+		} catch (DateParseException e) {
+			throw new CampfireException(e, "Could not parse date from a message's JSON.");
 		}
 		return messages; 
 	}
