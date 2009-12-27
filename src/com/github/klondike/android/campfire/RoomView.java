@@ -507,14 +507,14 @@ public class RoomView extends ListActivity {
 		public int viewForMessage(Message message) {
 			switch (message.type) {
 			case Message.TEXT:
-				return R.layout.event_text;
+				return R.layout.message_text;
 			case Message.TIMESTAMP:
-				return R.layout.event_timestamp;
+				return R.layout.message_timestamp;
 			case Message.ENTRY:
 			case Message.LEAVE:
-				return R.layout.event_entry;
+				return R.layout.message_entry;
 			default:
-				return R.layout.event_text;
+				return R.layout.message_text;
 			}
 		}
 		
