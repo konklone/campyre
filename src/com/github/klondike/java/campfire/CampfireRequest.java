@@ -15,8 +15,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultRedirectHandler;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,9 +75,9 @@ public class CampfireRequest {
         try {
 			return client.execute(request);
 		} catch (ClientProtocolException e) {
-			throw new CampfireException(e);
+			throw new CampfireException(e, "ClientProtocolException while making request to: " + request.getURI().toString());
 		} catch (IOException e) {
-			throw new CampfireException(e);
+			throw new CampfireException(e, "IOException while making request to: " + request.getURI().toString());
 		}
 	}
     
@@ -92,7 +90,7 @@ public class CampfireRequest {
 	        else
 	        	throw new CampfireException("Bad status code: " + statusCode);
 		} catch(IOException e) {
-			throw new CampfireException(e);
+			throw new CampfireException(e, "IOException while reading body of HTTP response.");
 		}
 	}
 	
@@ -103,13 +101,4 @@ public class CampfireRequest {
 	public String url(String path) {
 		return (campfire.ssl ? "https" : "http") + "://" + domain() + path + format;
 	}
-}
-
-class NoRedirectHandler extends DefaultRedirectHandler {
-	
-	@Override
-	public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
-		return false;
-	}
-	
 }
