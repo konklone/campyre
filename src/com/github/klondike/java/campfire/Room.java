@@ -43,7 +43,7 @@ public class Room {
 		}
 	}
 	
-	public static Room[] all(Campfire campfire) throws CampfireException, JSONException {
+	public static ArrayList<Room> all(Campfire campfire) throws CampfireException, JSONException {
 		JSONArray roomList = new CampfireRequest(campfire).getList(Campfire.roomsPath(), "rooms");
 		ArrayList<Room> rooms = new ArrayList<Room>();
 		
@@ -51,7 +51,7 @@ public class Room {
 		for (int i=0; i<length; i++)
 			rooms.add(new Room(campfire, roomList.getJSONObject(i)));
 		
-		return rooms.toArray(new Room[0]);
+		return rooms;
 	}
 	
 	public boolean join() throws CampfireException {

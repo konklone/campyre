@@ -1,5 +1,7 @@
 package com.github.klondike.android.campfire;
 
+import java.util.ArrayList;
+
 import org.json.JSONException;
 
 import android.app.ListActivity;
@@ -23,7 +25,7 @@ public class RoomList extends ListActivity {
 	private static final int MENU_CLEAR = 0;
 	
 	private Campfire campfire = null;
-	private Room[] rooms = null;
+	private ArrayList<Room> rooms = null;
 	
 	private LoadRoomsTask loadRoomsTask = null;
 	private ProgressDialog dialog = null;
@@ -82,7 +84,7 @@ public class RoomList extends ListActivity {
     }
     
     public void displayRooms() {
-    	if (rooms.length <= 0)
+    	if (rooms.size() <= 0)
 			((TextView) findViewById(R.id.rooms_empty)).setVisibility(View.VISIBLE);
 		setListAdapter(new ArrayAdapter<Room>(RoomList.this, android.R.layout.simple_list_item_1, rooms));
     }
@@ -154,7 +156,7 @@ public class RoomList extends ListActivity {
         dialog.show();
     }
     
-    private class LoadRoomsTask extends AsyncTask<Void,Void,Room[]> {
+    private class LoadRoomsTask extends AsyncTask<Void,Void,ArrayList<Room>> {
     	public RoomList context;
     	
     	public LoadRoomsTask(RoomList context) {
@@ -171,7 +173,7 @@ public class RoomList extends ListActivity {
     	}
     	
     	@Override
-    	protected Room[] doInBackground(Void... nothing) {
+    	protected ArrayList<Room> doInBackground(Void... nothing) {
     		try {
 				return Room.all(context.campfire);
 			} catch (CampfireException e) {
@@ -182,7 +184,7 @@ public class RoomList extends ListActivity {
     	}
     	
     	@Override
-    	protected void onPostExecute(Room[] foundRooms) {
+    	protected void onPostExecute(ArrayList<Room> foundRooms) {
     		if (foundRooms != null) {
     			context.rooms = foundRooms;
             	context.displayRooms();
@@ -197,7 +199,7 @@ public class RoomList extends ListActivity {
     }
     
     static class RoomListHolder {
-    	Room[] rooms;
+    	ArrayList<Room> rooms;
     	LoadRoomsTask loadRoomsTask;
     }
     
