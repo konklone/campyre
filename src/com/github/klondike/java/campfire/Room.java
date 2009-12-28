@@ -55,7 +55,17 @@ public class Room {
 	}
 	
 	public boolean join() throws CampfireException {
-		return new CampfireRequest(campfire).post(Campfire.joinPath(id)).getStatusLine().getStatusCode() == HttpStatus.SC_OK;
+		HttpResponse response = new CampfireRequest(campfire).post(Campfire.joinPath(id));
+		int statusCode = response.getStatusLine().getStatusCode();
+		
+		switch(statusCode) {
+		case HttpStatus.SC_OK:
+			return true;
+		case HttpStatus.SC_METHOD_NOT_ALLOWED:
+			throw new CampfireException("It looks like your Campfire account uses SSL. Select \"Clear Credentials\" from the menu to log out and select SSL.");
+		default:
+			return false;
+		}
 	}
 	
 	public Message speak(String body) throws CampfireException {
@@ -77,7 +87,7 @@ public class Room {
 		}
 	}
 	
-	//TODO: Get this to work for more than just JPGs
+
 	public boolean uploadFile(FileInputStream stream) throws CampfireException {
 		String filename = "from_phone.jpg";
         String lineEnd = "\r\n";

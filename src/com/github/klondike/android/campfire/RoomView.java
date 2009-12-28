@@ -121,12 +121,15 @@ public class RoomView extends ListActivity {
 	
 	// "messages" has been populated with the latest MAX_MESSAGES messages
 	private void onPoll() {
-		boolean wasAtBottom = scrolledToBottom();
+		//boolean wasAtBottom = scrolledToBottom();
 		
+		// this scrolling strategy works only so long as we have a fixed number of messages in the list
+		int position = scrollPosition(); 
 		setListAdapter(new RoomAdapter(this, messages));
+		scrollTo(position);
 		
-		if (wasAtBottom)
-			scrollToBottom();	
+		//if (wasAtBottom)
+		//	scrollToBottom();	
 	}
 	
 	// The message the user just posted has just been added to the bottom of the list
@@ -178,6 +181,14 @@ public class RoomView extends ListActivity {
 	
 	private boolean scrolledToBottom() {
 		return (getListView().getLastVisiblePosition() == (getListAdapter().getCount()-1));
+	}
+	
+	private int scrollPosition() {
+		return getListView().getLastVisiblePosition();
+	}
+	
+	private void scrollTo(int position) {
+		getListView().setSelection(position);
 	}
 	
 	final Handler handler = new Handler();

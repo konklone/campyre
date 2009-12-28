@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ public class Login extends Activity {
 	
 	private Campfire campfire;
 	private EditText tokenView, subdomainView;
+	private CheckBox sslView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class Login extends Activity {
     public void setupControls() {
     	tokenView = (EditText) findViewById(R.id.token);
     	subdomainView = (EditText) findViewById(R.id.subdomain);
+    	sslView = (CheckBox) findViewById(R.id.ssl);
     	
     	SharedPreferences prefs = getSharedPreferences("campfire", 0); 
     	String subdomain = prefs.getString("subdomain", null);
@@ -87,7 +90,7 @@ public class Login extends Activity {
     			try {
     				String subdomain = subdomainView.getText().toString();
     				String token = tokenView.getText().toString();
-    				boolean ssl = false; //TODO: Support SSL
+    				boolean ssl = sslView.isChecked();
     				
     				campfire = new Campfire(subdomain, token, ssl);
 					if (campfire.login())

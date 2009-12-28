@@ -1,10 +1,7 @@
 package com.github.klondike.java.campfire;
 
-import java.util.ArrayList;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,8 +27,9 @@ public class Campfire {
 	
 	public boolean login() throws CampfireException, JSONException {
 		HttpResponse response = new CampfireRequest(this).get(checkPath());
+		int statusCode = response.getStatusLine().getStatusCode();
 		// if API key is wrong, we'll get a 401 status code (HttpStatus.SC_UNAUTHORIZED)
-		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+		if (statusCode == HttpStatus.SC_OK) {
 			JSONObject user = new JSONObject(CampfireRequest.responseBody(response)).getJSONObject("user");
 			this.user_id = user.getString("id");
 			return true;
