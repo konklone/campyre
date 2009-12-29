@@ -3,7 +3,9 @@ package com.github.klondike.java.campfire;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -12,9 +14,17 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,15 +75,39 @@ public class CampfireRequest {
     public HttpResponse makeRequest(HttpUriRequest request) throws CampfireException {
     	request.addHeader("User-Agent", USER_AGENT);
     	
-		Credentials credentials = new UsernamePasswordCredentials(campfire.token, "X");
+    	Credentials credentials = new UsernamePasswordCredentials(campfire.token, "X");
 		CredentialsProvider credsProvider = new BasicCredentialsProvider();
-		credsProvider.setCredentials(new AuthScope(domain(), 80), credentials);
- 
-		DefaultHttpClient client = new DefaultHttpClient();
+		
+    	
+    	DefaultHttpClient client;
+    	if (campfire.ssl) {
+    		credsProvider.setCredentials(new AuthScope(domain(), 443), credentials);
+    		
+    		Scheme https = new Scheme("https", SSLSocketFactory.getSocketFactory(), 443);
+    		final SchemeRegistry schemeRegistry = new SchemeRegistry();
+    		schemeRegistry.register(https);
+    		
+    		HttpParams params = new BasicHttpParams();
+    		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+    		HttpProtocolParams.setContentCharset(params, "UTF-8");
+    		HttpProtocolParams.setUseExpectContinue(params, true);
+    		
+    		final ClientConnectionManager cm = new ThreadSafeClientConnManager(params, schemeRegistry);
+    		
+    		client = new DefaultHttpClient(cm, params);
+    	} else {
+    		credsProvider.setCredentials(new AuthScope(domain(), 80), credentials);
+    		client = new DefaultHttpClient();
+    	}
+				
 		client.setCredentialsProvider(credsProvider);
         
         try {
-			return client.execute(request);
+        	if (campfire.ssl) {
+        		HttpHost target = new HttpHost(domain(), 443, "https");
+        		return client.execute(target, request);
+        	} else
+        		return client.execute(request);
 		} catch (ClientProtocolException e) {
 			throw new CampfireException(e, "ClientProtocolException while making request to: " + request.getURI().toString());
 		} catch (IOException e) {
