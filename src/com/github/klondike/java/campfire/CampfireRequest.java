@@ -77,37 +77,13 @@ public class CampfireRequest {
     	
     	Credentials credentials = new UsernamePasswordCredentials(campfire.token, "X");
 		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+		credsProvider.setCredentials(new AuthScope(domain(), (campfire.ssl ? 443 : 80)), credentials);
 		
-    	
-    	DefaultHttpClient client;
-    	if (campfire.ssl) {
-    		credsProvider.setCredentials(new AuthScope(domain(), 443), credentials);
-    		
-    		Scheme https = new Scheme("https", SSLSocketFactory.getSocketFactory(), 443);
-    		final SchemeRegistry schemeRegistry = new SchemeRegistry();
-    		schemeRegistry.register(https);
-    		
-    		HttpParams params = new BasicHttpParams();
-    		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-    		HttpProtocolParams.setContentCharset(params, "UTF-8");
-    		HttpProtocolParams.setUseExpectContinue(params, true);
-    		
-    		final ClientConnectionManager cm = new ThreadSafeClientConnManager(params, schemeRegistry);
-    		
-    		client = new DefaultHttpClient(cm, params);
-    	} else {
-    		credsProvider.setCredentials(new AuthScope(domain(), 80), credentials);
-    		client = new DefaultHttpClient();
-    	}
-				
+		DefaultHttpClient client = new DefaultHttpClient();
 		client.setCredentialsProvider(credsProvider);
         
         try {
-        	if (campfire.ssl) {
-        		HttpHost target = new HttpHost(domain(), 443, "https");
-        		return client.execute(target, request);
-        	} else
-        		return client.execute(request);
+        	return client.execute(request);
 		} catch (ClientProtocolException e) {
 			throw new CampfireException(e, "ClientProtocolException while making request to: " + request.getURI().toString());
 		} catch (IOException e) {
