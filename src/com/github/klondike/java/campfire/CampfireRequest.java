@@ -120,7 +120,11 @@ public class CampfireRequest {
         String boundary = "---------------------------XXX";
         
         try {
+        	// Unlike other parts of the API, this must be posted to the .xml endpoint, not the .json
+        	// This seems to be because .json endpoints require a Content-Type of application/json,
+        	// and with a multipart post it must be multipart/form-data.
             URL connectURL = new URL(url(path, ".xml"));
+            
             HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
             conn.setDoInput(true);
             conn.setDoOutput(true);
@@ -134,7 +138,6 @@ public class CampfireRequest {
             conn.setRequestProperty("User-Agent", CampfireRequest.USER_AGENT);
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             
-
             DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
             
             // file header
