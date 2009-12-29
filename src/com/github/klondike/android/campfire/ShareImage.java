@@ -77,13 +77,13 @@ public class ShareImage extends Activity {
 				
 					ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
 					FileDescriptor fd = pfd.getFileDescriptor();
-					FileInputStream image = new FileInputStream(fd);
+					FileInputStream stream = new FileInputStream(fd);
 					
-					if (image == null) {
+					if (stream == null) {
 						uploaded = false;
 						uploadError = "Error processing photo, image was not uploaded.";
 					} else {
-						if (room.uploadFile(image))
+						if (room.uploadImage(stream))
 							uploaded = true;
 						else {
 							uploaded = false;
