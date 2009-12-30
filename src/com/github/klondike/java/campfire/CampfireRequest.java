@@ -109,6 +109,7 @@ public class CampfireRequest {
 		return url(path, this.format);
 	}
 	
+	// lets you override the format per-request (used only for file uploading, which has to be .xml)
 	public String url(String path, String format) {
 		return (campfire.ssl ? "https" : "http") + "://" + domain() + path + format;
 	}
@@ -123,6 +124,7 @@ public class CampfireRequest {
         	// Unlike other parts of the API, this must be posted to the .xml endpoint, not the .json
         	// This seems to be because .json endpoints require a Content-Type of application/json,
         	// and with a multipart post it must be multipart/form-data.
+        	// I consider this a bug, since it is inconsistent with the rest of the API, and undocumented.
             URL connectURL = new URL(url(path, ".xml"));
             
             HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
@@ -131,6 +133,7 @@ public class CampfireRequest {
             conn.setUseCaches(false);
             conn.setRequestMethod("POST");
 
+            // authentication
             String token = campfire.token + ":" + "X";
     		String encoding = Base64Encoder.encode(token);
     		conn.setRequestProperty("Authorization", "Basic " + encoding);
@@ -140,7 +143,7 @@ public class CampfireRequest {
             
             DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
             
-            // file header
+            // header for the file itself
             dos.writeBytes(twoHyphens + boundary + lineEnd);
             // OH MY GOD the space between the semicolon and "filename=" is ABSOLUTELY NECESSARY
             dos.writeBytes("Content-Disposition: form-data; name=\"upload\"; filename=\"" + filename + "\"" + lineEnd);
@@ -164,7 +167,7 @@ public class CampfireRequest {
             // file closer
             dos.writeBytes(lineEnd);
             
-            // send multipart form data necesssary after file data...            
+            // end multipart request            
             dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
             // close streams
