@@ -26,9 +26,11 @@ public class Campfire {
 	}
 	
 	public boolean login() throws CampfireException, JSONException {
-		HttpResponse response = new CampfireRequest(this).get(checkPath());
+		HttpResponse response = new CampfireRequest(this).get(mePath());
 		int statusCode = response.getStatusLine().getStatusCode();
 		// if API key is wrong, we'll get a 401 status code (HttpStatus.SC_UNAUTHORIZED)
+		// if the Campfire needs SSL, we'll get a _____, so refetch it at that URL
+		// if it gets a 200, then save the info from the response
 		if (statusCode == HttpStatus.SC_OK) {
 			JSONObject user = new JSONObject(CampfireRequest.responseBody(response)).getJSONObject("user");
 			this.user_id = user.getString("id");
@@ -37,7 +39,7 @@ public class Campfire {
 			return false;
 	}
 	
-	public static String checkPath() {
+	public static String mePath() {
 		return "/users/me";
 	}
 	
