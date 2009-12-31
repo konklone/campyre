@@ -22,6 +22,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultRedirectHandler;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,9 +35,15 @@ public class CampfireRequest {
 	private String format = ".json";
 	
 	private Campfire campfire;
+	private boolean followRedirects = true;
 	
 	public CampfireRequest(Campfire campfire) {
 		this.campfire = campfire;
+	}
+	
+	public CampfireRequest(Campfire campfire, boolean followRedirects) {
+		this.campfire = campfire;
+		this.followRedirects = followRedirects;
 	}
 	
 	public JSONObject getOne(String path, String key) throws CampfireException, JSONException {
@@ -78,6 +86,8 @@ public class CampfireRequest {
 		
 		DefaultHttpClient client = new DefaultHttpClient();
 		client.setCredentialsProvider(credsProvider);
+		if (!followRedirects)
+			client.setRedirectHandler(new NoRedirectHandler());
         
         try {
         	return client.execute(request);
@@ -182,5 +192,13 @@ public class CampfireRequest {
         	throw new CampfireException(e.getClass().getCanonicalName() + "\n" + e.getMessage());
         } 
 		
+	}
+}
+
+// Used for requests where we want to detect a redirect vs a 200 (i.e. login)
+class NoRedirectHandler extends DefaultRedirectHandler {
+	@Override
+	public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
+		return false;
 	}
 }

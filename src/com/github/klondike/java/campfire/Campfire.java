@@ -8,14 +8,12 @@ import org.json.JSONObject;
 
 public class Campfire {	
 	public String subdomain, token;
-	public String user_id;
-	public boolean ssl;
+	public String user_id = null;
+	public boolean ssl = false;
 		
-	public Campfire(String subdomain, String token, boolean ssl) {
+	public Campfire(String subdomain, String token) {
 		this.subdomain = subdomain;
 		this.token = token;
-		this.ssl = ssl;
-		this.user_id = null;
 	}
 	
 	public Campfire(String subdomain, String token, boolean ssl, String user_id) {
@@ -26,17 +24,28 @@ public class Campfire {
 	}
 	
 	public boolean login() throws CampfireException, JSONException {
-		HttpResponse response = new CampfireRequest(this).get(mePath());
+		HttpResponse response = new CampfireRequest(this, false).get(mePath());
 		int statusCode = response.getStatusLine().getStatusCode();
 		// if API key is wrong, we'll get a 401 status code (HttpStatus.SC_UNAUTHORIZED)
-		// if the Campfire needs SSL, we'll get a _____, so refetch it at that URL
+		// if the Campfire needs SSL, we'll get a 302, so relogin as an SSL-enabled Campfire
 		// if it gets a 200, then save the info from the response
-		if (statusCode == HttpStatus.SC_OK) {
+		switch (statusCode) {
+		case HttpStatus.SC_OK:
 			JSONObject user = new JSONObject(CampfireRequest.responseBody(response)).getJSONObject("user");
 			this.user_id = user.getString("id");
 			return true;
-		} else
+		case HttpStatus.SC_MOVED_TEMPORARILY:
+			if (this.ssl) // not sure why this would happen, but I'm cautious about infinite loops
+				return false;
+			else {
+				this.ssl = true;
+				return login();
+			}
+		case HttpStatus.SC_UNAUTHORIZED:
 			return false;
+		default:
+			return false;
+		}
 	}
 	
 	public static String mePath() {

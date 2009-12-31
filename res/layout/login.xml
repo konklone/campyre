@@ -48,6 +48,7 @@
 			android:orientation="vertical"
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
+		    android:layout_marginTop="8dp"
 			>
 			
 			<TextView
@@ -70,36 +71,10 @@
 				
 		</LinearLayout>
 		
-		<LinearLayout
-			android:orientation="horizontal"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			>
-			
-			<CheckBox
-				android:id="@+id/ssl"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				
-				
-				/>
-				
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				
-				android:layout_marginLeft="10dp"
-				
-				android:text="Use SSL (https)"
-				android:textSize="17sp"
-				/>
-			
-		</LinearLayout>
-		
 		<Button android:id="@+id/login_button"
 			android:layout_width="fill_parent"
 			android:layout_height="60sp"
-			android:layout_marginTop="10sp"
+			android:layout_marginTop="12sp"
 			
 			android:textSize="20sp"
 			android:text="Login"
