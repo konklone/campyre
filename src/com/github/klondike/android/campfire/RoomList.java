@@ -104,7 +104,7 @@ public class RoomList extends ListActivity {
     }
     
     public void verifyLogin() {
-    	campfire = Login.getCampfire(this);
+    	campfire = Utils.getCampfire(this);
         if (campfire != null)
         	onLogin();
         else
@@ -117,7 +117,7 @@ public class RoomList extends ListActivity {
     	case Login.RESULT_LOGIN:
     		if (resultCode == RESULT_OK) {
     			Utils.alert(this, "You have been logged in successfully.");
-    			campfire = Login.getCampfire(this);
+    			campfire = Utils.getCampfire(this);
     			onLogin();
     		} else
     			finish();
@@ -137,7 +137,7 @@ public class RoomList extends ListActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) { 
     	case MENU_CLEAR:
-    		Login.clearCampfire(this);
+    		Utils.clearCampfire(this);
     		finish();
     	}
     	return super.onOptionsItemSelected(item);

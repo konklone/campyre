@@ -95,7 +95,7 @@ public class ShareImage extends Activity {
 	}
 	
 	public void verifyLogin() {
-    	campfire = Login.getCampfire(this);
+    	campfire = Utils.getCampfire(this);
         if (campfire != null)
         	onLogin();
         else
@@ -114,7 +114,7 @@ public class ShareImage extends Activity {
     	case Login.RESULT_LOGIN:
     		if (resultCode == RESULT_OK) {
     			Utils.alert(this, "You have been logged in successfully.");
-    			campfire = Login.getCampfire(this);
+    			campfire = Utils.getCampfire(this);
     			onLogin();
     		} else
     			finish();
