@@ -1,8 +1,7 @@
 package com.github.klondike.android.campfire;
 
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -12,7 +11,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ParcelFileDescriptor;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -68,22 +66,17 @@ public class ShareImage extends Activity {
 		Thread uploadThread = new Thread() {
 			public void run() {
 				try {
-					// Don't move this code into another method, or split it up - somehow
-					// stuff gets out of scope or garbage collected and file transfers start dying
-					Bundle extras = ShareImage.this.getIntent().getExtras();
-					Uri uri = (Uri) extras.get("android.intent.extra.STREAM");
+					Uri uri = (Uri) getIntent().getExtras().get("android.intent.extra.STREAM");
 					
-					ContentResolver cr = ShareImage.this.getContentResolver();
-				
-					ParcelFileDescriptor pfd = cr.openFileDescriptor(uri, "r");
-					FileDescriptor fd = pfd.getFileDescriptor();
-					FileInputStream stream = new FileInputStream(fd);
+					InputStream stream = getContentResolver().openInputStream(uri);
+					String mimeType = getContentResolver().getType(uri);
+					String filename = filenameFor(mimeType);
 					
 					if (stream == null) {
 						uploaded = false;
 						uploadError = "Error processing photo, image was not uploaded.";
 					} else {
-						if (room.uploadImage(stream))
+						if (room.uploadImage(stream, filename, mimeType))
 							uploaded = true;
 						else {
 							uploaded = false;
@@ -155,6 +148,15 @@ public class ShareImage extends Activity {
 	
 	public void alert(String msg) {
 		Toast.makeText(ShareImage.this, msg, Toast.LENGTH_SHORT).show();
+	}
+	
+	public static String filenameFor(String mimeType) {
+		String suffix;
+		if (mimeType.equals("image/jpeg") || mimeType.equals("image/jpg"))
+			suffix = "jpg";
+		else
+			suffix = "jpg";
+		return "from_phone." + suffix;
 	}
 	
 }

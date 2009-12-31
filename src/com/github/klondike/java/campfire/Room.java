@@ -1,6 +1,6 @@
 package com.github.klondike.java.campfire;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
@@ -82,8 +82,8 @@ public class Room {
 		}
 	}
 	
-	public boolean uploadImage(FileInputStream stream) throws CampfireException {
-		return new CampfireRequest(campfire).uploadFile(Campfire.uploadPath(id), stream, "jpg", "image/jpeg");
+	public boolean uploadImage(InputStream stream, String filename, String mimeType) throws CampfireException {
+		return new CampfireRequest(campfire).uploadFile(Campfire.uploadPath(id), stream, filename, mimeType);
 	}
 
 	public String toString() {

@@ -1,8 +1,8 @@
 package com.github.klondike.java.campfire;
 
 import java.io.DataOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -124,8 +124,7 @@ public class CampfireRequest {
 		return (campfire.ssl ? "https" : "http") + "://" + domain() + path + format;
 	}
 	
-	public boolean uploadFile(String path, FileInputStream stream, String extension, String mimeType) throws CampfireException {
-		String filename = "from_phone." + extension;
+	public boolean uploadFile(String path, InputStream stream, String filename, String mimeType) throws CampfireException {
         String lineEnd = "\r\n";
         String twoHyphens = "--";
         String boundary = "---------------------------XXX";
