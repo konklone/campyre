@@ -31,7 +31,6 @@ import org.json.JSONObject;
 
 
 public class CampfireRequest {
-	public static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire";
 	private String format = ".json";
 	
 	private Campfire campfire;
@@ -78,7 +77,7 @@ public class CampfireRequest {
 	}
         
     public HttpResponse makeRequest(HttpUriRequest request) throws CampfireException {
-    	request.addHeader("User-Agent", USER_AGENT);
+    	request.addHeader("User-Agent", Campfire.USER_AGENT);
     	
     	Credentials credentials = new UsernamePasswordCredentials(campfire.token, "X");
 		CredentialsProvider credsProvider = new BasicCredentialsProvider();
@@ -147,7 +146,7 @@ public class CampfireRequest {
     		String encoding = Base64Encoder.encode(token);
     		conn.setRequestProperty("Authorization", "Basic " + encoding);
             
-            conn.setRequestProperty("User-Agent", CampfireRequest.USER_AGENT);
+            conn.setRequestProperty("User-Agent", Campfire.USER_AGENT);
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             
             DataOutputStream dos = new DataOutputStream(conn.getOutputStream());

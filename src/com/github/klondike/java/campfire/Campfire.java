@@ -6,7 +6,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class Campfire {	
+public class Campfire {
+	// Change this to use your own user agent
+	public static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire)";
+	
 	public String subdomain, token;
 	public String user_id = null;
 	public boolean ssl = false;
