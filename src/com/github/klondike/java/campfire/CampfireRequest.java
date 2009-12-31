@@ -94,7 +94,7 @@ public class CampfireRequest {
 		} catch (ClientProtocolException e) {
 			throw new CampfireException(e, "ClientProtocolException while making request to: " + request.getURI().toString());
 		} catch (IOException e) {
-			throw new CampfireException(e, "IOException while making request to: " + request.getURI().toString());
+			throw new CampfireException(e, "Couldn't connect to the Internet. Check your network connection.");
 		}
 	}
     
@@ -107,7 +107,7 @@ public class CampfireRequest {
 	        else
 	        	throw new CampfireException("Bad status code: " + statusCode);
 		} catch(IOException e) {
-			throw new CampfireException(e, "IOException while reading body of HTTP response.");
+			throw new CampfireException(e, "Error while reading body of HTTP response.");
 		}
 	}
 	

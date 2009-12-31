@@ -34,17 +34,20 @@ public class Room {
 		try {
 			return new Room(campfire, new CampfireRequest(campfire).getOne(Campfire.roomPath(id), "room"));
 		} catch(JSONException e) {
-			throw new CampfireException(e, "Problem loading Room from the API.");
+			throw new CampfireException(e, "Problem loading room from the API.");
 		}
 	}
 	
-	public static ArrayList<Room> all(Campfire campfire) throws CampfireException, JSONException {
-		JSONArray roomList = new CampfireRequest(campfire).getList(Campfire.roomsPath(), "rooms");
+	public static ArrayList<Room> all(Campfire campfire) throws CampfireException {
 		ArrayList<Room> rooms = new ArrayList<Room>();
-		
-		int length = roomList.length();
-		for (int i=0; i<length; i++)
-			rooms.add(new Room(campfire, roomList.getJSONObject(i)));
+		try {
+			JSONArray roomList = new CampfireRequest(campfire).getList(Campfire.roomsPath(), "rooms");
+			int length = roomList.length();
+			for (int i=0; i<length; i++)
+				rooms.add(new Room(campfire, roomList.getJSONObject(i)));
+		} catch(JSONException e) {
+			throw new CampfireException(e, "Problem loading room list from the API.");
+		}
 		
 		return rooms;
 	}

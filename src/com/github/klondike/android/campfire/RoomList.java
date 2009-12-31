@@ -2,8 +2,6 @@ package com.github.klondike.android.campfire;
 
 import java.util.ArrayList;
 
-import org.json.JSONException;
-
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -67,12 +65,12 @@ public class RoomList extends ListActivity {
     	loadRooms();
     }
     
-    public void onLoadRooms(ArrayList<Room> rooms) {
-    	if (rooms != null) {
+    public void onLoadRooms(ArrayList<Room> rooms, CampfireException exception) {
+    	if (exception == null && rooms != null) {
     		this.rooms = rooms;
         	displayRooms();
     	} else {
-			alert("Error connecting to Campfire. Please try again later.");
+			alert(exception);
 			finish();
 		}
     }
@@ -154,6 +152,10 @@ public class RoomList extends ListActivity {
 		Toast.makeText(RoomList.this, msg, Toast.LENGTH_SHORT).show();
 	}
     
+    public void alert(CampfireException e) {
+    	alert(e != null ? e.getMessage() : "Error loading rooms.");
+    }
+    
     public void loadingDialog() {
     	dialog = new ProgressDialog(RoomList.this);
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -164,6 +166,7 @@ public class RoomList extends ListActivity {
     
     private class LoadRoomsTask extends AsyncTask<Void,Void,ArrayList<Room>> {
     	public RoomList context;
+    	public CampfireException exception = null;
     	
     	public LoadRoomsTask(RoomList context) {
     		super();
@@ -181,8 +184,7 @@ public class RoomList extends ListActivity {
     		try {
 				return Room.all(context.campfire);
 			} catch (CampfireException e) {
-				return null;
-			} catch (JSONException e) {
+				this.exception = e;
 				return null;
 			}
     	}
@@ -193,7 +195,7 @@ public class RoomList extends ListActivity {
     			context.dialog.dismiss();
     		context.loadRoomsTask = null;
     		
-    		context.onLoadRooms(rooms);
+    		context.onLoadRooms(rooms, exception);
     	}
     }
     
