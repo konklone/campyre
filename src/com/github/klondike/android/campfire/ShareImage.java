@@ -6,7 +6,6 @@ import java.io.InputStream;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -151,12 +150,11 @@ public class ShareImage extends Activity {
 	}
 	
 	public static String filenameFor(String mimeType) {
-		String suffix;
-		if (mimeType.equals("image/jpeg") || mimeType.equals("image/jpg"))
-			suffix = "jpg";
+		// default to whatever was in the 2nd half of the mime type
+		if (mimeType.equals("image/jpeg"))
+			return "from_phone.jpg";
 		else
-			suffix = "jpg";
-		return "from_phone." + suffix;
+			return "from_phone." + mimeType.split("/")[1];
 	}
 	
 }
