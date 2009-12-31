@@ -22,7 +22,7 @@ import com.github.klondike.java.campfire.CampfireException;
 public class Login extends Activity {
 	private static final int LOGGING_IN = 1;
 	
-	// high because other activities will use this code in their case statements
+	// high number because other activities will use this code in their case statements
 	public static final int RESULT_LOGIN = 1000;
 	
 	private Campfire campfire;

@@ -51,7 +51,8 @@ public class RoomList extends ListActivity {
 	    	}
         }
         
-        verifyLogin();
+        if (loadRoomsTask == null)
+        	verifyLogin();
     }
     
     @Override
@@ -62,9 +63,18 @@ public class RoomList extends ListActivity {
     	return holder;
     }
     
-    // will only be run after we are assured of being logged in
     public void onLogin() {
     	loadRooms();
+    }
+    
+    public void onLoadRooms(ArrayList<Room> rooms) {
+    	if (rooms != null) {
+    		this.rooms = rooms;
+        	displayRooms();
+    	} else {
+			alert("Error connecting to Campfire. Please try again later.");
+			finish();
+		}
     }
     
     public void selectRoom(Room room) {
@@ -94,14 +104,10 @@ public class RoomList extends ListActivity {
     }
     
     public void loadRooms() {
-    	// if a LoadRoomsTask is running, and we've updated its context to be our instance in onCreate,
-    	// then we can trust its onPostExecute to load the rooms when it's done
-    	if (loadRoomsTask == null) {
-	    	if (rooms == null)
-		    	new LoadRoomsTask(this).execute();
-	    	else
-	    		displayRooms();
-    	}
+    	if (rooms == null)
+	    	new LoadRoomsTask(this).execute();
+    	else
+    		displayRooms();
     }
     
     public void verifyLogin() {
@@ -161,8 +167,6 @@ public class RoomList extends ListActivity {
     	
     	public LoadRoomsTask(RoomList context) {
     		super();
-    		
-    		// link the task to the context
     		this.context = context;
     		this.context.loadRoomsTask = this;
     	}
@@ -184,17 +188,12 @@ public class RoomList extends ListActivity {
     	}
     	
     	@Override
-    	protected void onPostExecute(ArrayList<Room> foundRooms) {
-    		if (foundRooms != null) {
-    			context.rooms = foundRooms;
-            	context.displayRooms();
-            	if (context.dialog != null && context.dialog.isShowing())
-        			context.dialog.dismiss();
-        		context.loadRoomsTask = null;
-    		} else {
-    			context.alert("Error connecting to Campfire. Please try again later.");
-    			context.finish();
-    		}
+    	protected void onPostExecute(ArrayList<Room> rooms) {
+    		if (context.dialog != null && context.dialog.isShowing())
+    			context.dialog.dismiss();
+    		context.loadRoomsTask = null;
+    		
+    		context.onLoadRooms(rooms);
     	}
     }
     
