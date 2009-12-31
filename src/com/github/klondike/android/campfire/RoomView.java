@@ -23,7 +23,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
@@ -191,7 +190,7 @@ public class RoomView extends ListActivity {
 	final Runnable joinFailure = new Runnable() {
 		public void run() {
 			removeDialog(JOINING);
-			alert("Couldn't join room for some reason. Click the room to try again.");
+			Utils.alert(RoomView.this, "Couldn't join room for some reason. Click the room to try again.");
 			finish();
 		}
 	};
@@ -207,7 +206,7 @@ public class RoomView extends ListActivity {
 	};
 	final Runnable speakError = new Runnable() {
 		public void run() {
-			alert("Connection error.");
+			Utils.alert(RoomView.this, "Connection error.");
 			removeDialog(SPEAKING);
 			
 			speak.setEnabled(true);
@@ -236,7 +235,7 @@ public class RoomView extends ListActivity {
 		public void run() {
 			refresh.setVisibility(View.VISIBLE);
 			polling.setVisibility(View.GONE);
-			alert("Connection error.");
+			Utils.alert(RoomView.this, "Connection error.");
 		}
 	};
 	
@@ -400,7 +399,7 @@ public class RoomView extends ListActivity {
     	switch (requestCode) {
     	case Login.RESULT_LOGIN:
     		if (resultCode == RESULT_OK) {
-    			alert("You have been logged in successfully.");
+    			Utils.alert(this, "You have been logged in successfully.");
     			campfire = Login.getCampfire(this);
     			onLogin();
     		} else
@@ -463,10 +462,6 @@ public class RoomView extends ListActivity {
             return null;
         }
     }
-	
-	public void alert(String msg) {
-		Toast.makeText(RoomView.this, msg, Toast.LENGTH_SHORT).show();
-	}
 	
 	private static class RoomAdapter extends ArrayAdapter<Message> {
 		private LayoutInflater inflater;

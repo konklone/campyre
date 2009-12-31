@@ -14,7 +14,6 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
@@ -50,14 +49,14 @@ public class Login extends Activity {
     final Runnable loginFailure = new Runnable() {
     	public void run() {
     		dismissDialog(LOGGING_IN);
-    		alert("Invalid credentials.");
+    		Utils.alert(Login.this, "Invalid credentials.");
     	}
     };
     
     final Runnable loginError = new Runnable() {
     	public void run() {
     		dismissDialog(LOGGING_IN);
-    		alert("Error while attempting to log in, please try again.");
+    		Utils.alert(Login.this, "Error while attempting to log in, please try again.");
     	}
     };
     
@@ -155,8 +154,4 @@ public class Login extends Activity {
             return null;
         }
     }
-	
-	public void alert(String msg) {
-		Toast.makeText(Login.this, msg, Toast.LENGTH_SHORT).show();
-	}
 }

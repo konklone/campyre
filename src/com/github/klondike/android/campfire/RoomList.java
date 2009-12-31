@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
@@ -73,7 +72,7 @@ public class RoomList extends ListActivity {
     		this.rooms = rooms;
         	displayRooms();
     	} else {
-			alert(exception);
+			Utils.alert(this, exception);
 			finish();
 		}
     }
@@ -117,7 +116,7 @@ public class RoomList extends ListActivity {
     	switch (requestCode) {
     	case Login.RESULT_LOGIN:
     		if (resultCode == RESULT_OK) {
-    			alert("You have been logged in successfully.");
+    			Utils.alert(this, "You have been logged in successfully.");
     			campfire = Login.getCampfire(this);
     			onLogin();
     		} else
@@ -142,14 +141,6 @@ public class RoomList extends ListActivity {
     		finish();
     	}
     	return super.onOptionsItemSelected(item);
-    }
-    
-    public void alert(String msg) {
-		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-	}
-    
-    public void alert(CampfireException e) {
-    	alert(e != null ? e.getMessage() : "Error loading rooms.");
     }
     
     public void loadingDialog() {

@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Window;
-import android.widget.Toast;
 
 import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
@@ -35,21 +34,19 @@ public class ShareImage extends Activity {
 		verifyLogin();
 	}
 	
-	// guaranteed to be logged in and the "campfire" variable set
 	public void onLogin() {
 		loadRoom();
 	}
 	
-	// guaranteed to have a room selected and the "room" variable set
 	public void onLoadRoom() {
 		uploadImage();
 	}
 	
 	public void onUploadImage() {
 		if (uploaded)
-			alert("Uploaded image to Campfire.");
+			Utils.alert(this, "Uploaded image to Campfire.");
 		else
-			alert(uploadError);
+			Utils.alert(this, uploadError);
 		finish();
 	}
 	
@@ -116,7 +113,7 @@ public class ShareImage extends Activity {
     	switch (requestCode) {
     	case Login.RESULT_LOGIN:
     		if (resultCode == RESULT_OK) {
-    			alert("You have been logged in successfully.");
+    			Utils.alert(this, "You have been logged in successfully.");
     			campfire = Login.getCampfire(this);
     			onLogin();
     		} else
@@ -144,10 +141,6 @@ public class ShareImage extends Activity {
             return null;
         }
     }
-	
-	public void alert(String msg) {
-		Toast.makeText(ShareImage.this, msg, Toast.LENGTH_SHORT).show();
-	}
 	
 	public static String filenameFor(String mimeType) {
 		// default to whatever was in the 2nd half of the mime type
