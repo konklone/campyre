@@ -62,7 +62,10 @@ public class RoomList extends ListActivity {
     }
     
     public void onLogin() {
-    	loadRooms();
+    	if (rooms == null)
+	    	new LoadRoomsTask(this).execute();
+    	else
+    		displayRooms();
     }
     
     public void onLoadRooms(ArrayList<Room> rooms, CampfireException exception) {
@@ -99,13 +102,6 @@ public class RoomList extends ListActivity {
     
     public void onListItemClick(ListView parent, View v, int position, long id) {
     	selectRoom((Room) parent.getItemAtPosition(position));
-    }
-    
-    public void loadRooms() {
-    	if (rooms == null)
-	    	new LoadRoomsTask(this).execute();
-    	else
-    		displayRooms();
     }
     
     public void verifyLogin() {
@@ -149,7 +145,7 @@ public class RoomList extends ListActivity {
     }
     
     public void alert(String msg) {
-		Toast.makeText(RoomList.this, msg, Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 	}
     
     public void alert(CampfireException e) {
@@ -157,7 +153,7 @@ public class RoomList extends ListActivity {
     }
     
     public void loadingDialog() {
-    	dialog = new ProgressDialog(RoomList.this);
+    	dialog = new ProgressDialog(this);
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setCancelable(false);
         dialog.setMessage("Loading rooms...");
