@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -58,6 +59,7 @@ public class RoomView extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		setContentView(R.layout.room);
 		
 		roomId = getIntent().getStringExtra("room_id");
@@ -109,14 +111,12 @@ public class RoomView extends ListActivity {
 		super.onSaveInstanceState(outState);
 	}
 	
-	// Will only happen after we are definitely logged in, 
-	// and the campfire member variable has been loaded with a logged-in Campfire
 	private void onLogin() {
 		join();
 	}
 	
-	// "messages" is already filled with a starting set of messages
 	private void onJoined() {
+		setWindowTitle(room.name);
 		setListAdapter(new RoomAdapter(this, messages));
 		scrollToBottom();
 		
@@ -129,7 +129,6 @@ public class RoomView extends ListActivity {
 		finish();
 	}
 	
-	// "messages" has been populated with the latest MAX_MESSAGES messages
 	private void onPoll() {
 		boolean wasAtBottom = scrolledToBottom();
 		int position = scrollPosition();
@@ -156,6 +155,9 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void setupControls() {
+		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
+		setWindowTitle("Campfire");
+		
 		polling = (ImageView) findViewById(R.id.room_polling);
 		body = (EditText) findViewById(R.id.room_message_body);
 		body.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -386,6 +388,10 @@ public class RoomView extends ListActivity {
     	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setMessage(message);
         dialog.show();
+    }
+    
+    private void setWindowTitle(String title) {
+        ((TextView) findViewById(R.id.room_title)).setText(title);
     }
     
     private static class RoomAdapter extends ArrayAdapter<Message> {
