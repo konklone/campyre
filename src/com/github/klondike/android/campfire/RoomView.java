@@ -9,6 +9,7 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
@@ -45,14 +46,15 @@ public class RoomView extends ListActivity {
 	private Campfire campfire;
 	private String roomId;
 	private Room room;
+	private SpeakTask speakTask;
+	private ProgressDialog dialog = null;
 	
 	private ArrayList<Message> messages = new ArrayList<Message>();
 	private HashMap<String,User> users = new HashMap<String,User>();
 	
-	private EditText message;
+	private EditText body;
 	private Button speak, refresh;
 	private ImageView polling;
-	private Message newMessage;
 	
 	private boolean autoPoll = true;
 	private boolean joined = false;
@@ -67,13 +69,21 @@ public class RoomView extends ListActivity {
 		if (savedInstanceState != null)
 			autoPoll = savedInstanceState.getBoolean("autoPoll", true);
 		
+		setupControls();
+		
 		// on screen flip, attempt to restore state without rejoining everything
 		RoomViewHolder holder = (RoomViewHolder) getLastNonConfigurationInstance();
 		if (holder != null) {
-			this.campfire = holder.campfire;
-			this.room = holder.room;
-			this.messages = holder.messages;
-			this.users = holder.users;
+			campfire = holder.campfire;
+			room = holder.room;
+			messages = holder.messages;
+			users = holder.users;
+			speakTask = holder.speakTask;
+			if (speakTask != null) {
+				speakTask.context = this;
+				loadingDialog(SPEAKING);
+			}
+			
 			onJoined();
 		} else
 			verifyLogin();
@@ -88,6 +98,7 @@ public class RoomView extends ListActivity {
 			holder.room = this.room;
 			holder.messages = this.messages;
 			holder.users = this.users;
+			holder.speakTask = this.speakTask;
 			return holder;
 		} else
 			return null;
@@ -107,7 +118,7 @@ public class RoomView extends ListActivity {
 	
 	// Will only happen after we are both logged in and the room has been joined
 	private void onJoined() {
-		setupControls();
+		enableButtons();
 		
 		// messages is already filled with a starting set of messages
 		setListAdapter(new RoomAdapter(this, messages));
@@ -127,19 +138,23 @@ public class RoomView extends ListActivity {
 			scrollToBottom();	
 	}
 	
-	// The message the user just posted has just been added to the bottom of the list
-	private void onSpeak() {
-		((RoomAdapter) getListAdapter()).add(newMessage);
+	private void onSpeak(Message message) {
+		body.setText("");
+		speak.setEnabled(true);
+		((RoomAdapter) getListAdapter()).add(message);
 		
 		scrollToBottom();
 	}
 	
+	private void onSpeak(CampfireException exception) {
+		speak.setEnabled(true);
+		Utils.alert(this, exception);
+	}
+	
 	private void setupControls() {
 		polling = (ImageView) findViewById(R.id.room_polling);
-		
-		message = (EditText) this.findViewById(R.id.room_message);
-		message.setEnabled(true);
-		message.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+		body = (EditText) findViewById(R.id.room_message_body);
+		body.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_DONE)
@@ -151,7 +166,6 @@ public class RoomView extends ListActivity {
 		});
 		
 		speak = (Button) this.findViewById(R.id.room_speak);
-		speak.setEnabled(true);
 		speak.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -160,7 +174,6 @@ public class RoomView extends ListActivity {
 		});
 		
 		refresh = (Button) this.findViewById(R.id.room_refresh);
-		refresh.setEnabled(true);
 		refresh.setVisibility(autoPoll ? View.GONE : View.VISIBLE);
 		refresh.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -168,6 +181,12 @@ public class RoomView extends ListActivity {
 				pollOnce();
 			}
 		});
+	}
+	
+	private void enableButtons() {
+		body.setEnabled(true);
+		speak.setEnabled(true);
+		refresh.setEnabled(true);
 	}
 	
 	private void scrollToBottom() {
@@ -191,24 +210,6 @@ public class RoomView extends ListActivity {
 			removeDialog(JOINING);
 			Utils.alert(RoomView.this, "Couldn't join room for some reason. Click the room to try again.");
 			finish();
-		}
-	};
-	
-	final Runnable speakSuccess = new Runnable() {
-		public void run() {
-			removeDialog(SPEAKING);
-			message.setText("");
-			speak.setEnabled(true);
-			
-			onSpeak();
-		}
-	};
-	final Runnable speakError = new Runnable() {
-		public void run() {
-			Utils.alert(RoomView.this, "Connection error.");
-			removeDialog(SPEAKING);
-			
-			speak.setEnabled(true);
 		}
 	};
 	
@@ -239,35 +240,18 @@ public class RoomView extends ListActivity {
 	};
 	
 	private void speak() {
-		final String msg = message.getText().toString();
-		if (msg.equals(""))
-			return;
+		String msg = body.getText().toString();
 		
-		speak.setEnabled(false);
-		
-		Thread speakThread = new Thread() {
-			public void run() {
-				try {
-					room.join(); // in case we've been idle-kicked out since we last spoke
-					newMessage = room.speak(msg);
-					fillPerson(newMessage);
-					
-					handler.post(speakSuccess);
-				} catch (CampfireException e) {
-					handler.post(speakError);
-				}
-			}
-		};
-		speakThread.start();
-		showDialog(SPEAKING);
+		if (!msg.equals("") && speakTask == null)
+			new SpeakTask(this).execute(msg);
 	}
 
 	private void joinRoom() {
 		Thread joinThread = new Thread() {
 			public void run() {
 				try {
-					room.join();
 					room = Room.find(campfire, roomId);
+					room.join();
 					poll();
 					
 					handler.post(joinSuccess);
@@ -410,20 +394,27 @@ public class RoomView extends ListActivity {
     	return super.onOptionsItemSelected(item);
     }
     
+    protected void loadingDialog(int id) {
+    	dialog = new ProgressDialog(this);
+    	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        if (id == SPEAKING)
+            dialog.setMessage("Speaking...");
+        else if (id == JOINING)
+        	dialog.setMessage("Joining room...");
+        dialog.show();
+    }
+    
     protected Dialog onCreateDialog(int id) {
-    	ProgressDialog loadingDialog = new ProgressDialog(this);
-    	loadingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        switch(id) {
-        case SPEAKING:
-            loadingDialog.setMessage("Speaking...");
-            return loadingDialog;
-        case JOINING:
-        	loadingDialog.setMessage("Joining room...");
-        	loadingDialog.setCancelable(false);
-            return loadingDialog;
-        default:
-            return null;
-        }
+		ProgressDialog loadingDialog = new ProgressDialog(this);
+		loadingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		switch(id) {
+		case JOINING:
+			loadingDialog.setMessage("Joining room...");
+			loadingDialog.setCancelable(false);
+			return loadingDialog;
+		default:
+		    return null;
+		}
     }
 	
 	private static class RoomAdapter extends ArrayAdapter<Message> {
@@ -498,10 +489,53 @@ public class RoomView extends ListActivity {
 
     }
 	
+	private class SpeakTask extends AsyncTask<String,Void,Message> {
+		public RoomView context;
+    	public CampfireException exception = null;
+    	
+    	public SpeakTask(RoomView context) {
+    		super();
+    		this.context = context;
+    		this.context.speakTask = this;
+    	}
+    	 
+       	@Override
+    	protected void onPreExecute() {
+       		context.speak.setEnabled(false);
+            context.loadingDialog(SPEAKING);
+    	}
+    	
+    	@Override
+    	protected Message doInBackground(String... body) {
+    		try {
+    			context.room.join(); // in case we've been idle-kicked out since we last spoke
+    			Message message = context.room.speak(body[0]);
+    			context.fillPerson(message);
+    			return message;
+			} catch (CampfireException e) {
+				this.exception = e;
+				return null;
+			}
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(Message message) {
+    		if (context.dialog != null && context.dialog.isShowing())
+    			context.dialog.dismiss();
+    		context.speakTask = null;
+    		
+    		if (exception == null)
+    			context.onSpeak(message);
+    		else
+    			context.onSpeak(exception);
+    	}
+	}
+	
 	static class RoomViewHolder {
 		Campfire campfire;
 		Room room;
 		ArrayList<Message> messages;
 		HashMap<String,User> users;
+		SpeakTask speakTask;
 	}
 }

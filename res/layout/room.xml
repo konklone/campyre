@@ -19,7 +19,7 @@
 		android:layout_weight="0"
 		>
 		
-		<EditText android:id="@+id/room_message"
+		<EditText android:id="@+id/room_message_body"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"

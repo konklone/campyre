@@ -14,8 +14,9 @@ public class Utils {
 		Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
 	}
     
-    public static void alert(Context context, CampfireException e) {
-    	alert(context, (e != null ? e.getMessage() : "Error loading rooms."));
+    public static void alert(Context context, CampfireException exception) {
+    	String message = exception == null ? "Unhandled error." : exception.getMessage();
+    	alert(context, message);
     }
     
     public static Campfire getCampfire(Context context) {
