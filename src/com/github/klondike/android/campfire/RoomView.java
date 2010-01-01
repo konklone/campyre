@@ -254,10 +254,6 @@ public class RoomView extends ListActivity {
 					
 					// 2) Post to the room
 					newMessage = room.speak(msg);
-					if (newMessage == null) {
-						handler.post(speakError);
-						return;
-					}
 					
 					// 3) Fill in the message with our user details 
 					fillPerson(newMessage);

@@ -77,7 +77,7 @@ public class Room {
 				String responseBody = CampfireRequest.responseBody(response);
 				return new Message(new JSONObject(responseBody).getJSONObject("message"));
 			} else
-				return null;
+				throw new CampfireException("Campfire error, message was not sent.");
 		} catch(JSONException e) {
 			throw new CampfireException(e, "Couldn't create JSON object while speaking.");
 		} catch (DateParseException e) {
