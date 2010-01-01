@@ -40,6 +40,7 @@ public class Campfire {
 			} catch (JSONException e) {
 				throw new CampfireException(e, "Couldn't load user details on login.");
 			}
+			break;
 		case HttpStatus.SC_MOVED_TEMPORARILY:
 			if (this.ssl) // not sure why this would happen, but I'm cautious about infinite loops
 				throw new CampfireException("Unknown redirect error on login.");
@@ -47,8 +48,11 @@ public class Campfire {
 				this.ssl = true;
 				login();
 			}
+			break;
 		case HttpStatus.SC_UNAUTHORIZED:
 			throw new CampfireException("Invalid credentials.");
+		default:
+			throw new CampfireException("Unknown error code " + statusCode + " on login.");
 		}
 	}
 	
