@@ -36,7 +36,6 @@ public class RoomView extends ListActivity {
 
 	private static final int JOINING = 0;
 	private static final int SPEAKING = 1;
-	private static final int POLLING = 2;
 	
 	private static final int MAX_MESSAGES = 20;
 	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
@@ -249,13 +248,8 @@ public class RoomView extends ListActivity {
 		Thread speakThread = new Thread() {
 			public void run() {
 				try {
-					// 1) Join the room (in case we've been idle-kicked out since we last spoke)
-					room.join();
-					
-					// 2) Post to the room
+					room.join(); // in case we've been idle-kicked out since we last spoke
 					newMessage = room.speak(msg);
-					
-					// 3) Fill in the message with our user details 
 					fillPerson(newMessage);
 					
 					handler.post(speakSuccess);
@@ -272,13 +266,8 @@ public class RoomView extends ListActivity {
 		Thread joinThread = new Thread() {
 			public void run() {
 				try {
-					// 1) Join the room
 					room.join();
-					
-					// 2) Get the room details (name, topic, etc.)
 					room = Room.find(campfire, roomId);
-					
-					// 3) Do an initial poll
 					poll();
 					
 					handler.post(joinSuccess);
@@ -432,9 +421,6 @@ public class RoomView extends ListActivity {
         	loadingDialog.setMessage("Joining room...");
         	loadingDialog.setCancelable(false);
             return loadingDialog;
-        case POLLING:
-        	loadingDialog.setMessage("Polling...");
-        	return loadingDialog;
         default:
             return null;
         }
