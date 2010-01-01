@@ -188,7 +188,7 @@ public class CampfireRequest {
             if (responseCode != HttpStatus.SC_CREATED)
             	throw new CampfireException("Could not upload file to Campfire.");
         } catch (IOException e) {
-        	throw new CampfireException(e.getClass().getCanonicalName() + "\n" + e.getMessage());
+        	throw new CampfireException("Network error while uploading to Campfire, file not uploaded.");
         } 
 		
 	}
