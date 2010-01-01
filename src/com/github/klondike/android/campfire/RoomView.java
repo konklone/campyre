@@ -135,11 +135,14 @@ public class RoomView extends ListActivity {
 	// "messages" has been populated with the latest MAX_MESSAGES messages
 	private void onPoll() {
 		boolean wasAtBottom = scrolledToBottom();
+		int position = scrollPosition();
 		
 		setListAdapter(new RoomAdapter(this, messages));
 		
 		if (wasAtBottom)
-			scrollToBottom();	
+			scrollToBottom();
+		else
+			scrollToPosition(position);
 	}
 	
 	private void onSpeak(Message message) {
@@ -187,12 +190,20 @@ public class RoomView extends ListActivity {
 		});
 	}
 	
+	private boolean scrolledToBottom() {
+		return (getListView().getLastVisiblePosition() == (getListAdapter().getCount()-1));
+	}
+	
 	private void scrollToBottom() {
 		getListView().setSelection(getListAdapter().getCount()-1);
 	}
 	
-	private boolean scrolledToBottom() {
-		return (getListView().getLastVisiblePosition() == (getListAdapter().getCount()-1));
+	private int scrollPosition() {
+		return getListView().getFirstVisiblePosition();
+	}
+	
+	private void scrollToPosition(int position) {
+		getListView().setSelection(position);
 	}
 	
 	final Handler handler = new Handler();
