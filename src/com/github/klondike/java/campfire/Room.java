@@ -52,17 +52,17 @@ public class Room {
 		return rooms;
 	}
 	
-	public boolean join() throws CampfireException {
+	public void join() throws CampfireException {
 		HttpResponse response = new CampfireRequest(campfire).post(Campfire.joinPath(id));
 		int statusCode = response.getStatusLine().getStatusCode();
 		
 		switch(statusCode) {
 		case HttpStatus.SC_OK:
-			return true;
+			return; // okay!
 		case HttpStatus.SC_METHOD_NOT_ALLOWED:
 			throw new CampfireException("It looks like your Campfire account uses SSL. Select \"Clear Credentials\" from the menu to log out and select SSL.");
 		default:
-			return false;
+			throw new CampfireException("Unknown error trying to join the room.");
 		}
 	}
 	

@@ -249,13 +249,8 @@ public class RoomView extends ListActivity {
 		Thread speakThread = new Thread() {
 			public void run() {
 				try {
-					// Speaking is a 2-step process
-					
-					// 1) Join the room (in case auto-polling is off and we've since been idle-kicked out)
-					if (!room.join()) {
-						handler.post(speakError);
-						return;
-					}
+					// 1) Join the room (in case we've been idle-kicked out since we last spoke)
+					room.join();
 					
 					// 2) Post to the room
 					newMessage = room.speak(msg);
@@ -293,10 +288,7 @@ public class RoomView extends ListActivity {
 					}
 					
 					// 3) Join the room
-					if (!room.join()) {
-						handler.post(joinFailure);
-						return;
-					}
+					room.join();
 					
 					// 4) Get the details of the logged in user and throw it in the User hash 
 					users.put(campfire.user_id, User.find(campfire, campfire.user_id));
