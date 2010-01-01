@@ -48,8 +48,24 @@ public class RoomList extends ListActivity {
 	    	}
         }
         
-        if (loadRoomsTask == null)
-        	verifyLogin();
+        verifyLogin();
+    }
+    
+    public void verifyLogin() {
+    	campfire = Utils.getCampfire(this);
+        if (campfire != null)
+        	onLogin();
+        else
+	        startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);
+    }
+    
+    public void onLogin() {
+    	if (loadRoomsTask == null) {
+	    	if (rooms == null)
+	    		new LoadRoomsTask(this).execute();
+	    	else
+	    		displayRooms();
+    	}
     }
     
     @Override
@@ -58,13 +74,6 @@ public class RoomList extends ListActivity {
     	holder.rooms = this.rooms;
     	holder.loadRoomsTask = this.loadRoomsTask;
     	return holder;
-    }
-    
-    public void onLogin() {
-    	if (rooms == null)
-	    	new LoadRoomsTask(this).execute();
-    	else
-    		displayRooms();
     }
     
     public void onLoadRooms(ArrayList<Room> rooms, CampfireException exception) {
@@ -101,14 +110,6 @@ public class RoomList extends ListActivity {
     
     public void onListItemClick(ListView parent, View v, int position, long id) {
     	selectRoom((Room) parent.getItemAtPosition(position));
-    }
-    
-    public void verifyLogin() {
-    	campfire = Utils.getCampfire(this);
-        if (campfire != null)
-        	onLogin();
-        else
-        	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);
     }
     
     @Override

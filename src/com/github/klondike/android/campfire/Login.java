@@ -1,16 +1,11 @@
 package com.github.klondike.android.campfire;
 
-import org.json.JSONException;
-
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,13 +14,14 @@ import com.github.klondike.java.campfire.Campfire;
 import com.github.klondike.java.campfire.CampfireException;
 
 public class Login extends Activity {
-	private static final int LOGGING_IN = 1;
-	
 	// high number because other activities will use this code in their case statements
 	public static final int RESULT_LOGIN = 1000;
 	
 	private Campfire campfire;
 	private EditText tokenView, subdomainView;
+	
+	private LoginTask loginTask = null;
+	private ProgressDialog dialog = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -33,32 +29,43 @@ public class Login extends Activity {
 		setContentView(R.layout.login);
 		
 		setupControls();
+		
+		LoginHolder holder = (LoginHolder) getLastNonConfigurationInstance();
+        if (holder != null) {
+	    	campfire = holder.campfire;
+	    	loginTask = holder.loginTask;
+	    	if (loginTask != null) {
+	    		loginTask.context = this;
+	    		loadingDialog();
+	    	}
+        }
 	}
 	
-	final Handler handler = new Handler();
-    final Runnable loginSuccess = new Runnable() {
-    	public void run() {
-    		dismissDialog(LOGGING_IN);
-    		
-    		Login.saveCampfire(Login.this, campfire);
+	@Override
+    public Object onRetainNonConfigurationInstance() {
+    	LoginHolder holder = new LoginHolder();
+    	holder.campfire = this.campfire;
+    	holder.loginTask = this.loginTask;
+    	return holder;
+    }
+	
+	public void login() {
+		if (loginTask == null)
+        	new LoginTask(this).execute();
+	}
+	
+	public void onLogin(boolean loggedIn) {
+		if (loggedIn) {
+			Utils.saveCampfire(this, campfire);
 			setResult(RESULT_OK, new Intent());
 			finish();
-    	}
+		} else 
+			Utils.alert(this, "Invalid credentials.");
     };
     
-    final Runnable loginFailure = new Runnable() {
-    	public void run() {
-    		dismissDialog(LOGGING_IN);
-    		Utils.alert(Login.this, "Invalid credentials.");
-    	}
-    };
-    
-    final Runnable loginError = new Runnable() {
-    	public void run() {
-    		dismissDialog(LOGGING_IN);
-    		Utils.alert(Login.this, "Error while attempting to log in, please try again.");
-    	}
-    };
+    public void onLogin(CampfireException exception) {
+    	Utils.alert(this, exception);
+    }
     
     public void setupControls() {
     	tokenView = (EditText) findViewById(R.id.token);
@@ -75,83 +82,63 @@ public class Login extends Activity {
     	loginButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				loginCampfire();
+				login();
 			}
 		});
     }
 	
-	public void loginCampfire() {
-    	Thread loginThread = new Thread() {
-    		public void run() {
-    			try {
-    				String subdomain = subdomainView.getText().toString();
-    				String token = tokenView.getText().toString();
-    				
-    				campfire = new Campfire(subdomain, token);
-    				
-					if (campfire.login())
-						handler.post(loginSuccess);
-					else
-						handler.post(loginFailure);
-    	        } catch(CampfireException e) {
-    	        	handler.post(loginError);
-    	        } catch(JSONException e) {
-    	        	handler.post(loginError);
-    	        }
-    		}
-    	};
-    	loginThread.start();
+	public void loadingDialog() {
+       dialog = new ProgressDialog(this);
+       dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+       dialog.setMessage("Logging in...");
+       dialog.setCancelable(false);
+       dialog.show();
+    }
+	
+	private class LoginTask extends AsyncTask<Void,Void,Boolean> {
+		public Login context;
+    	public CampfireException exception = null;
     	
-    	showDialog(LOGGING_IN);
-    }
-	
-	// Service to provide a Campfire loaded with stored credentials
-	public static Campfire getCampfire(Context context) {
-    	SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
-    	String subdomain = prefs.getString("subdomain", null);
-        String token = prefs.getString("token", null);
-        boolean ssl = prefs.getBoolean("ssl", false);
-        String user_id = prefs.getString("user_id", null);
-        
-        if (token != null)
-        	return new Campfire(subdomain, token, ssl, user_id);
-        else
-        	return null;
+    	public LoginTask(Login context) {
+    		super();
+    		this.context = context;
+    		this.context.loginTask = this;
+    	}
+    	 
+       	@Override
+    	protected void onPreExecute() {
+            context.loadingDialog();
+    	}
+    	
+    	@Override
+    	protected Boolean doInBackground(Void... nothing) {
+    		String subdomain = subdomainView.getText().toString();
+			String token = tokenView.getText().toString();
+			
+			campfire = new Campfire(subdomain, token);
+			try {
+				return new Boolean(campfire.login());
+			} catch (CampfireException e) {
+				this.exception = e;
+				return new Boolean(false);
+			}
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(Boolean result) {
+    		if (context.dialog != null && context.dialog.isShowing())
+    			context.dialog.dismiss();
+    		context.loginTask = null;
+    		
+    		if (exception == null)
+    			context.onLogin(result.booleanValue());
+    		else
+    			context.onLogin(exception);
+    	}
 	}
 	
-	public static void saveCampfire(Context context, Campfire campfire) {
-		SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
-		Editor editor = prefs.edit();
-	
-		editor.putString("subdomain", campfire.subdomain);
-		editor.putString("token", campfire.token);
-		editor.putBoolean("ssl", campfire.ssl);
-		editor.putString("user_id", campfire.user_id);
-		
-		editor.commit();
+	static class LoginHolder {
+		Campfire campfire;
+		LoginTask loginTask;
 	}
-	
-	public static void clearCampfire(Context context) {
-		SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
-		Editor editor = prefs.edit();
-	
-		editor.putString("subdomain", null);
-		editor.putString("token", null);
-		editor.putBoolean("ssl", false);
-		editor.putString("user_id", null);
-		
-		editor.commit();
-	}
-	
-	protected Dialog onCreateDialog(int id) {
-        switch(id) {
-        case LOGGING_IN:
-            ProgressDialog loginDialog = new ProgressDialog(this);
-            loginDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            loginDialog.setMessage("Logging in...");
-            return loginDialog;
-        default:
-            return null;
-        }
-    }
 }

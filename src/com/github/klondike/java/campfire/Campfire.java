@@ -26,7 +26,7 @@ public class Campfire {
 		this.user_id = user_id;
 	}
 	
-	public boolean login() throws CampfireException, JSONException {
+	public boolean login() throws CampfireException {
 		HttpResponse response = new CampfireRequest(this, false).get(mePath());
 		int statusCode = response.getStatusLine().getStatusCode();
 		// if API key is wrong, we'll get a 401 status code (HttpStatus.SC_UNAUTHORIZED)
@@ -34,9 +34,13 @@ public class Campfire {
 		// if it gets a 200, then save the info from the response
 		switch (statusCode) {
 		case HttpStatus.SC_OK:
-			JSONObject user = new JSONObject(CampfireRequest.responseBody(response)).getJSONObject("user");
-			this.user_id = user.getString("id");
-			return true;
+			try {
+				JSONObject user = new JSONObject(CampfireRequest.responseBody(response)).getJSONObject("user");
+				this.user_id = user.getString("id");
+				return true;
+			} catch (JSONException e) {
+				throw new CampfireException(e, "Couldn't load user details on login.");
+			}
 		case HttpStatus.SC_MOVED_TEMPORARILY:
 			if (this.ssl) // not sure why this would happen, but I'm cautious about infinite loops
 				return false;
