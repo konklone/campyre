@@ -123,7 +123,7 @@ public class CampfireRequest {
 		return (campfire.ssl ? "https" : "http") + "://" + domain() + path + format;
 	}
 	
-	public boolean uploadFile(String path, InputStream stream, String filename, String mimeType) throws CampfireException {
+	public void uploadFile(String path, InputStream stream, String filename, String mimeType) throws CampfireException {
         String lineEnd = "\r\n";
         String twoHyphens = "--";
         String boundary = "---------------------------XXX";
@@ -185,7 +185,8 @@ public class CampfireRequest {
 
             int responseCode = conn.getResponseCode();
             
-            return responseCode == HttpStatus.SC_CREATED;
+            if (responseCode != HttpStatus.SC_CREATED)
+            	throw new CampfireException("Could not upload file to Campfire.");
         } catch (IOException e) {
         	throw new CampfireException(e.getClass().getCanonicalName() + "\n" + e.getMessage());
         } 

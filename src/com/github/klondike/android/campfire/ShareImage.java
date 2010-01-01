@@ -4,12 +4,11 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Window;
 
 import com.github.klondike.java.campfire.Campfire;
@@ -17,82 +16,68 @@ import com.github.klondike.java.campfire.CampfireException;
 import com.github.klondike.java.campfire.Room;
 
 public class ShareImage extends Activity {
-	private static final int UPLOADING = 0;
 	private static final int RESULT_ROOM_ID = 0;
 	
 	private Campfire campfire;
 	private Room room;
-	
-	private boolean uploaded;
-	private String uploadError;
+	private UploadTask uploadTask;
+	private ProgressDialog dialog = null;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
+		ShareImageHolder holder = (ShareImageHolder) getLastNonConfigurationInstance();
+        if (holder != null) {
+        	campfire = holder.campfire;
+	    	room = holder.room;
+	    	uploadTask = holder.uploadTask;
+	    	if (uploadTask != null) {
+	    		uploadTask.context = this;
+	    		loadingDialog();
+	    	}
+        }
+		
 		verifyLogin();
 	}
 	
 	public void onLogin() {
-		loadRoom();
+		if (room == null)
+			startActivityForResult(new Intent(this, RoomList.class).putExtra("for_result", true), RESULT_ROOM_ID);
 	}
 	
 	public void onLoadRoom() {
-		uploadImage();
+		if (uploadTask == null)
+			new UploadTask(this).execute();
 	}
 	
-	public void onUploadImage() {
-		if (uploaded)
+	public void onUpload(CampfireException exception) {
+		if (exception == null)
 			Utils.alert(this, "Uploaded image to Campfire.");
 		else
-			Utils.alert(this, uploadError);
+			Utils.alert(this, exception);
 		finish();
 	}
 	
-	final Handler handler = new Handler();
-	final Runnable afterUpload = new Runnable() {
-		public void run() {
-			dismissDialog(UPLOADING);
-			onUploadImage();
-		}
-	};
-	
-	public void uploadImage() {
-		Thread uploadThread = new Thread() {
-			public void run() {
-				try {
-					Uri uri = (Uri) getIntent().getExtras().get("android.intent.extra.STREAM");
-					
-					InputStream stream = getContentResolver().openInputStream(uri);
-					String mimeType = getContentResolver().getType(uri);
-					String filename = filenameFor(mimeType);
-					
-					if (stream == null) {
-						uploaded = false;
-						uploadError = "Error processing photo, image was not uploaded.";
-					} else {
-						if (room.uploadImage(stream, filename, mimeType))
-							uploaded = true;
-						else {
-							uploaded = false;
-							uploadError = "Couldn't upload file to Campfire.";
-						}
-					}
-				} catch (FileNotFoundException e) {
-					uploaded = false;
-					uploadError = "Error processing photo, image was not uploaded.";
-				} catch (CampfireException e) {
-					uploaded = false;
-					uploadError = "Error connecting to Campfire, image was not uploaded.";
-				}
-				handler.post(afterUpload);
-			}
-		};
-		uploadThread.start();
+	public void uploadImage() throws FileNotFoundException, CampfireException {
+		Uri uri = (Uri) getIntent().getExtras().get("android.intent.extra.STREAM");
 		
-		showDialog(UPLOADING);
+		InputStream stream = getContentResolver().openInputStream(uri);
+		String mimeType = getContentResolver().getType(uri);
+		String filename = filenameFor(mimeType);
+		
+		room.uploadImage(stream, filename, mimeType);
 	}
+	
+	@Override
+    public Object onRetainNonConfigurationInstance() {
+    	ShareImageHolder holder = new ShareImageHolder();
+    	holder.campfire = this.campfire;
+    	holder.room = this.room;
+    	holder.uploadTask = this.uploadTask;
+    	return holder;
+    }
 	
 	public void verifyLogin() {
     	campfire = Utils.getCampfire(this);
@@ -102,11 +87,6 @@ public class ShareImage extends Activity {
         	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);
     }
 	
-	public void loadRoom() {
-		Intent intent = new Intent(this, RoomList.class);
-		intent.putExtra("for_result", true);
-		startActivityForResult(intent, RESULT_ROOM_ID);
-	}
 	
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -121,8 +101,7 @@ public class ShareImage extends Activity {
     		break;
     	case RESULT_ROOM_ID:
 			if (resultCode == RESULT_OK) {
-				String roomId = data.getExtras().getString("room_id");
-				room = new Room(campfire, roomId);
+				room = new Room(campfire, data.getExtras().getString("room_id"));
 				onLoadRoom();
 			} else
 				finish();
@@ -130,16 +109,11 @@ public class ShareImage extends Activity {
     	}
     }
 	
-	protected Dialog onCreateDialog(int id) {
-        switch(id) {
-        case UPLOADING:
-            ProgressDialog dialog = new ProgressDialog(this);
-            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            dialog.setMessage("Uploading image...");
-            return dialog;
-        default:
-            return null;
-        }
+	public void loadingDialog() {
+        dialog = new ProgressDialog(this);
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setMessage("Uploading image...");
+        dialog.show();
     }
 	
 	public static String filenameFor(String mimeType) {
@@ -150,4 +124,45 @@ public class ShareImage extends Activity {
 			return "from_phone." + mimeType.split("/")[1];
 	}
 	
+	private class UploadTask extends AsyncTask<Void,Void,CampfireException> {
+		public ShareImage context;
+    	
+    	public UploadTask(ShareImage context) {
+    		super();
+    		this.context = context;
+    		this.context.uploadTask = this;
+    	}
+    	 
+       	@Override
+    	protected void onPreExecute() {
+            context.loadingDialog();
+    	}
+    	
+    	@Override
+    	protected CampfireException doInBackground(Void... nothing) {
+    		try {
+				context.uploadImage();
+			} catch (FileNotFoundException e) {
+				return new CampfireException(e, "Couldn't get a handle on the image you selected.");
+			} catch (CampfireException e) {
+				return e;
+			}
+			return null;
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(CampfireException exception) {
+    		if (context.dialog != null && context.dialog.isShowing())
+    			context.dialog.dismiss();
+    		context.uploadTask = null;
+    		
+    		context.onUpload(exception);
+    	}
+	}
+	
+	static class ShareImageHolder {
+		Campfire campfire;
+		Room room;
+		UploadTask uploadTask;
+	}
 }

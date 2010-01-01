@@ -112,12 +112,12 @@ public class Login extends Activity {
     	
     	@Override
     	protected Boolean doInBackground(Void... nothing) {
-    		String subdomain = subdomainView.getText().toString();
-			String token = tokenView.getText().toString();
+    		String subdomain = context.subdomainView.getText().toString();
+			String token = context.tokenView.getText().toString();
 			
-			campfire = new Campfire(subdomain, token);
+			context.campfire = new Campfire(subdomain, token);
 			try {
-				return new Boolean(campfire.login());
+				return new Boolean(context.campfire.login());
 			} catch (CampfireException e) {
 				this.exception = e;
 				return new Boolean(false);

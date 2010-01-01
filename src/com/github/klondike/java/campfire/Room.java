@@ -85,8 +85,8 @@ public class Room {
 		}
 	}
 	
-	public boolean uploadImage(InputStream stream, String filename, String mimeType) throws CampfireException {
-		return new CampfireRequest(campfire).uploadFile(Campfire.uploadPath(id), stream, filename, mimeType);
+	public void uploadImage(InputStream stream, String filename, String mimeType) throws CampfireException {
+		new CampfireRequest(campfire).uploadFile(Campfire.uploadPath(id), stream, filename, mimeType);
 	}
 
 	public String toString() {
