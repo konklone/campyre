@@ -54,18 +54,14 @@ public class Login extends Activity {
         	new LoginTask(this).execute();
 	}
 	
-	public void onLogin(boolean loggedIn) {
-		if (loggedIn) {
+	public void onLogin(CampfireException exception) {
+		if (exception == null) {
 			Utils.saveCampfire(this, campfire);
 			setResult(RESULT_OK, new Intent());
 			finish();
 		} else 
-			Utils.alert(this, "Invalid credentials.");
+			Utils.alert(this, exception);
     };
-    
-    public void onLogin(CampfireException exception) {
-    	Utils.alert(this, exception);
-    }
     
     public void setupControls() {
     	tokenView = (EditText) findViewById(R.id.token);
@@ -95,9 +91,8 @@ public class Login extends Activity {
        dialog.show();
     }
 	
-	private class LoginTask extends AsyncTask<Void,Void,Boolean> {
+	private class LoginTask extends AsyncTask<Void,Void,CampfireException> {
 		public Login context;
-    	public CampfireException exception = null;
     	
     	public LoginTask(Login context) {
     		super();
@@ -111,29 +106,26 @@ public class Login extends Activity {
     	}
     	
     	@Override
-    	protected Boolean doInBackground(Void... nothing) {
+    	protected CampfireException doInBackground(Void... nothing) {
     		String subdomain = context.subdomainView.getText().toString();
 			String token = context.tokenView.getText().toString();
 			
 			context.campfire = new Campfire(subdomain, token);
 			try {
-				return new Boolean(context.campfire.login());
-			} catch (CampfireException e) {
-				this.exception = e;
-				return new Boolean(false);
+				context.campfire.login();
+			} catch (CampfireException exception) {
+				return exception;
 			}
+			return null;
     	}
     	
     	@Override
-    	protected void onPostExecute(Boolean result) {
+    	protected void onPostExecute(CampfireException exception) {
     		if (context.dialog != null && context.dialog.isShowing())
     			context.dialog.dismiss();
     		context.loginTask = null;
     		
-    		if (exception == null)
-    			context.onLogin(result.booleanValue());
-    		else
-    			context.onLogin(exception);
+    		context.onLogin(exception);
     	}
 	}
 	
