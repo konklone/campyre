@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -47,6 +46,7 @@ public class RoomView extends ListActivity {
 	private String roomId;
 	private Room room;
 	private SpeakTask speakTask;
+	private JoinTask joinTask;
 	private ProgressDialog dialog = null;
 	
 	private ArrayList<Message> messages = new ArrayList<Message>();
@@ -57,7 +57,6 @@ public class RoomView extends ListActivity {
 	private ImageView polling;
 	
 	private boolean autoPoll = true;
-	private boolean joined = false;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -79,29 +78,32 @@ public class RoomView extends ListActivity {
 			messages = holder.messages;
 			users = holder.users;
 			speakTask = holder.speakTask;
+			joinTask = holder.joinTask;
+			
 			if (speakTask != null) {
 				speakTask.context = this;
 				loadingDialog(SPEAKING);
 			}
 			
-			onJoined();
+			if (joinTask != null) {
+				joinTask.context = this;
+				loadingDialog(JOINING);
+			} else
+				onJoined();
 		} else
 			verifyLogin();
 	}
 	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		// only store all this state if we made it all the way through the login/join process
-		if (joined) {
-			RoomViewHolder holder = new RoomViewHolder();
-			holder.campfire = this.campfire;
-			holder.room = this.room;
-			holder.messages = this.messages;
-			holder.users = this.users;
-			holder.speakTask = this.speakTask;
-			return holder;
-		} else
-			return null;
+		RoomViewHolder holder = new RoomViewHolder();
+		holder.campfire = this.campfire;
+		holder.room = this.room;
+		holder.messages = this.messages;
+		holder.users = this.users;
+		holder.speakTask = this.speakTask;
+		holder.joinTask = this.joinTask;
+		return holder;
 	}
 	
 	@Override
@@ -113,19 +115,21 @@ public class RoomView extends ListActivity {
 	// Will only happen after we are definitely logged in, 
 	// and the campfire member variable has been loaded with a logged-in Campfire
 	private void onLogin() {
-		joinRoom();
+		join();
 	}
 	
-	// Will only happen after we are both logged in and the room has been joined
+	// "messages" is already filled with a starting set of messages
 	private void onJoined() {
-		enableButtons();
-		
-		// messages is already filled with a starting set of messages
 		setListAdapter(new RoomAdapter(this, messages));
 		scrollToBottom();
 		
-		if (autoPoll) 
+		if (autoPoll)
 			autoPoll();
+	}
+	
+	private void onJoined(CampfireException exception) {
+		Utils.alert(this, exception);
+		finish();
 	}
 	
 	// "messages" has been populated with the latest MAX_MESSAGES messages
@@ -183,12 +187,6 @@ public class RoomView extends ListActivity {
 		});
 	}
 	
-	private void enableButtons() {
-		body.setEnabled(true);
-		speak.setEnabled(true);
-		refresh.setEnabled(true);
-	}
-	
 	private void scrollToBottom() {
 		getListView().setSelection(getListAdapter().getCount()-1);
 	}
@@ -198,20 +196,6 @@ public class RoomView extends ListActivity {
 	}
 	
 	final Handler handler = new Handler();
-	final Runnable joinSuccess = new Runnable() {
-		public void run() {
-			removeDialog(JOINING);
-			joined = true;
-			onJoined();
-		}
-	};
-	final Runnable joinFailure = new Runnable() {
-		public void run() {
-			removeDialog(JOINING);
-			Utils.alert(RoomView.this, "Couldn't join room for some reason. Click the room to try again.");
-			finish();
-		}
-	};
 	
 	final Runnable pollStart = new Runnable() {
 		public void run() {
@@ -246,23 +230,9 @@ public class RoomView extends ListActivity {
 			new SpeakTask(this).execute(msg);
 	}
 
-	private void joinRoom() {
-		Thread joinThread = new Thread() {
-			public void run() {
-				try {
-					room = Room.find(campfire, roomId);
-					room.join();
-					poll();
-					
-					handler.post(joinSuccess);
-				} catch (CampfireException e) {
-					handler.post(joinFailure);
-				}
-			}
-		};
-		joinThread.start();
-		
-		showDialog(JOINING);
+	private void join() {
+		if (joinTask == null)
+			new JoinTask(this).execute();
 	}
 	
 	private void pollOnce() {
@@ -270,7 +240,7 @@ public class RoomView extends ListActivity {
 			public void run() {
 				handler.post(pollStart);
 				try {
-					poll();
+					messages = poll(room, users);
 					
 					// ping the room so we don't get idle-kicked out
 					room.join();
@@ -297,7 +267,7 @@ public class RoomView extends ListActivity {
 					if (autoPoll) {
 						handler.post(pollStart);
 						try {
-							poll();
+							messages = poll(room, users);
 							
 							// ping the room so we don't get idle-kicked out
 							room.join();
@@ -315,17 +285,18 @@ public class RoomView extends ListActivity {
 	// Fetches latest MAX_MESSAGES from the transcript, then for each message,
 	// looks up the associated User to assign a display name.
 	// We use the "users" HashMap to cache Users from the network. 
-	private void poll() throws CampfireException {
-		messages = Message.allToday(room, MAX_MESSAGES);
+	private ArrayList<Message> poll(Room room, HashMap<String,User> users) throws CampfireException {
+		ArrayList<Message> messages = Message.allToday(room, MAX_MESSAGES);
 		int length = messages.size();
 		for (int i=0; i<length; i++) {
 			Message message = messages.get(i);
 			if (message.user_id != null)
-				fillPerson(message);
+				fillPerson(message, users);
 		}
+		return messages;
 	}
 	
-	private void fillPerson(Message message) throws CampfireException {
+	private void fillPerson(Message message, HashMap<String,User> users) throws CampfireException {
 		User speaker;
 		if (users.containsKey(message.user_id))
 			speaker = (User) users.get(message.user_id);
@@ -404,20 +375,7 @@ public class RoomView extends ListActivity {
         dialog.show();
     }
     
-    protected Dialog onCreateDialog(int id) {
-		ProgressDialog loadingDialog = new ProgressDialog(this);
-		loadingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		switch(id) {
-		case JOINING:
-			loadingDialog.setMessage("Joining room...");
-			loadingDialog.setCancelable(false);
-			return loadingDialog;
-		default:
-		    return null;
-		}
-    }
-	
-	private static class RoomAdapter extends ArrayAdapter<Message> {
+    private static class RoomAdapter extends ArrayAdapter<Message> {
 		private LayoutInflater inflater;
 		
         public RoomAdapter(Activity context, ArrayList<Message> messages) {
@@ -510,7 +468,7 @@ public class RoomView extends ListActivity {
     		try {
     			context.room.join(); // in case we've been idle-kicked out since we last spoke
     			Message message = context.room.speak(body[0]);
-    			context.fillPerson(message);
+    			context.fillPerson(message, context.users);
     			return message;
 			} catch (CampfireException e) {
 				this.exception = e;
@@ -531,11 +489,65 @@ public class RoomView extends ListActivity {
     	}
 	}
 	
+	private class JoinTask extends AsyncTask<Void,Void,CampfireException> {
+		public RoomView context;
+    	public CampfireException exception = null;
+    	
+    	public ArrayList<Message> messages = null;
+    	public Room room = null;
+    	public HashMap<String,User> users;
+    	
+    	public JoinTask(RoomView context) {
+    		super();
+    		this.context = context;
+    		this.context.joinTask = this;
+    		
+    		// get the current state of the user cache, so that we can write to it as we poll
+    		// and then assign it back to the new context
+    		// preserves caching in the case of a screen flip during this task
+    		users = this.context.users;
+    	}
+    	 
+       	@Override
+    	protected void onPreExecute() {
+            context.loadingDialog(JOINING);
+    	}
+    	
+    	@Override
+    	protected CampfireException doInBackground(Void... nothing) {
+    		try {
+    			room = Room.find(campfire, roomId);
+    			room.join();
+    			messages = poll(room, users);
+			} catch (CampfireException e) {
+				return exception;
+			}
+			return null;
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(CampfireException exception) {
+    		if (context.dialog != null && context.dialog.isShowing())
+    			context.dialog.dismiss();
+    		context.joinTask = null;
+    		
+    		context.room = room;
+    		context.messages = messages;
+    		context.users = users;
+    		
+    		if (exception == null)
+    			context.onJoined();
+    		else
+    			context.onJoined(exception);
+    	}
+	}
+	
 	static class RoomViewHolder {
 		Campfire campfire;
 		Room room;
 		ArrayList<Message> messages;
 		HashMap<String,User> users;
 		SpeakTask speakTask;
+		JoinTask joinTask;
 	}
 }

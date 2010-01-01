@@ -25,7 +25,6 @@
 			android:layout_weight="1"
 			
 			android:maxLines="2"
-			android:enabled="false"
 			android:inputType="textCapSentences"
 			
 			android:imeOptions="actionDone"
@@ -38,8 +37,6 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
 			
-			android:enabled="false"
-			
 			android:textSize="18sp"
 			android:text="Post"
 			/>
@@ -49,7 +46,6 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
 			
-			android:enabled="false"
 			android:visibility="gone"
 			
 			android:textSize="16sp"
