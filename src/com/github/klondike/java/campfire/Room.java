@@ -61,15 +61,20 @@ public class Room {
 		return rooms;
 	}
 	
+	// convenience function
 	public void join() throws CampfireException {
-		HttpResponse response = new CampfireRequest(campfire).post(Campfire.joinPath(id));
+		joinRoom(campfire, id);
+	}
+	
+	public static void joinRoom(Campfire campfire, String roomId) throws CampfireException {
+		HttpResponse response = new CampfireRequest(campfire).post(Campfire.joinPath(roomId));
 		int statusCode = response.getStatusLine().getStatusCode();
 		
 		switch(statusCode) {
 		case HttpStatus.SC_OK:
 			return; // okay!
 		case HttpStatus.SC_METHOD_NOT_ALLOWED:
-			throw new CampfireException("It looks like your Campfire account uses SSL. Select \"Clear Credentials\" from the menu to log out and select SSL.");
+			throw new CampfireException("Error joining room - Campfire connection not using SSL, and should be.");
 		default:
 			throw new CampfireException("Unknown error trying to join the room.");
 		}

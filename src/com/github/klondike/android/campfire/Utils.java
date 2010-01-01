@@ -10,13 +10,13 @@ import com.github.klondike.java.campfire.CampfireException;
 
 public class Utils {
 
-	public static void alert(Context context, String msg) {
-		Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+	public static void alert(Context context, String message) {
+		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 	}
     
     public static void alert(Context context, CampfireException exception) {
     	String message = exception == null ? "Unhandled error." : exception.getMessage();
-    	alert(context, message);
+    	Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
     
     public static Campfire getCampfire(Context context) {

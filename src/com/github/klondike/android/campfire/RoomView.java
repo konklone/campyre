@@ -530,16 +530,21 @@ public class RoomView extends ListActivity {
     	 
        	@Override
     	protected void onPreExecute() {
-            context.joinDialog("Loading room details...");
+            context.joinDialog("Joining room...");
     	}
     	
     	@Override
     	protected CampfireException doInBackground(Void... nothing) {
     		try {
+    			// join first, so that the logged in user shows up in the list of initial users
+    			// and can be cached earlier
+    			publishProgress("Joining room...");
+    			Room.joinRoom(campfire, roomId);
+    			
     			publishProgress("Loading room details...");
     			room = Room.find(campfire, roomId);
     			
-    			// cache the initial users now
+    			// cache the initial users now while we can
     			if (room.initialUsers != null) {
     				int length = room.initialUsers.size();
     				for (int i=0; i<length; i++) {
@@ -547,9 +552,6 @@ public class RoomView extends ListActivity {
     					users.put(user.id, user);
     				}
     			}
-    			
-    			publishProgress("Joining room...");
-    			room.join();
     			
     			publishProgress("Getting latest messages...");
     			messages = poll(room, users);
