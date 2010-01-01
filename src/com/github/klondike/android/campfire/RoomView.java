@@ -539,6 +539,15 @@ public class RoomView extends ListActivity {
     			publishProgress("Loading room details...");
     			room = Room.find(campfire, roomId);
     			
+    			// cache the initial users now
+    			if (room.initialUsers != null) {
+    				int length = room.initialUsers.size();
+    				for (int i=0; i<length; i++) {
+    					User user = room.initialUsers.get(i);
+    					users.put(user.id, user);
+    				}
+    			}
+    			
     			publishProgress("Joining room...");
     			room.join();
     			

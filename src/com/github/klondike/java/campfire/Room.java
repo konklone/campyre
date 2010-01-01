@@ -14,6 +14,7 @@ public class Room {
 	public String id, name;
 	public boolean full = false;
 	public Campfire campfire;
+	public ArrayList<User> initialUsers = null;
 	
 	// For those times when you don't need a whole Room's details,
 	// You just have the ID and need a Room function (e.g. uploading a file)
@@ -28,6 +29,14 @@ public class Room {
 		this.name = json.getString("name");
 		if (json.has("full"))
 			this.full = json.getBoolean("full");
+		
+		if (json.has("users")) {
+			initialUsers = new ArrayList<User>();
+			JSONArray users = json.getJSONArray("users");
+			int length = users.length();
+			for (int i=0; i<length; i++)
+				initialUsers.add(new User(campfire, users.getJSONObject(i)));
+		}
 	}
 	
 	public static Room find(Campfire campfire, String id) throws CampfireException {
