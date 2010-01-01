@@ -33,9 +33,6 @@ import com.github.klondike.java.campfire.User;
 public class RoomView extends ListActivity {
 	private static final int MENU_AUTOPOLL = 0;
 	private static final int MENU_LOGOUT = 1;
-
-	private static final int JOINING = 0;
-	private static final int SPEAKING = 1;
 	
 	private static final int MAX_MESSAGES = 20;
 	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
@@ -82,12 +79,12 @@ public class RoomView extends ListActivity {
 			
 			if (speakTask != null) {
 				speakTask.context = this;
-				loadingDialog(SPEAKING);
+				speakDialog();
 			}
 			
 			if (joinTask != null) {
 				joinTask.context = this;
-				loadingDialog(JOINING);
+				joinDialog(joinTask.dialogMessage);
 			} else
 				onJoined();
 		} else
@@ -376,13 +373,18 @@ public class RoomView extends ListActivity {
     	return super.onOptionsItemSelected(item);
     }
     
-    protected void loadingDialog(int id) {
+    protected void speakDialog() {
+    	loadingDialog("Speaking...");
+    }
+    
+    protected void joinDialog(String message) {
+        loadingDialog(message);
+    }
+    
+    protected void loadingDialog(String message) {
     	dialog = new ProgressDialog(this);
     	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        if (id == SPEAKING)
-            dialog.setMessage("Speaking...");
-        else if (id == JOINING)
-        	dialog.setMessage("Joining room...");
+        dialog.setMessage(message);
         dialog.show();
     }
     
@@ -471,7 +473,7 @@ public class RoomView extends ListActivity {
        	@Override
     	protected void onPreExecute() {
        		context.speak.setEnabled(false);
-            context.loadingDialog(SPEAKING);
+            context.speakDialog();
     	}
     	
     	@Override
@@ -500,9 +502,10 @@ public class RoomView extends ListActivity {
     	}
 	}
 	
-	private class JoinTask extends AsyncTask<Void,Void,CampfireException> {
+	private class JoinTask extends AsyncTask<Void,String,CampfireException> {
 		public RoomView context;
     	public CampfireException exception = null;
+    	public String dialogMessage;
     	
     	public ArrayList<Message> messages = null;
     	public Room room = null;
@@ -521,19 +524,30 @@ public class RoomView extends ListActivity {
     	 
        	@Override
     	protected void onPreExecute() {
-            context.loadingDialog(JOINING);
+            context.joinDialog("Loading room details...");
     	}
     	
     	@Override
     	protected CampfireException doInBackground(Void... nothing) {
     		try {
+    			publishProgress("Loading room details...");
     			room = Room.find(campfire, roomId);
+    			
+    			publishProgress("Joining room...");
     			room.join();
+    			
+    			publishProgress("Getting latest messages...");
     			messages = poll(room, users);
 			} catch (CampfireException e) {
 				return exception;
 			}
 			return null;
+    	}
+    	
+    	@Override
+    	protected void onProgressUpdate(String... message) {
+    		dialogMessage = message[0];
+    		context.dialog.setMessage(message[0]);
     	}
     	
     	@Override
