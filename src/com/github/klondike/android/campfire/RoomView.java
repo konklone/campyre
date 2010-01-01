@@ -276,24 +276,13 @@ public class RoomView extends ListActivity {
 		Thread joinThread = new Thread() {
 			public void run() {
 				try {
-					// Joining a room is a five-step process with 4 network requests:
-					
-					// 1) Get the room details (name, topic, etc.)
-					room = Room.find(campfire, roomId);
-					
-					// 2) Make sure the room isn't full
-					if (room.full) {
-						handler.post(joinFailure);
-						return;
-					}
-					
-					// 3) Join the room
+					// 1) Join the room
 					room.join();
 					
-					// 4) Get the details of the logged in user and throw it in the User hash 
-					users.put(campfire.user_id, User.find(campfire, campfire.user_id));
+					// 2) Get the room details (name, topic, etc.)
+					room = Room.find(campfire, roomId);
 					
-					// 5) Do an initial poll
+					// 3) Do an initial poll
 					poll();
 					
 					handler.post(joinSuccess);
@@ -354,9 +343,9 @@ public class RoomView extends ListActivity {
 		}.start();
 	}
 	
-	// Fetches latest MAX_MESSAGES from the transcript, then for each message
-	// looks up the associated User to assign a display name
-	// we use the "users" HashMap to cache Users from the network 
+	// Fetches latest MAX_MESSAGES from the transcript, then for each message,
+	// looks up the associated User to assign a display name.
+	// We use the "users" HashMap to cache Users from the network. 
 	private void poll() throws CampfireException {
 		messages = Message.allToday(room, MAX_MESSAGES);
 		int length = messages.size();
