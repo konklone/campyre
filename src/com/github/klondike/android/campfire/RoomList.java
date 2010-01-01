@@ -88,18 +88,10 @@ public class RoomList extends ListActivity {
     
     public void selectRoom(Room room) {
     	if (forResult) {
-    		Intent intent = new Intent();
-    		intent.putExtra("room_id", room.id);
-        	
-        	setResult(RESULT_OK, intent);
+        	setResult(RESULT_OK, new Intent().putExtra("room_id", room.id));
         	finish();
-    	} else {
-    		Intent intent = new Intent(Intent.ACTION_MAIN);
-    		intent.setClassName("com.github.klondike.android.campfire", "com.github.klondike.android.campfire.RoomView");
-        	intent.putExtra("room_id", room.id);
-        	
-        	startActivity(intent);
-    	}
+    	} else
+    		startActivity(new Intent(this, RoomView.class).putExtra("room_id", room.id));
     }
     
     public void displayRooms() {
