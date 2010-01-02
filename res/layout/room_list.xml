@@ -19,7 +19,7 @@
     	<TextView android:id="@+id/rooms_empty"
     		android:layout_width="wrap_content"
     		android:layout_height="wrap_content"
-	    	android:layout_margin="10sp"
+	    	android:layout_margin="10dp"
 	    	
 	    	android:visibility="invisible"
 	    	android:textSize="20sp"
@@ -29,7 +29,7 @@
 	    <Button android:id="@+id/try_again"
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"
-	    	android:layout_marginTop="15dp"
+	    	android:layout_marginTop="10dp"
 	    	android:layout_gravity="center"
 	    	
 	    	android:padding="15dp"

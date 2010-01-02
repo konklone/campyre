@@ -8,7 +8,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    
-	    android:padding="10sp"
+	    android:padding="10dp"
 	    >
 		
 		<LinearLayout
@@ -25,7 +25,7 @@
 				>
 				
 				<EditText android:id="@+id/subdomain"
-					android:layout_width="150sp"
+					android:layout_width="150dp"
 					android:layout_height="wrap_content"
 					
 					android:inputType="text"
@@ -34,7 +34,7 @@
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_marginLeft="5sp"
+					android:layout_marginLeft="5dp"
 					
 					android:textSize="17sp"
 					android:text=".campfirenow.com"
@@ -53,7 +53,7 @@
 			<EditText android:id="@+id/token"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="10sp"
+				android:layout_marginTop="10dp"
 				
 				android:inputType="text"
 				
@@ -71,8 +71,8 @@
 		
 		<Button android:id="@+id/login_button"
 			android:layout_width="fill_parent"
-			android:layout_height="60sp"
-			android:layout_marginTop="15sp"
+			android:layout_height="60dp"
+			android:layout_marginTop="15dp"
 			
 			android:textSize="20sp"
 			android:text="Login"

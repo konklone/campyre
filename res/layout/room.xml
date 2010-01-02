@@ -33,7 +33,7 @@
 			/>
 			
 		<Button android:id="@+id/room_speak"
-			android:layout_width="80sp"
+			android:layout_width="80dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
 			
@@ -42,7 +42,7 @@
 			/>
 			
 		<Button android:id="@+id/room_refresh"
-			android:layout_width="80sp"
+			android:layout_width="80dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
 			
@@ -53,11 +53,11 @@
 			/>
 		
 		<ImageView android:id="@+id/room_polling"
-			android:layout_width="75sp"
-			android:layout_height="45sp"
+			android:layout_width="75dp"
+			android:layout_height="45dp"
 			android:layout_weight="0"
 			
-			android:layout_marginRight="5sp"
+			android:layout_marginRight="5dp"
 			
 			android:visibility="invisible"
 			

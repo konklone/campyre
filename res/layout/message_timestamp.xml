@@ -14,9 +14,9 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		
-		android:layout_marginTop="5sp"
-		android:layout_marginBottom="5sp"
-		android:layout_marginLeft="30sp"
+		android:layout_marginTop="5dp"
+		android:layout_marginBottom="5dp"
+		android:layout_marginLeft="30dp"
 		
 		android:textSize="12sp"
 		android:textColor="#999999"
