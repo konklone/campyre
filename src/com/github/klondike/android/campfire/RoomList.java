@@ -31,6 +31,7 @@ public class RoomList extends ListActivity {
 	
 	private boolean forResult = false;
 	private boolean shortcut = false;
+	private boolean error = false;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,7 @@ public class RoomList extends ListActivity {
         if (holder != null) {
 	    	rooms = holder.rooms;
 	    	loadRoomsTask = holder.loadRoomsTask;
+	    	error = holder.error;
 	    	if (loadRoomsTask != null) {
 	    		loadRoomsTask.context = this;
 	    		loadingDialog();
@@ -84,17 +86,19 @@ public class RoomList extends ListActivity {
     	RoomListHolder holder = new RoomListHolder();
     	holder.rooms = this.rooms;
     	holder.loadRoomsTask = this.loadRoomsTask;
+    	holder.error = this.error;
     	return holder;
     }
     
     public void onLoadRooms(ArrayList<Room> rooms, CampfireException exception) {
-    	if (exception == null && rooms != null) {
+    	if (exception == null && rooms != null)
     		this.rooms = rooms;
-        	displayRooms();
-    	} else {
+    	else {
+    		this.rooms = new ArrayList<Room>();
+    		this.error = true;
 			Utils.alert(this, exception);
-			finish();
 		}
+    	displayRooms();
     }
     
     public void selectRoom(Room room) {
@@ -103,7 +107,6 @@ public class RoomList extends ListActivity {
         	finish();
     	} else if (shortcut) {
         	Intent roomIntent = roomIntent(room).putExtra("shortcut", true);
-    		//roomIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
     		
     		Intent intent = new Intent();
     		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, roomIntent);
@@ -124,9 +127,12 @@ public class RoomList extends ListActivity {
     }
     
     public void displayRooms() {
-    	if (rooms.size() <= 0)
-			((TextView) findViewById(R.id.rooms_empty)).setVisibility(View.VISIBLE);
-		setListAdapter(new ArrayAdapter<Room>(RoomList.this, android.R.layout.simple_list_item_1, rooms));
+    	if (rooms.size() <= 0) {
+    		TextView empty = (TextView) findViewById(R.id.rooms_empty);
+    		empty.setText(error ? R.string.rooms_error : R.string.no_rooms);
+    		empty.setVisibility(View.VISIBLE);
+    	} else
+    		setListAdapter(new ArrayAdapter<Room>(RoomList.this, android.R.layout.simple_list_item_1, rooms));
     }
     
     public void onListItemClick(ListView parent, View v, int position, long id) {
@@ -226,6 +232,7 @@ public class RoomList extends ListActivity {
     static class RoomListHolder {
     	ArrayList<Room> rooms;
     	LoadRoomsTask loadRoomsTask;
+    	boolean error;
     }
     
 }
