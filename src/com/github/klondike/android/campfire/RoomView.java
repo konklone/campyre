@@ -158,7 +158,7 @@ public class RoomView extends ListActivity {
 	
 	private void setupControls() {
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
-		setWindowTitle("Campfire");
+		setWindowTitle(R.string.app_name);
 		
 		polling = (ImageView) findViewById(R.id.room_polling);
 		body = (EditText) findViewById(R.id.room_message_body);
@@ -403,6 +403,10 @@ public class RoomView extends ListActivity {
     }
     
     private void setWindowTitle(String title) {
+        ((TextView) findViewById(R.id.room_title)).setText(title);
+    }
+    
+    private void setWindowTitle(int title) {
         ((TextView) findViewById(R.id.room_title)).setText(title);
     }
     
