@@ -42,8 +42,8 @@ public class Campfire {
 			}
 			break;
 		case HttpStatus.SC_MOVED_TEMPORARILY:
-			if (this.ssl) // not sure why this would happen, but I'm cautious about infinite loops
-				throw new CampfireException("Unknown redirect error on login.");
+			if (this.ssl) // only reason this would happen is if the user really has no permissions here
+				throw new CampfireException("You don't have access to any rooms on this account. Ask an administrator to grant you permission.");
 			else {
 				this.ssl = true;
 				login();
