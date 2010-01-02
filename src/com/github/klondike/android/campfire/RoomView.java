@@ -7,6 +7,7 @@ import java.util.HashMap;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -377,17 +378,27 @@ public class RoomView extends ListActivity {
     }
     
     protected void speakDialog() {
-    	loadingDialog("Speaking...");
+    	dialog = new ProgressDialog(this);
+    	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setMessage("Speaking...");
+        dialog.setCancelable(false);
+        dialog.show();
     }
     
     protected void joinDialog(String message) {
-        loadingDialog(message);
-    }
-    
-    protected void loadingDialog(String message) {
     	dialog = new ProgressDialog(this);
     	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setMessage(message);
+        
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				if (joinTask != null)
+					joinTask.cancel(true);
+				finish();
+			}
+		});
+        
         dialog.show();
     }
     

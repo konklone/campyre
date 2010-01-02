@@ -113,6 +113,7 @@ public class ShareImage extends Activity {
         dialog = new ProgressDialog(this);
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog.setMessage("Uploading image...");
+        dialog.setCancelable(false);
         dialog.show();
     }
 	
