@@ -9,12 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * This class is going to handle each type of possible room event, pivoting on a "type" field.
- * Not all fields will be filled in for each type of event, but that's okay for right now.
- * @author eric
- *
- */
 public class Message {
 	public static final int UNSUPPORTED = -1;
 	public static final int TEXT = 0;
@@ -83,7 +77,7 @@ public class Message {
 	}
 	
 	private static int typeFor(String type) {
-		if (type.equals("TextMessage"))
+		if (type.equals("TextMessage") || type.equals("PasteMessage"))
 			return TEXT;
 		else if (type.equals("TimestampMessage"))
 			return TIMESTAMP;
