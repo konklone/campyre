@@ -21,12 +21,12 @@
 				android:orientation="horizontal"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
+				android:paddingTop="5dp"
 				>
 				
 				<EditText android:id="@+id/subdomain"
 					android:layout_width="150sp"
 					android:layout_height="wrap_content"
-					android:layout_marginTop="10sp"
 					
 					android:inputType="text"
 					/>
@@ -34,7 +34,6 @@
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_marginTop="10sp"
 					android:layout_marginLeft="5sp"
 					
 					android:textSize="17sp"
@@ -48,16 +47,8 @@
 			android:orientation="vertical"
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
-		    android:layout_marginTop="8dp"
+		    android:layout_marginTop="10dp"
 			>
-			
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				
-				android:textSize="20sp"
-				android:text="API Token"
-				/>
 			
 			<EditText android:id="@+id/token"
 				android:layout_width="fill_parent"
@@ -68,13 +59,20 @@
 				
 				android:hint="Paste or type your API token"
 				/>
+			
+			<TextView android:id="@+id/profile_message"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				
+				android:textSize="15sp"
+				android:text="@string/profile_message"
+				/>
 		</LinearLayout>
 		
 		<Button android:id="@+id/login_button"
 			android:layout_width="fill_parent"
 			android:layout_height="60sp"
-			android:layout_marginTop="12sp"
+			android:layout_marginTop="15sp"
 			
 			android:textSize="20sp"
 			android:text="Login"
