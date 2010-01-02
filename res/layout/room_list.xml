@@ -13,16 +13,29 @@
     <LinearLayout android:id="@id/android:empty"
     	android:layout_width="fill_parent"
     	android:layout_height="fill_parent"
+    	android:orientation="vertical"
     	>
+    	
     	<TextView android:id="@+id/rooms_empty"
     		android:layout_width="wrap_content"
-    		android:layout_height="fill_parent"
+    		android:layout_height="wrap_content"
 	    	android:layout_margin="10sp"
-	    	android:layout_gravity="center"
 	    	
 	    	android:visibility="invisible"
 	    	android:textSize="20sp"
 	    	android:text="@string/no_rooms"
+	    	/>
+	    	
+	    <Button android:id="@+id/try_again"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:layout_marginTop="15dp"
+	    	android:layout_gravity="center"
+	    	
+	    	android:padding="15dp"
+	    	android:visibility="invisible"
+	    	android:textSize="24sp"
+	    	android:text="Try Again"
 	    	/>
 	 </LinearLayout>
     	

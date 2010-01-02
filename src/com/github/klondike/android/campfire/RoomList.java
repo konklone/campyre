@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -28,6 +29,8 @@ public class RoomList extends ListActivity {
 	
 	private LoadRoomsTask loadRoomsTask = null;
 	private ProgressDialog dialog = null;
+	private TextView empty;
+	private Button tryAgain;
 	
 	private boolean forResult = false;
 	private boolean shortcut = false;
@@ -49,6 +52,8 @@ public class RoomList extends ListActivity {
         
         String action = intent.getAction();
         shortcut = (action != null && action.equals(Intent.ACTION_CREATE_SHORTCUT));
+        
+        setupControls();
         
         RoomListHolder holder = (RoomListHolder) getLastNonConfigurationInstance();
         if (holder != null) {
@@ -73,6 +78,10 @@ public class RoomList extends ListActivity {
     }
     
     public void onLogin() {
+    	loadRooms();
+    }
+    
+    public void loadRooms() {
     	if (loadRoomsTask == null) {
 	    	if (rooms == null)
 	    		new LoadRoomsTask(this).execute();
@@ -127,12 +136,34 @@ public class RoomList extends ListActivity {
     }
     
     public void displayRooms() {
-    	if (rooms.size() <= 0) {
-    		TextView empty = (TextView) findViewById(R.id.rooms_empty);
-    		empty.setText(error ? R.string.rooms_error : R.string.no_rooms);
-    		empty.setVisibility(View.VISIBLE);
-    	} else
+    	if (rooms.size() <= 0)
+    		showEmpty(error ? R.string.rooms_error : R.string.no_rooms);
+    	else
     		setListAdapter(new ArrayAdapter<Room>(RoomList.this, android.R.layout.simple_list_item_1, rooms));
+    }
+    
+    public void setupControls() {
+    	empty = (TextView) findViewById(R.id.rooms_empty);
+    	tryAgain = (Button) findViewById(R.id.try_again);
+    	tryAgain.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				rooms = null;
+				hideEmpty();
+				loadRooms();
+			}
+		});
+    }
+    
+    public void showEmpty(int message) {
+    	empty.setText(message);
+    	empty.setVisibility(View.VISIBLE);
+    	tryAgain.setVisibility(View.VISIBLE);
+    }
+    
+    public void hideEmpty() {
+    	empty.setVisibility(View.GONE);
+    	tryAgain.setVisibility(View.GONE);
     }
     
     public void onListItemClick(ListView parent, View v, int position, long id) {

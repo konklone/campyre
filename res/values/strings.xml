@@ -7,7 +7,7 @@
     <string name="shortcut_name">Campfire Room</string>
     
     <string name="no_rooms">No rooms found for this Campfire.</string>
-    <string name="rooms_error">Couldn't load rooms.\n\nSelect "Clear Credentials" from the menu to change your login info, or press the back button to exit before trying again.</string>
+    <string name="rooms_error">Couldn't load rooms.\n\nSelect "Clear Credentials" from the menu to change your login info, or try again.</string>
     <string name="room_list_title">Select a room</string>
     <string name="profile_message">Visit the "My Info" page in your Campfire to find your API token.</string>
     
