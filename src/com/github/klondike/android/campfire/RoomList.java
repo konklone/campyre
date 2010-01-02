@@ -7,9 +7,11 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,15 +30,24 @@ public class RoomList extends ListActivity {
 	private ProgressDialog dialog = null;
 	
 	private boolean forResult = false;
+	private boolean shortcut = false;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.room_list);
         
-        Bundle extras = getIntent().getExtras();
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
+        ((TextView) findViewById(R.id.room_title)).setText(R.string.room_list_title);
+        
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
         if (extras != null)
         	forResult = extras.getBoolean("for_result", false);
+        
+        String action = intent.getAction();
+        shortcut = (action != null && action.equals(Intent.ACTION_CREATE_SHORTCUT));
         
         RoomListHolder holder = (RoomListHolder) getLastNonConfigurationInstance();
         if (holder != null) {
@@ -90,6 +101,19 @@ public class RoomList extends ListActivity {
     	if (forResult) {
         	setResult(RESULT_OK, new Intent().putExtra("room_id", room.id));
         	finish();
+    	} else if (shortcut) {
+        	Intent roomIntent = roomIntent(room).putExtra("shortcut", true);
+    		//roomIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+    		
+    		Intent intent = new Intent();
+    		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, roomIntent);
+    		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, room.name);
+    		//Parcelable resource = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
+    		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, R.drawable.icon);
+    		
+    		setResult(RESULT_OK, intent);
+    		
+    		finish();
     	} else
     		startActivity(new Intent(this, RoomView.class).putExtra("room_id", room.id));
     }
@@ -102,6 +126,12 @@ public class RoomList extends ListActivity {
     
     public void onListItemClick(ListView parent, View v, int position, long id) {
     	selectRoom((Room) parent.getItemAtPosition(position));
+    }
+    
+    public static Intent roomIntent(Room room) {
+    	Intent intent = new Intent(Intent.ACTION_MAIN).putExtra("room_id", room.id);
+    	intent.setClassName("com.github.klondike.android.campfire", "com.github.klondike.android.campfire.RoomView");
+    	return intent;
     }
     
     @Override
