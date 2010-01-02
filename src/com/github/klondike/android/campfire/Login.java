@@ -2,6 +2,7 @@ package com.github.klondike.android.campfire;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -84,10 +85,20 @@ public class Login extends Activity {
     }
 	
 	public void loadingDialog() {
-       dialog = new ProgressDialog(this);
-       dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-       dialog.setMessage("Logging in...");
-       dialog.setCancelable(false);
+		dialog = new ProgressDialog(this);
+		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		dialog.setMessage("Logging in...");
+		   
+		dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				if (loginTask != null) {
+					loginTask.cancel(true);
+					loginTask = null; // so that the button will work again
+				}
+			}
+		});
+       
        dialog.show();
     }
 	
