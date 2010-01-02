@@ -108,7 +108,12 @@ public class RoomList extends ListActivity {
     		Intent intent = new Intent();
     		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, roomIntent);
     		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, room.name);
-    		//Parcelable resource = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
+
+    		// returning a Parcelable shortcut icon resource causes a force close on acore?!
+    		// Parcelable resource = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
+    		// intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, resource);
+    		
+    		// returning just the resource int doesn't work, but it's here as a placeholder
     		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, R.drawable.icon);
     		
     		setResult(RESULT_OK, intent);
