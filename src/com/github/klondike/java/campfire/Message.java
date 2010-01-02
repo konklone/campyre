@@ -15,6 +15,7 @@ public class Message {
 	public static final int TIMESTAMP = 1;
 	public static final int ENTRY = 2;
 	public static final int LEAVE = 3;
+	public static final int PASTE = 4;
 	
 	public int type;
 	public String id, user_id, body;
@@ -77,8 +78,10 @@ public class Message {
 	}
 	
 	private static int typeFor(String type) {
-		if (type.equals("TextMessage") || type.equals("PasteMessage"))
+		if (type.equals("TextMessage"))
 			return TEXT;
+		else if (type.equals("PasteMessage"))
+			return PASTE;
 		else if (type.equals("TimestampMessage"))
 			return TIMESTAMP;
 		else if (type.equals("EnterMessage"))

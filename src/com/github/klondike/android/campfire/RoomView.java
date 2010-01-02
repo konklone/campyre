@@ -37,6 +37,7 @@ public class RoomView extends ListActivity {
 	
 	private static final int MAX_MESSAGES = 20;
 	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
+	private static final int PASTE_TRUNCATE = 200;
 	
 	private static String timestampFormat = "hh:mm a";
 
@@ -433,6 +434,7 @@ public class RoomView extends ListActivity {
 		public int viewForMessage(Message message) {
 			switch (message.type) {
 			case Message.TEXT:
+			case Message.PASTE:
 				return R.layout.message_text;
 			case Message.TIMESTAMP:
 				return R.layout.message_timestamp;
@@ -454,6 +456,12 @@ public class RoomView extends ListActivity {
 				return "has left the room";
 			case Message.TIMESTAMP:
 				return new SimpleDateFormat(timestampFormat).format(message.timestamp);
+			case Message.PASTE:
+				int length = message.body.length();
+				if (length > PASTE_TRUNCATE)
+					return message.body.substring(0, PASTE_TRUNCATE-1) + "\n\n[paste truncated]";
+				else
+					return message.body;
 			default:
 				return message.body;
 			}
