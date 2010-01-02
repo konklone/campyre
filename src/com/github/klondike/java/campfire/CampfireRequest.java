@@ -114,13 +114,13 @@ public class CampfireRequest {
 		return campfire.subdomain + ".campfirenow.com";
 	}
 	
-	public String url(String path) {
-		return url(path, this.format);
-	}
-	
 	// lets you override the format per-request (used only for file uploading, which has to be .xml)
 	public String url(String path, String format) {
 		return (campfire.ssl ? "https" : "http") + "://" + domain() + path + format;
+	}
+	
+	public String url(String path) {
+		return url(path, this.format);
 	}
 	
 	public void uploadFile(String path, InputStream stream, String filename, String mimeType) throws CampfireException {
