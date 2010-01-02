@@ -38,7 +38,7 @@
 			android:layout_weight="0"
 			
 			android:textSize="18sp"
-			android:text="Post"
+			android:text="Send"
 			/>
 			
 		<Button android:id="@+id/room_refresh"
