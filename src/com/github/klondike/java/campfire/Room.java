@@ -67,7 +67,8 @@ public class Room {
 	}
 	
 	public static void joinRoom(Campfire campfire, String roomId) throws CampfireException {
-		HttpResponse response = new CampfireRequest(campfire).post(Campfire.joinPath(roomId));
+		String url = Campfire.joinPath(roomId);
+		HttpResponse response = new CampfireRequest(campfire, false).post(url);
 		int statusCode = response.getStatusLine().getStatusCode();
 		
 		switch(statusCode) {
@@ -75,6 +76,8 @@ public class Room {
 			return; // okay!
 		case HttpStatus.SC_METHOD_NOT_ALLOWED:
 			throw new CampfireException("Error joining room - Campfire connection not using SSL, and should be.");
+		case HttpStatus.SC_MOVED_TEMPORARILY:
+			throw new CampfireException("Unknown room.");
 		default:
 			throw new CampfireException("Unknown error trying to join the room.");
 		}

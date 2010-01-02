@@ -529,7 +529,6 @@ public class RoomView extends ListActivity {
 	
 	private class JoinTask extends AsyncTask<Void,String,CampfireException> {
 		public RoomView context;
-    	public CampfireException exception = null;
     	public String dialogMessage;
     	
     	public ArrayList<Message> messages = null;
@@ -575,7 +574,7 @@ public class RoomView extends ListActivity {
     			publishProgress("Getting latest messages...");
     			messages = poll(room, users);
 			} catch (CampfireException e) {
-				return exception;
+				return e;
 			}
 			return null;
     	}
