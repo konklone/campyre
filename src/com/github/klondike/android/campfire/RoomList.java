@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -174,8 +174,17 @@ public class RoomList extends ListActivity {
     public void loadingDialog() {
     	dialog = new ProgressDialog(this);
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setCancelable(false);
         dialog.setMessage("Loading rooms...");
+        
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				if (loadRoomsTask != null)
+					loadRoomsTask.cancel(true);
+				finish();
+			}
+		});
+        
         dialog.show();
     }
     
