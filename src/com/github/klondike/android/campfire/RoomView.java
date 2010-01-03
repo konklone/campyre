@@ -89,8 +89,14 @@ public class RoomView extends ListActivity {
 			if (joinTask != null) {
 				joinTask.context = this;
 				joinDialog(joinTask.dialogMessage);
-			} else
-				onJoined();
+			} else {
+				if (campfire == null)
+					verifyLogin();
+				else if (room == null)
+					onLogin();
+				else
+					onJoined();
+			}
 		} else
 			verifyLogin();
 	}
