@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="version_string">0.9</string>
+	
     <string name="market_name">Campyre</string>
     <string name="market_name_donate">Campyre (Donate)</string>
     
@@ -11,14 +13,15 @@
     <string name="room_list_title">Select a room</string>
     <string name="profile_message">Visit the "My Info" page in your Campfire to find your API token.</string>
     
-    <string name="about_main">This app made by Eric Mill, a loyal (and paying) Campfire user since 2006.</string>
-    <string name="about_links">Source code:\nhttp://github.com/klondike/campyre/issues</string>
-    <string name="about_button">Awesome</string>
+    <string name="about_main_1">Made by Eric Mill, a loyal Campfire user since 2006.</string>
+    <string name="about_main_2">Select \"Feedback\" from the menu to email me with praise or complaints.</string>
+    <string name="about_links">Source code:\nhttp://github.com/klondike/campyre/</string>
+    <string name="about_button">Cool</string>
     
     <string name="contact_email">kprojection+campyre@gmail.com</string>
     <string name="contact_subject">Campyre feedback</string>
     
     <string name="autopoll_on">Turn On Auto-Refresh</string>
     <string name="autopoll_off">Turn Off Auto-Refresh</string>
-    <string name="logout">Clear Credentials</string>
+    <string name="logout">Logout</string>
 </resources>

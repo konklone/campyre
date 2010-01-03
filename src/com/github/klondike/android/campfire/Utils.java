@@ -10,7 +10,7 @@ import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
-import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,11 +33,14 @@ public class Utils {
     	AlertDialog.Builder builder = new AlertDialog.Builder(context);
     	LayoutInflater inflater = LayoutInflater.from(context);
     	
-    	LinearLayout aboutView = (LinearLayout) inflater.inflate(R.layout.about, null);
+    	ScrollView aboutView = (ScrollView) inflater.inflate(R.layout.about, null);
     	
     	TextView about3 = (TextView) aboutView.findViewById(R.id.about_links);
     	about3.setText(R.string.about_links);
     	Linkify.addLinks(about3, Linkify.WEB_URLS);
+    	
+    	String versionString = context.getResources().getString(R.string.version_string);
+    	((TextView) aboutView.findViewById(R.id.about_version)).setText("Version " + versionString);
     	
     	builder.setView(aboutView);
     	builder.setPositiveButton(R.string.about_button, new DialogInterface.OnClickListener() {
