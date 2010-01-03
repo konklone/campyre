@@ -25,6 +25,7 @@ import com.github.klondike.java.campfire.Room;
 public class RoomList extends ListActivity { 
 	private static final int MENU_CLEAR = 0;
 	private static final int MENU_ABOUT = 1;
+	private static final int MENU_FEEDBACK = 2;
 	
 	private Campfire campfire = null;
 	private ArrayList<Room> rooms = null;
@@ -196,7 +197,8 @@ public class RoomList extends ListActivity {
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
         menu.add(0, MENU_CLEAR, 0, R.string.logout).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-        menu.add(1, MENU_ABOUT, 1, "About").setIcon(android.R.drawable.ic_menu_help);
+        menu.add(1, MENU_FEEDBACK, 1, "Feedback").setIcon(android.R.drawable.ic_menu_report_image);
+        menu.add(2, MENU_ABOUT, 2, "About").setIcon(android.R.drawable.ic_menu_help);
         
         return result;
     }
@@ -207,6 +209,9 @@ public class RoomList extends ListActivity {
     	case MENU_CLEAR:
     		Utils.clearCampfire(this);
     		finish();
+    		break;
+    	case MENU_FEEDBACK:
+    		startActivity(Utils.feedbackIntent(this));
     		break;
     	case MENU_ABOUT:
     		showDialog(Utils.ABOUT);

@@ -15,6 +15,9 @@
     <string name="about_links">Source code:\nhttp://github.com/klondike/campyre/issues</string>
     <string name="about_button">Awesome</string>
     
+    <string name="contact_email">kprojection+campyre@gmail.com</string>
+    <string name="contact_subject">Campyre feedback</string>
+    
     <string name="autopoll_on">Turn On Auto-Refresh</string>
     <string name="autopoll_off">Turn Off Auto-Refresh</string>
     <string name="logout">Clear Credentials</string>

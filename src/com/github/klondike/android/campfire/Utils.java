@@ -4,8 +4,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
@@ -42,6 +44,12 @@ public class Utils {
 			public void onClick(DialogInterface dialog, int which) {}
 		});
         return builder.create();
+    }
+    
+    public static Intent feedbackIntent(Context context) {
+    	return new Intent(Intent.ACTION_SENDTO, 
+    			Uri.fromParts("mailto", context.getResources().getString(R.string.contact_email), null))
+    		.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.contact_subject));
     }
     
     public static Campfire getCampfire(Context context) {

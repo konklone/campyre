@@ -22,6 +22,7 @@ public class Login extends Activity {
 	public static final int RESULT_LOGIN = 1000;
 	
 	public static final int MENU_ABOUT = 1;
+	public static final int MENU_FEEDBACK = 2;
 	
 	private Campfire campfire;
 	private EditText tokenView, subdomainView;
@@ -93,8 +94,8 @@ public class Login extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-	    // add Feedback item here
-        menu.add(0, MENU_ABOUT, 0, "About").setIcon(android.R.drawable.ic_menu_help);
+	    menu.add(0, MENU_FEEDBACK, 0, "Feedback").setIcon(android.R.drawable.ic_menu_report_image);
+        menu.add(1, MENU_ABOUT, 1, "About").setIcon(android.R.drawable.ic_menu_help);
         
         return result;
     }
@@ -104,6 +105,9 @@ public class Login extends Activity {
     	switch(item.getItemId()) { 
     	case MENU_ABOUT:
     		showDialog(Utils.ABOUT);
+    		break;
+    	case MENU_FEEDBACK:
+    		startActivity(Utils.feedbackIntent(this));
     		break;
     	}
     	
