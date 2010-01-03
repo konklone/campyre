@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -124,12 +125,8 @@ public class RoomList extends ListActivity {
     		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, roomIntent);
     		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, room.name);
 
-    		// returning a Parcelable shortcut icon resource causes a force close on acore?!
-    		// Parcelable resource = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
-    		// intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, resource);
-    		
-    		// returning just the resource int doesn't work, but it's here as a placeholder
-    		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, R.drawable.icon);
+    		Parcelable resource = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
+    		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, resource);
     		
     		setResult(RESULT_OK, intent);
     		
