@@ -11,6 +11,10 @@
     <string name="room_list_title">Select a room</string>
     <string name="profile_message">Visit the "My Info" page in your Campfire to find your API token.</string>
     
+    <string name="about_main">This app made by Eric Mill, a loyal (and paying) Campfire user since 2006.</string>
+    <string name="about_links">Source code:\nhttp://github.com/klondike/campyre/issues</string>
+    <string name="about_button">Awesome</string>
+    
     <string name="autopoll_on">Turn On Auto-Refresh</string>
     <string name="autopoll_off">Turn Off Auto-Refresh</string>
     <string name="logout">Clear Credentials</string>

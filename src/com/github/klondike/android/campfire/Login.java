@@ -1,12 +1,15 @@
 package com.github.klondike.android.campfire;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +20,8 @@ import com.github.klondike.java.campfire.CampfireException;
 public class Login extends Activity {
 	// high number because other activities will use this code in their case statements
 	public static final int RESULT_LOGIN = 1000;
+	
+	public static final int MENU_ABOUT = 1;
 	
 	private Campfire campfire;
 	private EditText tokenView, subdomainView;
@@ -83,6 +88,32 @@ public class Login extends Activity {
 			}
 		});
     }
+    
+    @Override 
+    public boolean onCreateOptionsMenu(Menu menu) { 
+	    boolean result = super.onCreateOptionsMenu(menu);
+	    
+	    // add Feedback item here
+        menu.add(0, MENU_ABOUT, 0, "About").setIcon(android.R.drawable.ic_menu_help);
+        
+        return result;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch(item.getItemId()) { 
+    	case MENU_ABOUT:
+    		showDialog(Utils.ABOUT);
+    		break;
+    	}
+    	
+    	return super.onOptionsItemSelected(item);
+    }
+    
+    @Override
+	protected Dialog onCreateDialog(int id) { 
+		return id == Utils.ABOUT ? Utils.aboutDialog(this) : null;
+	}
 	
 	public void loadingDialog() {
 		dialog = new ProgressDialog(this);

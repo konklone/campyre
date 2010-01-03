@@ -2,6 +2,7 @@ package com.github.klondike.android.campfire;
 
 import java.util.ArrayList;
 
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -23,6 +24,7 @@ import com.github.klondike.java.campfire.Room;
 
 public class RoomList extends ListActivity { 
 	private static final int MENU_CLEAR = 0;
+	private static final int MENU_ABOUT = 1;
 	
 	private Campfire campfire = null;
 	private ArrayList<Room> rooms = null;
@@ -194,6 +196,7 @@ public class RoomList extends ListActivity {
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
         menu.add(0, MENU_CLEAR, 0, R.string.logout).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+        menu.add(1, MENU_ABOUT, 1, "About").setIcon(android.R.drawable.ic_menu_help);
         
         return result;
     }
@@ -204,9 +207,19 @@ public class RoomList extends ListActivity {
     	case MENU_CLEAR:
     		Utils.clearCampfire(this);
     		finish();
+    		break;
+    	case MENU_ABOUT:
+    		showDialog(Utils.ABOUT);
+    		break;
     	}
+    	
     	return super.onOptionsItemSelected(item);
     }
+    
+    @Override
+	protected Dialog onCreateDialog(int id) { 
+		return id == Utils.ABOUT ? Utils.aboutDialog(this) : null;
+	}
     
     public void loadingDialog() {
     	dialog = new ProgressDialog(this);
