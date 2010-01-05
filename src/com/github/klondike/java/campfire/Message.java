@@ -10,8 +10,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Message {
-	public static final int UNSUPPORTED = -1;
-	public static final int UTILITY = 0; // can be used by clients to make messages that didn't come from the Campfire
+	public static final int UNSUPPORTED = -2;
+	public static final int ERROR = -1; // can be used by clients to make messages that didn't come from the Campfire
+	public static final int TRANSIT = 0; // can be used by clients to make messages that are still in transit 
 	public static final int TEXT = 1;
 	public static final int TIMESTAMP = 2;
 	public static final int ENTRY = 3;
@@ -29,8 +30,10 @@ public class Message {
 	// It violates the intended separation between the two packages, but oh well.
 	public String person;
 	
-	// for making artificial utility messages (really just intended to serve the Android client)
-	public Message(int type, String body) {
+	// for making artificial messages (really just intended to serve the Android client)
+	// only make them if you know what you're doing (as they'll be missing fields!)
+	public Message(String id, int type, String body) {
+		this.id = id;
 		this.type = type;
 		this.body = body;
 	}
@@ -106,7 +109,8 @@ public class Message {
 		case LEAVE:
 			return true;
 		case TIMESTAMP:
-		case UTILITY:
+		case ERROR:
+		case TRANSIT:
 			return false;
 		default:
 			return false;

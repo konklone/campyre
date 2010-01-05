@@ -2,7 +2,9 @@ package com.github.klondike.android.campfire;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import android.app.Activity;
 import android.app.ListActivity;
@@ -44,12 +46,14 @@ public class RoomView extends ListActivity {
 	private Campfire campfire;
 	private String roomId;
 	private Room room;
-	private SpeakTask speakTask;
+	private HashMap<String,SpeakTask> speakTasks = new HashMap<String,SpeakTask>();
 	private JoinTask joinTask;
 	
 	private int pollFailures = 0;
+	private int transitId = 1;
 	
 	private ArrayList<Message> messages = new ArrayList<Message>();
+	private HashMap<String,Message> transitMessages = new HashMap<String,Message>();
 	private HashMap<String,User> users = new HashMap<String,User>();
 	
 	private EditText body;
@@ -71,12 +75,16 @@ public class RoomView extends ListActivity {
 			campfire = holder.campfire;
 			room = holder.room;
 			messages = holder.messages;
+			transitMessages = holder.transitMessages;
 			users = holder.users;
-			speakTask = holder.speakTask;
+			speakTasks = holder.speakTasks;
 			joinTask = holder.joinTask;
 			
-			if (speakTask != null)
-				speakTask.onScreenLoad(this);
+			if (speakTasks != null) {
+				Iterator<SpeakTask> iterator = speakTasks.values().iterator();
+				while (iterator.hasNext())
+					iterator.next().onScreenLoad(this);
+			}
 			
 			if (holder.joinTask != null)
 				joinTask.onScreenLoad(this);
@@ -98,8 +106,9 @@ public class RoomView extends ListActivity {
 		holder.campfire = this.campfire;
 		holder.room = this.room;
 		holder.messages = this.messages;
+		holder.transitMessages = this.transitMessages;
 		holder.users = this.users;
-		holder.speakTask = this.speakTask;
+		holder.speakTasks = this.speakTasks;
 		holder.joinTask = this.joinTask;
 		return holder;
 	}
@@ -110,7 +119,8 @@ public class RoomView extends ListActivity {
 	
 	private void onJoined() {
 		setWindowTitle(room.name);
-		setListAdapter(new RoomAdapter(this, messages));
+		//setListAdapter(new RoomAdapter(this, messages));
+		updateMessages();
 		scrollToBottom();
 
 		((ProgressBar) findViewById(R.id.empty_spinner)).setVisibility(View.VISIBLE);
@@ -128,7 +138,8 @@ public class RoomView extends ListActivity {
 		boolean wasAtBottom = scrolledToBottom();
 		int position = scrollPosition();
 		
-		setListAdapter(new RoomAdapter(this, messages));
+		//setListAdapter(new RoomAdapter(this, messages));
+		updateMessages();
 		
 		if (wasAtBottom)
 			scrollToBottom();
@@ -138,20 +149,28 @@ public class RoomView extends ListActivity {
 	
 	// polling failed, messages still has the old list
 	private void onPoll(CampfireException exception) {
-		messages.add(new Message(Message.UTILITY, exception.getMessage()));
-		setListAdapter(new RoomAdapter(this, messages));
+		messages.add(new Message("error", Message.ERROR, exception.getMessage()));
+		//setListAdapter(new RoomAdapter(this, messages));
+		updateMessages();
 		scrollToBottom();
 	}
 	
-	private void onSpeak(Message message) {
-		body.setText("");
-		((RoomAdapter) getListAdapter()).add(message);
-		
+	private void onSpeak(Message message, String transitId) {
+		transitMessages.remove(transitId);
+		messages.add(message);
+		updateMessages();
 		scrollToBottom();
 	}
 	
 	private void onSpeak(CampfireException exception) {
 		Utils.alert(this, exception);
+	}
+	
+	private void updateMessages() {
+		ArrayList<Message> allMessages = new ArrayList<Message>();
+		allMessages.addAll(messages);
+		allMessages.addAll(transitMessages.values());
+		setListAdapter(new RoomAdapter(this, allMessages));
 	}
 	
 	private void setupControls() {
@@ -233,8 +252,21 @@ public class RoomView extends ListActivity {
 	private void speak() {
 		String msg = body.getText().toString();
 		
-		if (!msg.equals("") && speakTask == null)
-			new SpeakTask(this).execute(msg);
+		if (!msg.equals("")) {
+			body.setText("");
+			
+			String id = transitId + "-" + campfire.user_id;
+			transitId += 1;
+			Message message = new Message(id, Message.TRANSIT, msg);
+			transitMessages.put(id, message);
+			
+			// avoid refreshing the whole adapter if I don't have to
+			((RoomAdapter) getListAdapter()).add(message);
+			scrollToBottom();
+			
+			// actually do the speaking in the background
+			new SpeakTask(this, message).execute();
+		}
 	}
 
 	private void join() {
@@ -382,8 +414,10 @@ public class RoomView extends ListActivity {
 		
 		public int viewForMessage(Message message) {
 			switch (message.type) {
-			case Message.UTILITY:
+			case Message.ERROR:
 				return R.layout.message_error;
+			case Message.TRANSIT:
+				return R.layout.message_transit;
 			case Message.TEXT:
 			case Message.PASTE:
 				return R.layout.message_text;
@@ -423,42 +457,30 @@ public class RoomView extends ListActivity {
 
     }
 	
-	private class SpeakTask extends AsyncTask<String,Void,Message> {
+	private class SpeakTask extends AsyncTask<Void,Void,Message> {
 		public RoomView context;
     	public CampfireException exception = null;
     	private ProgressDialog dialog = null;
+    	private Message transitMessage;
     	
-    	public SpeakTask(RoomView context) {
+    	public SpeakTask(RoomView context, Message transitMessage) {
     		super();
     		this.context = context;
-    		this.context.speakTask = this;
-    	}
-    	 
-       	@Override
-    	protected void onPreExecute() {
-            loadingDialog();
+    		this.context.speakTasks.put(transitMessage.id, this);
+    		this.transitMessage = transitMessage;
     	}
        	
        	protected void onScreenLoad(RoomView context) {
        		this.context = context;
-			loadingDialog();
        	}
        	
-       	protected void loadingDialog() {
-       		dialog = new ProgressDialog(context);
-        	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            dialog.setMessage("Speaking...");
-            dialog.setCancelable(false);
-            dialog.show();
-       	}
-    	
     	@Override
-    	protected Message doInBackground(String... body) {
+    	protected Message doInBackground(Void... nothing) {
     		try {
     			context.room.join(); // in case we've been idle-kicked out since we last spoke
-    			Message message = context.room.speak(body[0]);
-    			context.fillPerson(message, context.users);
-    			return message;
+    			Message newMessage = context.room.speak(transitMessage.body);
+    			context.fillPerson(newMessage, context.users);
+    			return newMessage;
 			} catch (CampfireException e) {
 				this.exception = e;
 				return null;
@@ -466,13 +488,13 @@ public class RoomView extends ListActivity {
     	}
     	
     	@Override
-    	protected void onPostExecute(Message message) {
+    	protected void onPostExecute(Message newMessage) {
     		if (dialog != null && dialog.isShowing())
     			dialog.dismiss();
-    		context.speakTask = null;
+    		context.speakTasks.remove(transitMessage.id);
     		
     		if (exception == null)
-    			context.onSpeak(message);
+    			context.onSpeak(newMessage, transitMessage.id);
     		else
     			context.onSpeak(exception);
     	}
@@ -564,8 +586,9 @@ public class RoomView extends ListActivity {
 		Campfire campfire;
 		Room room;
 		ArrayList<Message> messages;
+		HashMap<String,Message> transitMessages;
 		HashMap<String,User> users;
-		SpeakTask speakTask;
+		HashMap<String,SpeakTask> speakTasks;
 		JoinTask joinTask;
 	}
 }
