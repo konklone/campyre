@@ -201,7 +201,7 @@ public class RoomList extends ListActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) { 
     	case MENU_CLEAR:
-    		Utils.clearCampfire(this);
+    		Utils.logoutCampfire(this);
     		finish();
     		break;
     	case MENU_FEEDBACK:

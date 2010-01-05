@@ -371,7 +371,7 @@ public class RoomView extends ListActivity {
     		if (autoPoll) autoPoll();
     		return true;
     	case MENU_LOGOUT:
-    		Utils.clearCampfire(this);
+    		Utils.logoutCampfire(this);
     		finish();
     		return true;
     	}

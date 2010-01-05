@@ -73,13 +73,8 @@ public class Login extends Activity {
     public void setupControls() {
     	tokenView = (EditText) findViewById(R.id.token);
     	subdomainView = (EditText) findViewById(R.id.subdomain);
-    	
-    	SharedPreferences prefs = getSharedPreferences("campfire", 0); 
-    	String subdomain = prefs.getString("subdomain", null);
-        String token = prefs.getString("token", null);
-        
-        subdomainView.setText(subdomain);
-        tokenView.setText(token);
+        subdomainView.setText(Utils.getCampfireValue(this, "subdomain"));
+        tokenView.setText(Utils.getCampfireValue(this, "token"));
     	
     	Button loginButton = (Button) findViewById(R.id.login_button);
     	loginButton.setOnClickListener(new View.OnClickListener() {

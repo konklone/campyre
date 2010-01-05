@@ -57,16 +57,20 @@ public class Utils {
     
     public static Campfire getCampfire(Context context) {
     	SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
-    	String subdomain = prefs.getString("subdomain", null);
-        String token = prefs.getString("token", null);
-        boolean ssl = prefs.getBoolean("ssl", false);
-        String user_id = prefs.getString("user_id", null);
+    	String user_id = prefs.getString("user_id", null);
         
-        if (token != null)
+        if (user_id != null) {
+        	String subdomain = prefs.getString("subdomain", null);
+            String token = prefs.getString("token", null);
+            boolean ssl = prefs.getBoolean("ssl", false);
         	return new Campfire(subdomain, token, ssl, user_id);
-        else
+        } else
         	return null;
 	}
+    
+    public static String getCampfireValue(Context context, String key) {
+    	return context.getSharedPreferences("campfire", 0).getString(key, null);
+    }
 	
 	public static void saveCampfire(Context context, Campfire campfire) {
 		SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
@@ -80,12 +84,10 @@ public class Utils {
 		editor.commit();
 	}
 	
-	public static void clearCampfire(Context context) {
+	public static void logoutCampfire(Context context) {
 		SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
 		Editor editor = prefs.edit();
 	
-		editor.putString("subdomain", null);
-		editor.putString("token", null);
 		editor.putBoolean("ssl", false);
 		editor.putString("user_id", null);
 		
