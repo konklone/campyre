@@ -48,8 +48,6 @@ public class RoomView extends ListActivity {
 	private SpeakTask speakTask;
 	private JoinTask joinTask;
 	
-	private ProgressDialog dialog = null;
-	
 	private ArrayList<Message> messages = new ArrayList<Message>();
 	private HashMap<String,User> users = new HashMap<String,User>();
 	
@@ -72,7 +70,6 @@ public class RoomView extends ListActivity {
 		
 		setupControls();
 		
-		// on screen flip, attempt to restore state without rejoining everything
 		RoomViewHolder holder = (RoomViewHolder) getLastNonConfigurationInstance();
 		if (holder != null) {
 			campfire = holder.campfire;
@@ -82,10 +79,8 @@ public class RoomView extends ListActivity {
 			speakTask = holder.speakTask;
 			joinTask = holder.joinTask;
 			
-			if (speakTask != null) {
-				speakTask.context = this;
-				speakDialog();
-			}
+			if (speakTask != null)
+				speakTask.onScreenLoad(this);
 			
 			if (holder.joinTask != null)
 				joinTask.onScreenLoad(this);
@@ -383,14 +378,6 @@ public class RoomView extends ListActivity {
     	return super.onOptionsItemSelected(item);
     }
     
-    protected void speakDialog() {
-    	dialog = new ProgressDialog(this);
-    	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setMessage("Speaking...");
-        dialog.setCancelable(false);
-        dialog.show();
-    }
-    
     private void setWindowTitle(String title) {
         ((TextView) findViewById(R.id.room_title)).setText(title);
     }
@@ -481,6 +468,7 @@ public class RoomView extends ListActivity {
 	private class SpeakTask extends AsyncTask<String,Void,Message> {
 		public RoomView context;
     	public CampfireException exception = null;
+    	private ProgressDialog dialog = null;
     	
     	public SpeakTask(RoomView context) {
     		super();
@@ -491,8 +479,21 @@ public class RoomView extends ListActivity {
        	@Override
     	protected void onPreExecute() {
        		context.speak.setEnabled(false);
-            context.speakDialog();
+            loadingDialog();
     	}
+       	
+       	protected void onScreenLoad(RoomView context) {
+       		this.context = context;
+			loadingDialog();
+       	}
+       	
+       	protected void loadingDialog() {
+       		dialog = new ProgressDialog(context);
+        	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            dialog.setMessage("Speaking...");
+            dialog.setCancelable(false);
+            dialog.show();
+       	}
     	
     	@Override
     	protected Message doInBackground(String... body) {
@@ -509,8 +510,8 @@ public class RoomView extends ListActivity {
     	
     	@Override
     	protected void onPostExecute(Message message) {
-    		if (context.dialog != null && context.dialog.isShowing())
-    			context.dialog.dismiss();
+    		if (dialog != null && dialog.isShowing())
+    			dialog.dismiss();
     		context.speakTask = null;
     		
     		if (exception == null)
