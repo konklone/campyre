@@ -112,6 +112,9 @@ public class RoomView extends ListActivity {
 		setWindowTitle(room.name);
 		setListAdapter(new RoomAdapter(this, messages));
 		scrollToBottom();
+
+		((ProgressBar) findViewById(R.id.empty_spinner)).setVisibility(View.VISIBLE);
+		((TextView) findViewById(R.id.empty_message)).setVisibility(View.VISIBLE);
 		
 		autoPoll();
 	}
@@ -142,21 +145,19 @@ public class RoomView extends ListActivity {
 	
 	private void onSpeak(Message message) {
 		body.setText("");
-		speak.setEnabled(true);
 		((RoomAdapter) getListAdapter()).add(message);
 		
 		scrollToBottom();
 	}
 	
 	private void onSpeak(CampfireException exception) {
-		speak.setEnabled(true);
 		Utils.alert(this, exception);
 	}
 	
 	private void setupControls() {
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
 		setWindowTitle(R.string.app_name);
-		
+			
 		titleSpinner = (ProgressBar) findViewById(R.id.title_spinner);
 		
 		body = (EditText) findViewById(R.id.room_message_body);
@@ -207,6 +208,7 @@ public class RoomView extends ListActivity {
 	final Runnable pollSuccess = new Runnable() {
 		public void run() {
 			pollFailures = 0;
+			
 			hideSpinner();
 			onPoll();
 		}
@@ -244,12 +246,6 @@ public class RoomView extends ListActivity {
 		new Thread() {
 			public void run() {
 				while(true) {
-					try {
-						sleep(AUTOPOLL_INTERVAL * 1000);
-					} catch(InterruptedException ex) {
-						// well, I never
-					}
-					
 					handler.post(pollStart);
 					try {
 						messages = poll(room, users);
@@ -261,6 +257,13 @@ public class RoomView extends ListActivity {
 					} catch(CampfireException e) {
 						handler.post(pollFailure);
 					}
+					
+					try {
+						sleep(AUTOPOLL_INTERVAL * 1000);
+					} catch(InterruptedException ex) {
+						// well, I never
+					}
+
 				}
 			}
 		}.start();
@@ -433,7 +436,6 @@ public class RoomView extends ListActivity {
     	 
        	@Override
     	protected void onPreExecute() {
-       		context.speak.setEnabled(false);
             loadingDialog();
     	}
        	
@@ -478,9 +480,7 @@ public class RoomView extends ListActivity {
 	
 	private class JoinTask extends AsyncTask<Void,String,CampfireException> {
 		public RoomView context;
-    	public String dialogMessage;
     	
-    	public ArrayList<Message> messages = null;
     	public Room room = null;
     	public HashMap<String,User> users;
     	private ProgressDialog dialog = null;
@@ -509,7 +509,7 @@ public class RoomView extends ListActivity {
        	protected void loadingDialog() {
         	dialog = new ProgressDialog(context);
         	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        	dialog.setMessage(dialogMessage);
+        	dialog.setMessage("Joining room...");
             
         	dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
     			@Override
@@ -527,10 +527,7 @@ public class RoomView extends ListActivity {
     		try {
     			// join first, so that the logged in user shows up in the list of initial users
     			// and can be cached earlier
-    			publishProgress("Joining room...");
     			Room.joinRoom(campfire, roomId);
-    			
-    			publishProgress("Loading room details...");
     			room = Room.find(campfire, roomId);
     			
     			// cache the initial users now while we can
@@ -541,19 +538,10 @@ public class RoomView extends ListActivity {
     					users.put(user.id, user);
     				}
     			}
-    			
-    			publishProgress("Getting latest messages...");
-    			messages = poll(room, users);
 			} catch (CampfireException e) {
 				return e;
 			}
 			return null;
-    	}
-    	
-    	@Override
-    	protected void onProgressUpdate(String... message) {
-    		dialogMessage = message[0];
-    		dialog.setMessage(message[0]);
     	}
     	
     	@Override
@@ -563,9 +551,8 @@ public class RoomView extends ListActivity {
     		context.joinTask = null;
     		
     		context.room = room;
-    		context.messages = messages;
     		context.users = users;
-    		
+    		   		
     		if (exception == null)
     			context.onJoined();
     		else

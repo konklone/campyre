@@ -10,6 +10,36 @@
 		android:layout_height="fill_parent"
 		android:layout_weight="1"
 		/>
+		
+	<LinearLayout android:id="@id/android:empty"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:layout_weight="1"
+    	
+    	android:orientation="horizontal"
+    	android:gravity="center"
+    	>
+    	
+    	<ProgressBar android:id="@+id/empty_spinner"
+    		android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		style="?android:attr/progressBarStyleSmallTitle"
+    		
+    		android:visibility="invisible"
+    		
+    		android:layout_marginRight="10dp"
+    		/>
+    		
+    	<TextView android:id="@+id/empty_message"
+    		android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		
+    		android:visibility="invisible"
+    		
+    		android:text="Loading messages..."
+    		/>
+    	
+    </LinearLayout>
 	
 	<LinearLayout android:id="@+id/room_bottom"
 		android:orientation="horizontal"
