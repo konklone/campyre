@@ -424,6 +424,8 @@ public class RoomView extends ListActivity {
 		
 		public int viewForMessage(Message message) {
 			switch (message.type) {
+			case Message.UTILITY:
+				return R.layout.message_error;
 			case Message.TEXT:
 			case Message.PASTE:
 				return R.layout.message_text;
@@ -438,9 +440,7 @@ public class RoomView extends ListActivity {
 		}
 		
 		public String bodyForMessage(Message message) {
-			switch (message.type) {
-			case Message.TEXT:
-				return message.body; 
+			switch (message.type) { 
 			case Message.ENTRY:
 				return "has entered the room";
 			case Message.LEAVE:
@@ -453,7 +453,7 @@ public class RoomView extends ListActivity {
 					return message.body.substring(0, PASTE_TRUNCATE-1) + "\n\n[paste truncated]";
 				else
 					return message.body;
-			default:
+			default: // all others
 				return message.body;
 			}
 		}

@@ -11,11 +11,12 @@ import org.json.JSONObject;
 
 public class Message {
 	public static final int UNSUPPORTED = -1;
-	public static final int TEXT = 0;
-	public static final int TIMESTAMP = 1;
-	public static final int ENTRY = 2;
-	public static final int LEAVE = 3;
-	public static final int PASTE = 4;
+	public static final int UTILITY = 0; // can be used by clients to make messages that didn't come from the Campfire
+	public static final int TEXT = 1;
+	public static final int TIMESTAMP = 2;
+	public static final int ENTRY = 3;
+	public static final int LEAVE = 4;
+	public static final int PASTE = 5;
 	
 	public int type;
 	public String id, user_id, body;
@@ -27,6 +28,12 @@ public class Message {
 	// It really needs the display name to put on the Message object itself for help in adapting it to the list.
 	// It violates the intended separation between the two packages, but oh well.
 	public String person;
+	
+	// for making artificial utility messages (really just intended to serve the Android client)
+	public Message(int type, String body) {
+		this.type = type;
+		this.body = body;
+	}
 	
 	public Message(JSONObject json) throws JSONException, DateParseException {
 		this.type = typeFor(json.getString("type"));
@@ -99,6 +106,7 @@ public class Message {
 		case LEAVE:
 			return true;
 		case TIMESTAMP:
+		case UTILITY:
 			return false;
 		default:
 			return false;
