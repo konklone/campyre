@@ -47,6 +47,7 @@ public class RoomView extends ListActivity {
 	private Room room;
 	private SpeakTask speakTask;
 	private JoinTask joinTask;
+	
 	private ProgressDialog dialog = null;
 	
 	private ArrayList<Message> messages = new ArrayList<Message>();
@@ -86,7 +87,7 @@ public class RoomView extends ListActivity {
 				speakDialog();
 			}
 			
-			if (joinTask != null)
+			if (holder.joinTask != null)
 				joinTask.onScreenLoad(this);
 			else {
 				if (campfire == null)
@@ -526,6 +527,7 @@ public class RoomView extends ListActivity {
     	public ArrayList<Message> messages = null;
     	public Room room = null;
     	public HashMap<String,User> users;
+    	private ProgressDialog dialog = null;
     	
     	public JoinTask(RoomView context) {
     		super();
@@ -549,11 +551,11 @@ public class RoomView extends ListActivity {
     	}
        	
        	protected void loadingDialog() {
-        	context.dialog = new ProgressDialog(this.context);
-        	context.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        	context.dialog.setMessage(dialogMessage);
+        	dialog = new ProgressDialog(context);
+        	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        	dialog.setMessage(dialogMessage);
             
-        	context.dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+        	dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
     			@Override
     			public void onCancel(DialogInterface dialog) {
     				cancel(true);
@@ -561,7 +563,7 @@ public class RoomView extends ListActivity {
     			}
     		});
             
-        	context.dialog.show();
+        	dialog.show();
         }
     	
     	@Override
@@ -595,13 +597,13 @@ public class RoomView extends ListActivity {
     	@Override
     	protected void onProgressUpdate(String... message) {
     		dialogMessage = message[0];
-    		context.dialog.setMessage(message[0]);
+    		dialog.setMessage(message[0]);
     	}
     	
     	@Override
     	protected void onPostExecute(CampfireException exception) {
-    		if (context.dialog != null && context.dialog.isShowing())
-    			context.dialog.dismiss();
+    		if (dialog != null && dialog.isShowing())
+    			dialog.dismiss();
     		context.joinTask = null;
     		
     		context.room = room;
