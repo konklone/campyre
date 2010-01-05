@@ -86,10 +86,9 @@ public class RoomView extends ListActivity {
 				speakDialog();
 			}
 			
-			if (joinTask != null) {
-				joinTask.context = this;
-				joinDialog(joinTask.dialogMessage);
-			} else {
+			if (joinTask != null)
+				joinTask.onScreenLoad(this);
+			else {
 				if (campfire == null)
 					verifyLogin();
 				else if (room == null)
@@ -391,23 +390,6 @@ public class RoomView extends ListActivity {
         dialog.show();
     }
     
-    protected void joinDialog(String message) {
-    	dialog = new ProgressDialog(this);
-    	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setMessage(message);
-        
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				if (joinTask != null)
-					joinTask.cancel(true);
-				finish();
-			}
-		});
-        
-        dialog.show();
-    }
-    
     private void setWindowTitle(String title) {
         ((TextView) findViewById(R.id.room_title)).setText(title);
     }
@@ -555,11 +537,32 @@ public class RoomView extends ListActivity {
     		// preserves caching in the case of a screen flip during this task
     		users = this.context.users;
     	}
+    	
+    	public void onScreenLoad(RoomView context) {
+	    	this.context = context;
+			loadingDialog();
+    	}
     	 
        	@Override
     	protected void onPreExecute() {
-            context.joinDialog("Joining room...");
+            loadingDialog();
     	}
+       	
+       	protected void loadingDialog() {
+        	context.dialog = new ProgressDialog(this.context);
+        	context.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        	context.dialog.setMessage(dialogMessage);
+            
+        	context.dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+    			@Override
+    			public void onCancel(DialogInterface dialog) {
+    				cancel(true);
+    				context.finish();
+    			}
+    		});
+            
+        	context.dialog.show();
+        }
     	
     	@Override
     	protected CampfireException doInBackground(Void... nothing) {
