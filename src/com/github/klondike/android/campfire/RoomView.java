@@ -23,7 +23,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.github.klondike.java.campfire.Campfire;
@@ -33,8 +33,7 @@ import com.github.klondike.java.campfire.Room;
 import com.github.klondike.java.campfire.User;
 
 public class RoomView extends ListActivity {
-	private static final int MENU_AUTOPOLL = 0;
-	private static final int MENU_LOGOUT = 1;
+	private static final int MENU_LOGOUT = 0;
 	
 	private static final int MAX_MESSAGES = 20;
 	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
@@ -54,10 +53,8 @@ public class RoomView extends ListActivity {
 	private HashMap<String,User> users = new HashMap<String,User>();
 	
 	private EditText body;
-	private Button speak, refresh;
-	private ImageView polling;
-	
-	private boolean autoPoll = true;
+	private Button speak;
+	private ProgressBar titleSpinner;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -66,9 +63,6 @@ public class RoomView extends ListActivity {
 		setContentView(R.layout.room);
 		
 		roomId = getIntent().getStringExtra("room_id");
-		
-		if (savedInstanceState != null)
-			autoPoll = savedInstanceState.getBoolean("autoPoll", true);
 		
 		setupControls();
 		
@@ -110,12 +104,6 @@ public class RoomView extends ListActivity {
 		return holder;
 	}
 	
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		outState.putBoolean("autoPoll", autoPoll);
-		super.onSaveInstanceState(outState);
-	}
-	
 	private void onLogin() {
 		join();
 	}
@@ -125,8 +113,7 @@ public class RoomView extends ListActivity {
 		setListAdapter(new RoomAdapter(this, messages));
 		scrollToBottom();
 		
-		if (autoPoll)
-			autoPoll();
+		autoPoll();
 	}
 	
 	private void onJoined(CampfireException exception) {
@@ -170,7 +157,8 @@ public class RoomView extends ListActivity {
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
 		setWindowTitle(R.string.app_name);
 		
-		polling = (ImageView) findViewById(R.id.room_polling);
+		titleSpinner = (ProgressBar) findViewById(R.id.title_spinner);
+		
 		body = (EditText) findViewById(R.id.room_message_body);
 		body.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
@@ -188,15 +176,6 @@ public class RoomView extends ListActivity {
 			@Override
 			public void onClick(View v) {
 				speak();
-			}
-		});
-		
-		refresh = (Button) this.findViewById(R.id.room_refresh);
-		refresh.setVisibility(autoPoll ? View.GONE : View.VISIBLE);
-		refresh.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				pollOnce();
 			}
 		});
 	}
@@ -221,20 +200,14 @@ public class RoomView extends ListActivity {
 	
 	final Runnable pollStart = new Runnable() {
 		public void run() {
-			refresh.setVisibility(View.GONE);
-			polling.setVisibility(View.VISIBLE);
+			showSpinner();
 		}
 	};
 	
 	final Runnable pollSuccess = new Runnable() {
 		public void run() {
 			pollFailures = 0;
-			
-			if (autoPoll)
-				refresh.setVisibility(View.INVISIBLE);
-			else
-				refresh.setVisibility(View.VISIBLE);
-			polling.setVisibility(View.GONE);
+			hideSpinner();
 			onPoll();
 		}
 	};
@@ -242,16 +215,18 @@ public class RoomView extends ListActivity {
 	final Runnable pollFailure = new Runnable() {
 		public void run() {
 			pollFailures += 1;
-			
-			if (autoPoll)
-				refresh.setVisibility(View.INVISIBLE);
-			else
-				refresh.setVisibility(View.VISIBLE);
-			polling.setVisibility(View.GONE);
-			
+			hideSpinner();
 			onPoll(new CampfireException("Connection error while trying to poll. (Try #" + pollFailures + ")"));
 		}
 	};
+	
+	public void showSpinner() {
+		titleSpinner.setVisibility(View.VISIBLE);
+	}
+	
+	public void hideSpinner() {
+		titleSpinner.setVisibility(View.INVISIBLE);
+	}
 	
 	private void speak() {
 		String msg = body.getText().toString();
@@ -265,47 +240,26 @@ public class RoomView extends ListActivity {
 			new JoinTask(this).execute();
 	}
 	
-	private void pollOnce() {
-		new Thread() {
-			public void run() {
-				handler.post(pollStart);
-				try {
-					messages = poll(room, users);
-					
-					// ping the room so we don't get idle-kicked out
-					room.join();
-					
-					handler.post(pollSuccess);
-				} catch(CampfireException e) {
-					handler.post(pollFailure);
-				}
-			}
-		}.start();
-	}
-	
 	private void autoPoll() {
 		new Thread() {
 			public void run() {
-				while(autoPoll) {
+				while(true) {
 					try {
 						sleep(AUTOPOLL_INTERVAL * 1000);
 					} catch(InterruptedException ex) {
 						// well, I never
 					}
 					
-					// the user might have turned off autoPoll while we were sleeping!
-					if (autoPoll) {
-						handler.post(pollStart);
-						try {
-							messages = poll(room, users);
-							
-							// ping the room so we don't get idle-kicked out
-							room.join();
-							
-							handler.post(pollSuccess);
-						} catch(CampfireException e) {
-							handler.post(pollFailure);
-						}
+					handler.post(pollStart);
+					try {
+						messages = poll(room, users);
+						
+						// ping the room so we don't get idle-kicked out
+						room.join();
+						
+						handler.post(pollSuccess);
+					} catch(CampfireException e) {
+						handler.post(pollFailure);
 					}
 				}
 			}
@@ -362,31 +316,15 @@ public class RoomView extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-        menu.add(0, MENU_AUTOPOLL, MENU_AUTOPOLL, autoPoll ? R.string.autopoll_off : R.string.autopoll_on)
-        	.setIcon(android.R.drawable.ic_menu_rotate);
         menu.add(0, MENU_LOGOUT, MENU_LOGOUT, R.string.logout)
         	.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+        
         return result;
     }
-	
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		boolean result = super.onPrepareOptionsMenu(menu);
-		
-		menu.getItem(MENU_AUTOPOLL).setTitle(autoPoll ? R.string.autopoll_off : R.string.autopoll_on);
-		
-		return result;
-	}
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) { 
-    	case MENU_AUTOPOLL:
-    		// until there exist race conditions on this variable, no synchronization required
-    		autoPoll = !autoPoll;
-    		refresh.setVisibility(autoPoll ? View.INVISIBLE: View.VISIBLE);
-    		if (autoPoll) autoPoll();
-    		return true;
     	case MENU_LOGOUT:
     		Utils.logoutCampfire(this);
     		finish();

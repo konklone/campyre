@@ -40,29 +40,6 @@
 			android:textSize="18sp"
 			android:text="@string/send_button"
 			/>
-			
-		<Button android:id="@+id/room_refresh"
-			android:layout_width="80dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="0"
-			
-			android:visibility="gone"
-			
-			android:textSize="16sp"
-			android:text="Refresh"
-			/>
-		
-		<ImageView android:id="@+id/room_polling"
-			android:layout_width="75dp"
-			android:layout_height="45dp"
-			android:layout_weight="0"
-			
-			android:layout_marginRight="5dp"
-			
-			android:visibility="invisible"
-			
-			android:src="@android:drawable/ic_menu_rotate"
-			/>
 	</LinearLayout>
 	
 </LinearLayout>
