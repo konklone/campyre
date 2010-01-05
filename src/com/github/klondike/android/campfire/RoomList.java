@@ -32,7 +32,6 @@ public class RoomList extends ListActivity {
 	private ArrayList<Room> rooms = null;
 	
 	private LoadRoomsTask loadRoomsTask = null;
-	private ProgressDialog dialog = null;
 	private TextView empty;
 	private Button tryAgain;
 	
@@ -64,10 +63,8 @@ public class RoomList extends ListActivity {
 	    	rooms = holder.rooms;
 	    	loadRoomsTask = holder.loadRoomsTask;
 	    	error = holder.error;
-	    	if (loadRoomsTask != null) {
-	    		loadRoomsTask.context = this;
-	    		loadingDialog();
-	    	}
+	    	if (loadRoomsTask != null)
+	    		loadRoomsTask.onScreenLoad(this);
         }
         
         verifyLogin();
@@ -223,26 +220,10 @@ public class RoomList extends ListActivity {
 		return id == Utils.ABOUT ? Utils.aboutDialog(this) : null;
 	}
     
-    public void loadingDialog() {
-    	dialog = new ProgressDialog(this);
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setMessage("Loading rooms...");
-        
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				if (loadRoomsTask != null)
-					loadRoomsTask.cancel(true);
-				finish();
-			}
-		});
-        
-        dialog.show();
-    }
-    
     private class LoadRoomsTask extends AsyncTask<Void,Void,ArrayList<Room>> {
     	public RoomList context;
     	public CampfireException exception = null;
+    	private ProgressDialog dialog = null;
     	
     	public LoadRoomsTask(RoomList context) {
     		super();
@@ -252,8 +233,29 @@ public class RoomList extends ListActivity {
     	 
        	@Override
     	protected void onPreExecute() {
-            context.loadingDialog();
+            loadingDialog();
     	}
+       	
+       	protected void onScreenLoad(RoomList context) {
+       		this.context = context;
+    		loadingDialog();
+       	}
+       	
+       	protected void loadingDialog() {
+       		dialog = new ProgressDialog(context);
+            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            dialog.setMessage("Loading rooms...");
+            
+            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+    			@Override
+    			public void onCancel(DialogInterface dialog) {
+    				cancel(true);
+    				context.finish();
+    			}
+    		});
+            
+            dialog.show();
+       	}
     	
     	@Override
     	protected ArrayList<Room> doInBackground(Void... nothing) {
@@ -267,8 +269,8 @@ public class RoomList extends ListActivity {
     	
     	@Override
     	protected void onPostExecute(ArrayList<Room> rooms) {
-    		if (context.dialog != null && context.dialog.isShowing())
-    			context.dialog.dismiss();
+    		if (dialog != null && dialog.isShowing())
+    			dialog.dismiss();
     		context.loadRoomsTask = null;
     		
     		context.onLoadRooms(rooms, exception);
