@@ -48,6 +48,8 @@ public class RoomView extends ListActivity {
 	private SpeakTask speakTask;
 	private JoinTask joinTask;
 	
+	private int pollFailures = 0;
+	
 	private ArrayList<Message> messages = new ArrayList<Message>();
 	private HashMap<String,User> users = new HashMap<String,User>();
 	
@@ -144,6 +146,13 @@ public class RoomView extends ListActivity {
 			scrollToPosition(position);
 	}
 	
+	// polling failed, messages still has the old list
+	private void onPoll(CampfireException exception) {
+		messages.add(new Message(Message.UTILITY, exception.getMessage()));
+		setListAdapter(new RoomAdapter(this, messages));
+		scrollToBottom();
+	}
+	
 	private void onSpeak(Message message) {
 		body.setText("");
 		speak.setEnabled(true);
@@ -219,6 +228,8 @@ public class RoomView extends ListActivity {
 	
 	final Runnable pollSuccess = new Runnable() {
 		public void run() {
+			pollFailures = 0;
+			
 			if (autoPoll)
 				refresh.setVisibility(View.INVISIBLE);
 			else
@@ -230,9 +241,15 @@ public class RoomView extends ListActivity {
 	
 	final Runnable pollFailure = new Runnable() {
 		public void run() {
-			refresh.setVisibility(View.VISIBLE);
+			pollFailures += 1;
+			
+			if (autoPoll)
+				refresh.setVisibility(View.INVISIBLE);
+			else
+				refresh.setVisibility(View.VISIBLE);
 			polling.setVisibility(View.GONE);
-			Utils.alert(RoomView.this, "Connection error.");
+			
+			onPoll(new CampfireException("Connection error while trying to poll. (Try #" + pollFailures + ")"));
 		}
 	};
 	
