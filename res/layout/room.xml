@@ -29,7 +29,7 @@
 			
 			android:imeOptions="actionDone"
 			android:imeActionId="6"
-			android:imeActionLabel="Post"
+			android:imeActionLabel="@string/send_button"
 			/>
 			
 		<Button android:id="@+id/room_speak"
@@ -38,7 +38,7 @@
 			android:layout_weight="0"
 			
 			android:textSize="18sp"
-			android:text="Send"
+			android:text="@string/send_button"
 			/>
 			
 		<Button android:id="@+id/room_refresh"

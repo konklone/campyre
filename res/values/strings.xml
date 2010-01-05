@@ -13,6 +13,8 @@
     <string name="room_list_title">Select a room</string>
     <string name="profile_message">Visit the "My Info" page in your Campfire to find your API token.</string>
     
+    <string name="send_button">Send</string>
+    
     <string name="about_main_1">Made by Eric Mill, a loyal Campfire user since 2006.</string>
     <string name="about_main_2">Select \"Feedback\" from the menu to email me with praise or complaints.</string>
     <string name="about_links">Source code:\nhttp://github.com/klondike/campyre/</string>
