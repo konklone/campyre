@@ -2,7 +2,6 @@ package com.github.klondike.android.campfire;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -39,6 +38,7 @@ public class RoomView extends ListActivity {
 	
 	private static final int MAX_MESSAGES = 20;
 	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
+	private static final long JOIN_TIMEOUT = 60; // in seconds
 	private static final int PASTE_TRUNCATE = 200;
 	
 	private static String timestampFormat = "hh:mm a";
@@ -46,11 +46,13 @@ public class RoomView extends ListActivity {
 	private Campfire campfire;
 	private String roomId;
 	private Room room;
+	
 	private HashMap<String,SpeakTask> speakTasks = new HashMap<String,SpeakTask>();
 	private JoinTask joinTask;
 	
 	private int pollFailures = 0;
 	private int transitId = 1;
+	private long lastJoined = 0;
 	
 	private ArrayList<Message> messages = new ArrayList<Message>();
 	private HashMap<String,Message> transitMessages = new HashMap<String,Message>();
@@ -69,6 +71,12 @@ public class RoomView extends ListActivity {
 		roomId = getIntent().getStringExtra("room_id");
 		
 		setupControls();
+		
+		if (savedInstanceState != null) {
+			pollFailures = savedInstanceState.getInt("pollFailures");
+			transitId = savedInstanceState.getInt("transitId");
+			lastJoined = savedInstanceState.getLong("lastJoined");
+		}
 		
 		RoomViewHolder holder = (RoomViewHolder) getLastNonConfigurationInstance();
 		if (holder != null) {
@@ -111,6 +119,13 @@ public class RoomView extends ListActivity {
 		holder.speakTasks = this.speakTasks;
 		holder.joinTask = this.joinTask;
 		return holder;
+	}
+	
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putInt("pollFailures", pollFailures);
+		outState.putInt("transitId", transitId);
+		outState.putLong("lastJoined", lastJoined);
+		super.onSaveInstanceState(outState);
 	}
 	
 	private void onLogin() {
@@ -283,7 +298,10 @@ public class RoomView extends ListActivity {
 						messages = poll(room, users);
 						
 						// ping the room so we don't get idle-kicked out
-						room.join();
+						if (shouldJoin()) {
+							room.join();
+							lastJoined = System.currentTimeMillis();
+						}
 						
 						handler.post(pollSuccess);
 					} catch(CampfireException e) {
@@ -374,6 +392,10 @@ public class RoomView extends ListActivity {
     
     private void setWindowTitle(int title) {
         ((TextView) findViewById(R.id.room_title)).setText(title);
+    }
+    
+    private boolean shouldJoin() {
+    	return (System.currentTimeMillis() - lastJoined) > (JOIN_TIMEOUT * 1000);
     }
     
     private static class RoomAdapter extends ArrayAdapter<Message> {
@@ -477,7 +499,12 @@ public class RoomView extends ListActivity {
     	@Override
     	protected Message doInBackground(Void... nothing) {
     		try {
-    			context.room.join(); // in case we've been idle-kicked out since we last spoke
+    			// in case we've been idle-kicked out since we last spoke
+    			if (context.shouldJoin()) { 
+    				context.room.join();
+    				context.lastJoined = System.currentTimeMillis();
+    			}
+    			
     			Message newMessage = context.room.speak(transitMessage.body);
     			context.fillPerson(newMessage, context.users);
     			return newMessage;
@@ -549,8 +576,10 @@ public class RoomView extends ListActivity {
     		try {
     			// join first, so that the logged in user shows up in the list of initial users
     			// and can be cached earlier
-    			Room.joinRoom(campfire, roomId);
-    			room = Room.find(campfire, roomId);
+    			Room.joinRoom(context.campfire, context.roomId);
+    			context.lastJoined = System.currentTimeMillis();
+    			
+    			room = Room.find(context.campfire, context.roomId);
     			
     			// cache the initial users now while we can
     			if (room.initialUsers != null) {
