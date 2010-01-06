@@ -4,6 +4,8 @@
 	
     <string name="market_name">Campyre</string>
     <string name="market_name_donate">Campyre (Donate)</string>
+    <string name="package_name_donate">campyre.android.donate</string>
+    <string name="menu_donate">Donate</string>
     
     <string name="app_name">Campyre</string>
     <string name="shortcut_name">Campfire Room</string>

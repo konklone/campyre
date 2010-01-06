@@ -19,6 +19,8 @@ import campyre.java.CampfireException;
 public class Utils {
 	public static final int ABOUT = 0;
 	
+	public static final boolean ASK_DONATE = true;   
+	
 	public static void alert(Context context, String message) {
 		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 	}
@@ -52,6 +54,11 @@ public class Utils {
     	return new Intent(Intent.ACTION_SENDTO, 
     			Uri.fromParts("mailto", context.getResources().getString(R.string.contact_email), null))
     		.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.contact_subject));
+    }
+    
+    public static Intent donateIntent(Context context) {
+    	return new Intent(Intent.ACTION_VIEW,
+    			Uri.parse("market://search?q=pname:" + context.getResources().getString(R.string.package_name_donate)));
     }
     
     public static Campfire getCampfire(Context context) {

@@ -21,6 +21,7 @@ public class Login extends Activity {
 	
 	public static final int MENU_ABOUT = 1;
 	public static final int MENU_FEEDBACK = 2;
+	public static final int MENU_DONATE = 3;
 	
 	private Campfire campfire;
 	private EditText tokenView, subdomainView;
@@ -87,8 +88,10 @@ public class Login extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-	    menu.add(0, MENU_FEEDBACK, 0, "Feedback").setIcon(android.R.drawable.ic_menu_report_image);
-        menu.add(1, MENU_ABOUT, 1, "About").setIcon(android.R.drawable.ic_menu_help);
+	    if (Utils.ASK_DONATE)
+        	menu.add(0, MENU_DONATE, 0, R.string.menu_donate).setIcon(android.R.drawable.ic_menu_send);
+	    menu.add(1, MENU_FEEDBACK, 1, "Feedback").setIcon(android.R.drawable.ic_menu_report_image);
+        menu.add(2, MENU_ABOUT, 2, "About").setIcon(android.R.drawable.ic_menu_help);
         
         return result;
     }
@@ -101,6 +104,9 @@ public class Login extends Activity {
     		break;
     	case MENU_FEEDBACK:
     		startActivity(Utils.feedbackIntent(this));
+    		break;
+    	case MENU_DONATE:
+    		startActivity(Utils.donateIntent(this));
     		break;
     	}
     	
