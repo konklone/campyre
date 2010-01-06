@@ -34,7 +34,6 @@ import campyre.java.User;
 
 public class RoomView extends ListActivity {
 	private static final int MENU_LOGOUT = 0;
-	private static final int MENU_DONATE = 1;
 	
 	private static final int MAX_MESSAGES = 20;
 	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
@@ -371,8 +370,6 @@ public class RoomView extends ListActivity {
 	    
         menu.add(0, MENU_LOGOUT, MENU_LOGOUT, R.string.logout)
         	.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-        if (Utils.ASK_DONATE)
-        	menu.add(1, MENU_DONATE, 1, R.string.menu_donate).setIcon(android.R.drawable.ic_menu_send);
         
         return result;
     }
@@ -383,9 +380,6 @@ public class RoomView extends ListActivity {
     	case MENU_LOGOUT:
     		Utils.logoutCampfire(this);
     		finish();
-    		return true;
-    	case MENU_DONATE:
-    		startActivity(Utils.donateIntent(this));
     		return true;
     	}
     	return super.onOptionsItemSelected(item);
