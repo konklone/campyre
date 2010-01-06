@@ -36,7 +36,7 @@ public class RoomView extends ListActivity {
 	private static final int MENU_LOGOUT = 0;
 	
 	private static final int MAX_MESSAGES = 20;
-	private static final int AUTOPOLL_INTERVAL = 15; // in seconds
+	private static final int AUTOPOLL_INTERVAL = 2; // in seconds
 	private static final long JOIN_TIMEOUT = 60; // in seconds
 	private static final int PASTE_TRUNCATE = 200;
 	
@@ -573,11 +573,6 @@ public class RoomView extends ListActivity {
     	@Override
     	protected CampfireException doInBackground(Void... nothing) {
     		try {
-    			// join first, so that the logged in user shows up in the list of initial users
-    			// and can be cached earlier
-    			Room.joinRoom(context.campfire, context.roomId);
-    			context.lastJoined = System.currentTimeMillis();
-    			
     			room = Room.find(context.campfire, context.roomId);
     			
     			// cache the initial users now while we can
