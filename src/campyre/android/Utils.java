@@ -19,7 +19,11 @@ import campyre.java.CampfireException;
 public class Utils {
 	public static final int ABOUT = 0;
 	
-	public static final boolean ASK_DONATE = true;   
+	// change this to false for the donate version
+	public static final boolean ASK_DONATE = true;
+	
+	// change this to icon_donate for the donate version
+	public static final int SHORTCUT_ICON = R.drawable.icon; 
 	
 	public static void alert(Context context, String message) {
 		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();

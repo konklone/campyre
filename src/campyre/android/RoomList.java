@@ -122,7 +122,7 @@ public class RoomList extends ListActivity {
     		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, roomIntent);
     		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, room.name);
 
-    		Parcelable resource = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
+    		Parcelable resource = Intent.ShortcutIconResource.fromContext(this, Utils.SHORTCUT_ICON);
     		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, resource);
     		
     		setResult(RESULT_OK, intent);
