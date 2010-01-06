@@ -1,4 +1,4 @@
-package com.github.klondike.android.campfire;
+package campyre.android;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,12 +26,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.github.klondike.java.campfire.Campfire;
-import com.github.klondike.java.campfire.CampfireException;
-import com.github.klondike.java.campfire.Message;
-import com.github.klondike.java.campfire.Room;
-import com.github.klondike.java.campfire.User;
+import campyre.java.Campfire;
+import campyre.java.CampfireException;
+import campyre.java.Message;
+import campyre.java.Room;
+import campyre.java.User;
 
 public class RoomView extends ListActivity {
 	private static final int MENU_LOGOUT = 0;

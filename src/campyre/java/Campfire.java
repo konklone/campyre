@@ -1,4 +1,4 @@
-package com.github.klondike.java.campfire;
+package campyre.java;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

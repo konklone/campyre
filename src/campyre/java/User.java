@@ -1,4 +1,4 @@
-package com.github.klondike.java.campfire;
+package campyre.java;
 
 import org.json.JSONException;
 import org.json.JSONObject;

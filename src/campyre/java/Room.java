@@ -1,4 +1,4 @@
-package com.github.klondike.java.campfire;
+package campyre.java;
 
 import java.io.InputStream;
 import java.util.ArrayList;

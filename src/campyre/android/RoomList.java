@@ -1,4 +1,4 @@
-package com.github.klondike.android.campfire;
+package campyre.android;
 
 import java.util.ArrayList;
 
@@ -18,10 +18,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.github.klondike.java.campfire.Campfire;
-import com.github.klondike.java.campfire.CampfireException;
-import com.github.klondike.java.campfire.Room;
+import campyre.java.Campfire;
+import campyre.java.CampfireException;
+import campyre.java.Room;
 
 public class RoomList extends ListActivity { 
 	private static final int MENU_CLEAR = 0;
@@ -169,7 +168,7 @@ public class RoomList extends ListActivity {
     
     public static Intent roomIntent(Room room) {
     	Intent intent = new Intent(Intent.ACTION_MAIN).putExtra("room_id", room.id);
-    	intent.setClassName("com.github.klondike.android.campfire", "com.github.klondike.android.campfire.RoomView");
+    	intent.setClassName("campyre.android", "campyre.android.RoomView");
     	return intent;
     }
     

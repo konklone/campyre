@@ -1,4 +1,4 @@
-package com.github.klondike.java.campfire;
+package campyre.java;
 
 import java.util.ArrayList;
 import java.util.Date;

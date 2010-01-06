@@ -1,4 +1,4 @@
-package com.github.klondike.android.campfire;
+package campyre.android;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,9 +13,8 @@ import android.view.LayoutInflater;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.github.klondike.java.campfire.Campfire;
-import com.github.klondike.java.campfire.CampfireException;
+import campyre.java.Campfire;
+import campyre.java.CampfireException;
 
 public class Utils {
 	public static final int ABOUT = 0;

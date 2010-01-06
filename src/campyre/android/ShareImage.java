@@ -1,4 +1,4 @@
-package com.github.klondike.android.campfire;
+package campyre.android;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -11,9 +11,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Window;
 
-import com.github.klondike.java.campfire.Campfire;
-import com.github.klondike.java.campfire.CampfireException;
-import com.github.klondike.java.campfire.Room;
+import campyre.java.Campfire;
+import campyre.java.CampfireException;
+import campyre.java.Room;
 
 public class ShareImage extends Activity {
 	private static final int RESULT_ROOM_ID = 0;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.github.klondike.android.campfire"
+      package="campyre.android"
       android:versionCode="1"
       android:versionName="@string/version_string">
     <application android:icon="@drawable/icon" android:label="@string/market_name">

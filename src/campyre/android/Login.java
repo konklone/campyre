@@ -1,4 +1,4 @@
-package com.github.klondike.android.campfire;
+package campyre.android;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -12,9 +12,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
-import com.github.klondike.java.campfire.Campfire;
-import com.github.klondike.java.campfire.CampfireException;
+import campyre.java.Campfire;
+import campyre.java.CampfireException;
 
 public class Login extends Activity {
 	// high number because other activities will use this code in their case statements
