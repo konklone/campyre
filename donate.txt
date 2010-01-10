@@ -1,0 +1,14 @@
+* In Utils:
+  - change ASK_DONATE constant to false
+  - change SHORTCUT_ICON constant to append "_donate"
+  
+* Refactor -> Rename the package to append ".donate"
+
+* Edit the AndroidManifest.xml
+  - package name to append ".donate"
+  - application name to append "_donate"
+  - icon name of app to append "_donate"
+  - icon name of share image alias to append "_donate"
+  - Save, regenerate R
+  
+* Re-import in the main activities to fix errors
