@@ -55,7 +55,7 @@
 			android:layout_weight="1"
 			
 			android:maxLines="2"
-			android:inputType="textCapSentences"
+			android:inputType="textCapSentences|textAutoCorrect"
 			
 			android:imeOptions="actionDone"
 			android:imeActionId="6"
