@@ -232,17 +232,9 @@ public class RoomView extends ListActivity {
 	
 	final Handler handler = new Handler();
 	
-	final Runnable pollStart = new Runnable() {
-		public void run() {
-			showSpinner();
-		}
-	};
-	
 	final Runnable pollSuccess = new Runnable() {
 		public void run() {
 			pollFailures = 0;
-			
-			hideSpinner();
 			onPoll();
 		}
 	};
@@ -250,7 +242,6 @@ public class RoomView extends ListActivity {
 	final Runnable pollFailure = new Runnable() {
 		public void run() {
 			pollFailures += 1;
-			hideSpinner();
 			onPoll(new CampfireException("Connection error while trying to poll. (Try #" + pollFailures + ")"));
 		}
 	};
@@ -292,7 +283,6 @@ public class RoomView extends ListActivity {
 		new Thread() {
 			public void run() {
 				while(true) {
-					handler.post(pollStart);
 					try {
 						messages = poll(room, users);
 						
