@@ -13,7 +13,7 @@ import campyre.java.Message;
 
 public class MessageAdapter extends ArrayAdapter<Message> {
 	private static final int PASTE_TRUNCATE = 200;
-	private static String timestampFormat = "hh:mm a";
+	private static String TIMESTAMP_FORMAT = "hh:mm a";
 	
 	private LayoutInflater inflater;
 	
@@ -76,10 +76,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		case Message.LEAVE:
 			return "has left the room";
 		case Message.TIMESTAMP:
-			return new SimpleDateFormat(timestampFormat).format(message.timestamp);
+			return new SimpleDateFormat(TIMESTAMP_FORMAT).format(message.timestamp);
 		case Message.PASTE:
-			int length = message.body.length();
-			if (length > PASTE_TRUNCATE)
+			if (message.body.length() > PASTE_TRUNCATE)
 				return message.body.substring(0, PASTE_TRUNCATE-1) + "\n\n[paste truncated]";
 			else
 				return message.body;
