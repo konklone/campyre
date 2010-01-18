@@ -2,6 +2,7 @@ package campyre.android;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -10,12 +11,15 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import campyre.java.Campfire;
@@ -37,7 +41,6 @@ public class RoomList extends ListActivity {
 	
 	private boolean forResult = false;
 	private boolean shortcut = false;
-	private boolean error = false;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,7 +65,6 @@ public class RoomList extends ListActivity {
         if (holder != null) {
 	    	rooms = holder.rooms;
 	    	loadRoomsTask = holder.loadRoomsTask;
-	    	error = holder.error;
 	    	if (loadRoomsTask != null)
 	    		loadRoomsTask.onScreenLoad(this);
         }
@@ -96,19 +98,17 @@ public class RoomList extends ListActivity {
     	RoomListHolder holder = new RoomListHolder();
     	holder.rooms = this.rooms;
     	holder.loadRoomsTask = this.loadRoomsTask;
-    	holder.error = this.error;
     	return holder;
     }
     
     public void onLoadRooms(ArrayList<Room> rooms, CampfireException exception) {
-    	if (exception == null && rooms != null)
+    	if (exception == null && rooms != null) {
     		this.rooms = rooms;
-    	else {
+    		displayRooms();
+    	} else {
     		this.rooms = new ArrayList<Room>();
-    		this.error = true;
-			Utils.alert(this, exception);
+    		displayRooms(exception);
 		}
-    	displayRooms();
     }
     
     public void selectRoom(Room room) {
@@ -134,9 +134,14 @@ public class RoomList extends ListActivity {
     
     public void displayRooms() {
     	if (rooms.size() <= 0)
-    		showEmpty(error ? R.string.rooms_error : R.string.no_rooms);
+    		showEmpty(R.string.no_rooms);
     	else
-    		setListAdapter(new ArrayAdapter<Room>(RoomList.this, android.R.layout.simple_list_item_1, rooms));
+    		setListAdapter(new RoomAdapter(this, rooms));
+    }
+    
+    public void displayRooms(CampfireException exception) {
+    	showEmpty(R.string.rooms_error);
+		Utils.alert(this, exception);
     }
     
     public void setupControls() {
@@ -224,6 +229,30 @@ public class RoomList extends ListActivity {
 	protected Dialog onCreateDialog(int id) { 
 		return id == Utils.ABOUT ? Utils.aboutDialog(this) : null;
 	}
+    
+    private class RoomAdapter extends ArrayAdapter<Room> {
+    	LayoutInflater inflater;
+
+        public RoomAdapter(Activity context, ArrayList<Room> items) {
+            super(context, 0, items);
+            inflater = LayoutInflater.from(context);
+        }
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+			LinearLayout view;
+			
+			if (convertView == null)
+				view = (LinearLayout) inflater.inflate(R.layout.room_item, null);
+			else
+				view = (LinearLayout) convertView;
+				
+			Room room = getItem(position);
+			((TextView) view.findViewById(R.id.name)).setText(room.name);
+			((TextView) view.findViewById(R.id.topic)).setText(room.topic);
+			
+			return view;
+		}
+    }
     
     private class LoadRoomsTask extends AsyncTask<Void,Void,ArrayList<Room>> {
     	public RoomList context;

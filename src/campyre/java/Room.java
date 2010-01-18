@@ -11,7 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Room {
-	public String id, name;
+	public String id, name, topic;
 	public boolean full = false;
 	public Campfire campfire;
 	public ArrayList<User> initialUsers = null;
@@ -27,6 +27,8 @@ public class Room {
 		this.campfire = campfire;
 		this.id = json.getString("id");
 		this.name = json.getString("name");
+		this.topic = json.getString("topic");
+		
 		if (json.has("full"))
 			this.full = json.getBoolean("full");
 		
