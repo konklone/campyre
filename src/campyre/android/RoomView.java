@@ -17,7 +17,6 @@ import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;

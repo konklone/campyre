@@ -18,7 +18,7 @@ public class RoomTabs extends TabActivity {
 		
 		Bundle extras = getIntent().getExtras();
 		roomId = extras.getString("room_id");
-		roomName = "placeholder";
+		roomName = extras.getString("room_name");
 		
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
         ((TextView) findViewById(R.id.room_title)).setText(roomName);
