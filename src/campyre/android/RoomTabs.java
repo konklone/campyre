@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 import android.widget.TabHost;
-import android.widget.TextView;
 
 public class RoomTabs extends TabActivity {
 	public String roomId, roomName;
@@ -20,8 +19,7 @@ public class RoomTabs extends TabActivity {
 		roomId = extras.getString("room_id");
 		roomName = extras.getString("room_name");
 		
-		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
-        ((TextView) findViewById(R.id.room_title)).setText(roomName);
+		Utils.setWindowTitle(this, roomName);
 		
 		setupTabs();
 	}

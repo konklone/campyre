@@ -1,5 +1,6 @@
 package campyre.android;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
+import android.view.Window;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +34,16 @@ public class Utils {
     public static void alert(Context context, CampfireException exception) {
     	String message = exception == null ? "Unhandled error." : exception.getMessage();
     	Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+    }
+    
+    public static void setWindowTitle(Activity activity, String title) {
+    	activity.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
+        ((TextView) activity.findViewById(R.id.room_title)).setText(title);
+    }
+    
+    public static void setWindowTitle(Activity activity, int title) {
+    	activity.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
+        ((TextView) activity.findViewById(R.id.room_title)).setText(title);
     }
     
     public static Dialog aboutDialog(Context context) {

@@ -48,8 +48,7 @@ public class RoomList extends ListActivity {
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.room_list);
         
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
-        ((TextView) findViewById(R.id.room_title)).setText(R.string.room_list_title);
+        Utils.setWindowTitle(this, R.string.room_list_title);
         
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();

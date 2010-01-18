@@ -123,7 +123,6 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void onJoined() {
-		setWindowTitle(room.name);
 		updateMessages();
 		scrollToBottom();
 		
@@ -181,7 +180,6 @@ public class RoomView extends ListActivity {
 	
 	private void setupControls() {
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
-		setWindowTitle(R.string.app_name);
 		
 		body = (EditText) findViewById(R.id.room_message_body);
 		body.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -315,14 +313,6 @@ public class RoomView extends ListActivity {
     		return true;
     	}
     	return super.onOptionsItemSelected(item);
-    }
-    
-    private void setWindowTitle(String title) {
-        //((TextView) findViewById(R.id.room_title)).setText(title);
-    }
-    
-    private void setWindowTitle(int title) {
-        //((TextView) findViewById(R.id.room_title)).setText(title);
     }
     
     private boolean shouldJoin() {
