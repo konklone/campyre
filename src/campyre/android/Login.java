@@ -152,8 +152,8 @@ public class Login extends Activity {
     	
     	@Override
     	protected CampfireException doInBackground(Void... nothing) {
-    		String subdomain = context.subdomainView.getText().toString();
-			String token = context.tokenView.getText().toString();
+    		String subdomain = context.subdomainView.getText().toString().trim();
+			String token = context.tokenView.getText().toString().trim();
 			
 			context.campfire = new Campfire(subdomain, token);
 			Utils.saveCampfire(context, context.campfire);
