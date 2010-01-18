@@ -30,7 +30,7 @@ public class RoomTabs extends TabActivity {
 		TabHost tabHost = getTabHost();
 		
 		tabHost.addTab(tabHost.newTabSpec("room_tab").setIndicator("Room").setContent(roomIntent()));
-		tabHost.addTab(tabHost.newTabSpec("transcript_tab").setIndicator("Transcript").setContent(transcriptIntent()));
+		tabHost.addTab(tabHost.newTabSpec("transcript_tab").setIndicator("Today's Transcript").setContent(transcriptIntent()));
 		
 		tabHost.setCurrentTab(0);
 	}
