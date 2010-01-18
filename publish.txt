@@ -1,4 +1,4 @@
-1) Make sure you bumped the version
+1) Make sure you bumped the version and tagged the release
 
 2) Remove the debuggable flag
 
