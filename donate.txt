@@ -1,15 +1,27 @@
-* In Utils:
-  - change ASK_DONATE constant to false
-  - change SHORTCUT_ICON constant to append "_donate"
-  
-* Refactor -> Rename the package to append ".donate"
+1) Make sure you bumped the version
+2) Remove the debuggable flag
+3) Export campyre.apk
 
-* Edit the AndroidManifest.xml
-  - package name to append ".donate"
-  - application name to append "_donate"
-  - icon name of app to append "_donate"
-  - icon name of share image alias to append "_donate"
-  - Save, regenerate R
-  - Remove the debuggable flag (do this for both versions!)
-  
-* Re-import in the main activities to fix errors
+4) Convert the code to donate
+
+  * In Utils:
+    - change ASK_DONATE constant to false
+    - change SHORTCUT_ICON constant to append "_donate"
+    
+  * Refactor -> Rename the package to append ".donate"
+
+  * Edit the AndroidManifest.xml
+    - package name to append ".donate"
+    - application name to append "_donate"
+    - icon name of app to append "_donate"
+    - icon name of share image alias to append "_donate"
+    - Save, regenerate R
+    - Remove the debuggable flag (do this for both versions!)
+    
+  * Re-import in the main activities to fix errors
+
+5) Export campyre-donate.apk
+6) Convert it back to regular
+
+  * Refactor -> Rename the package to remove ".donate"
+  * Reset the rest with git
