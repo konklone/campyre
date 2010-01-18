@@ -156,6 +156,7 @@ public class Login extends Activity {
 			String token = context.tokenView.getText().toString();
 			
 			context.campfire = new Campfire(subdomain, token);
+			Utils.saveCampfire(context, context.campfire);
 			try {
 				context.campfire.login();
 			} catch (CampfireException exception) {
