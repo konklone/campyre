@@ -25,8 +25,6 @@
     		android:layout_height="wrap_content"
     		style="?android:attr/progressBarStyleSmallTitle"
     		
-    		android:visibility="invisible"
-    		
     		android:layout_marginRight="10dp"
     		/>
     		
@@ -34,9 +32,7 @@
     		android:layout_width="wrap_content"
     		android:layout_height="wrap_content"
     		
-    		android:visibility="invisible"
-    		
-    		android:text="@string/loading_room"
+    		android:text="@string/joining_room"
     		/>
     	
     </LinearLayout>
@@ -57,6 +53,9 @@
 			android:maxLines="2"
 			android:inputType="textCapSentences|textAutoCorrect"
 			
+			android:enabled="false"
+			android:focusable="false"
+			
 			android:imeOptions="actionDone"
 			android:imeActionId="6"
 			android:imeActionLabel="@string/send_button"
@@ -66,6 +65,8 @@
 			android:layout_width="80dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
+			
+			android:enabled="false"
 			
 			android:textSize="18sp"
 			android:text="@string/send_button"

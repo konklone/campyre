@@ -22,6 +22,7 @@
     <string name="about_links">Source code:\nhttp://github.com/klondike/campyre/</string>
     <string name="about_button">Cool</string>
     
+    <string name="joining_room">Joining room...</string>
     <string name="loading_room">Getting latest messages...</string>
     <string name="loading_transcript">Getting today\'s full transcript...</string>
     

@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -126,12 +125,13 @@ public class RoomView extends ListActivity {
 	
 	private void onJoined() {
 		setWindowTitle(room.name);
-		//setListAdapter(new RoomAdapter(this, messages));
 		updateMessages();
 		scrollToBottom();
-
-		((ProgressBar) findViewById(R.id.empty_spinner)).setVisibility(View.VISIBLE);
-		((TextView) findViewById(R.id.empty_message)).setVisibility(View.VISIBLE);
+		
+		body.setFocusableInTouchMode(true);
+		body.setEnabled(true);
+		speak.setEnabled(true);
+		((TextView) findViewById(R.id.empty_message)).setText(R.string.loading_room);
 		
 		startPoll();
 	}
@@ -441,7 +441,6 @@ public class RoomView extends ListActivity {
     	
     	public Room room = null;
     	public HashMap<String,User> users;
-    	private ProgressDialog dialog = null;
     	
     	public JoinTask(RoomView context) {
     		super();
@@ -456,31 +455,9 @@ public class RoomView extends ListActivity {
     	
     	public void onScreenLoad(RoomView context) {
 	    	this.context = context;
-			loadingDialog();
     	}
     	 
        	@Override
-    	protected void onPreExecute() {
-            loadingDialog();
-    	}
-       	
-       	protected void loadingDialog() {
-        	dialog = new ProgressDialog(context);
-        	dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        	dialog.setMessage("Joining room...");
-            
-        	dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-    			@Override
-    			public void onCancel(DialogInterface dialog) {
-    				cancel(true);
-    				context.finish();
-    			}
-    		});
-            
-        	dialog.show();
-        }
-    	
-    	@Override
     	protected CampfireException doInBackground(Void... nothing) {
     		try {
     			room = Room.find(context.campfire, context.roomId);
@@ -501,8 +478,6 @@ public class RoomView extends ListActivity {
     	
     	@Override
     	protected void onPostExecute(CampfireException exception) {
-    		if (dialog != null && dialog.isShowing())
-    			dialog.dismiss();
     		context.joinTask = null;
     		
     		context.room = room;
