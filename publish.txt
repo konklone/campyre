@@ -14,11 +14,10 @@
 
   * Edit the AndroidManifest.xml
     - package name to append ".donate"
-    - application name to append "_donate"
+    - application market_name to append "_donate"
     - icon name of app to append "_donate"
     - icon name of share image alias to append "_donate"
     - Save, regenerate R
-    - Remove the debuggable flag (do this for both versions!)
     
   * Re-import in the main activities to fix errors
 
