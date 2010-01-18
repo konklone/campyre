@@ -12,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -48,8 +47,8 @@ public class RoomView extends ListActivity {
 	
 	private HashMap<String,SpeakTask> speakTasks = new HashMap<String,SpeakTask>();
 	private JoinTask joinTask;
+	private PollTask pollTask;
 	
-	private int pollFailures = 0;
 	private int transitId = 1;
 	private long lastJoined = 0;
 	
@@ -59,7 +58,6 @@ public class RoomView extends ListActivity {
 	
 	private EditText body;
 	private Button speak;
-	private ProgressBar titleSpinner;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -72,7 +70,6 @@ public class RoomView extends ListActivity {
 		setupControls();
 		
 		if (savedInstanceState != null) {
-			pollFailures = savedInstanceState.getInt("pollFailures");
 			transitId = savedInstanceState.getInt("transitId");
 			lastJoined = savedInstanceState.getLong("lastJoined");
 		}
@@ -86,6 +83,7 @@ public class RoomView extends ListActivity {
 			users = holder.users;
 			speakTasks = holder.speakTasks;
 			joinTask = holder.joinTask;
+			pollTask = holder.pollTask;
 			
 			if (speakTasks != null) {
 				Iterator<SpeakTask> iterator = speakTasks.values().iterator();
@@ -93,7 +91,10 @@ public class RoomView extends ListActivity {
 					iterator.next().onScreenLoad(this);
 			}
 			
-			if (holder.joinTask != null)
+			if (pollTask != null)
+				pollTask.onScreenLoad(this);
+			
+			if (joinTask != null)
 				joinTask.onScreenLoad(this);
 			else {
 				if (campfire == null)
@@ -117,11 +118,11 @@ public class RoomView extends ListActivity {
 		holder.users = this.users;
 		holder.speakTasks = this.speakTasks;
 		holder.joinTask = this.joinTask;
+		holder.pollTask = this.pollTask;
 		return holder;
 	}
 	
 	public void onSaveInstanceState(Bundle outState) {
-		outState.putInt("pollFailures", pollFailures);
 		outState.putInt("transitId", transitId);
 		outState.putLong("lastJoined", lastJoined);
 		super.onSaveInstanceState(outState);
@@ -140,7 +141,7 @@ public class RoomView extends ListActivity {
 		((ProgressBar) findViewById(R.id.empty_spinner)).setVisibility(View.VISIBLE);
 		((TextView) findViewById(R.id.empty_message)).setVisibility(View.VISIBLE);
 		
-		autoPoll();
+		startPoll();
 	}
 	
 	private void onJoined(CampfireException exception) {
@@ -148,11 +149,12 @@ public class RoomView extends ListActivity {
 		finish();
 	}
 	
-	private void onPoll() {
+	private void onPoll(ArrayList<Message> messages) {
+		this.messages = messages;
+		
 		boolean wasAtBottom = scrolledToBottom();
 		int position = scrollPosition();
 		
-		//setListAdapter(new RoomAdapter(this, messages));
 		updateMessages();
 		
 		if (wasAtBottom)
@@ -164,7 +166,6 @@ public class RoomView extends ListActivity {
 	// polling failed, messages still has the old list
 	private void onPoll(CampfireException exception) {
 		messages.add(new Message("error", Message.ERROR, exception.getMessage()));
-		//setListAdapter(new RoomAdapter(this, messages));
 		updateMessages();
 		scrollToBottom();
 	}
@@ -190,8 +191,6 @@ public class RoomView extends ListActivity {
 	private void setupControls() {
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
 		setWindowTitle(R.string.app_name);
-			
-		titleSpinner = (ProgressBar) findViewById(R.id.title_spinner);
 		
 		body = (EditText) findViewById(R.id.room_message_body);
 		body.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -230,30 +229,6 @@ public class RoomView extends ListActivity {
 		getListView().setSelection(position);
 	}
 	
-	final Handler handler = new Handler();
-	
-	final Runnable pollSuccess = new Runnable() {
-		public void run() {
-			pollFailures = 0;
-			onPoll();
-		}
-	};
-	
-	final Runnable pollFailure = new Runnable() {
-		public void run() {
-			pollFailures += 1;
-			onPoll(new CampfireException("Connection error while trying to poll. (Try #" + pollFailures + ")"));
-		}
-	};
-	
-	public void showSpinner() {
-		titleSpinner.setVisibility(View.VISIBLE);
-	}
-	
-	public void hideSpinner() {
-		titleSpinner.setVisibility(View.INVISIBLE);
-	}
-	
 	private void speak() {
 		String msg = body.getText().toString();
 		
@@ -279,33 +254,9 @@ public class RoomView extends ListActivity {
 			new JoinTask(this).execute();
 	}
 	
-	private void autoPoll() {
-		new Thread() {
-			public void run() {
-				while(true) {
-					try {
-						messages = poll(room, users);
-						
-						// ping the room so we don't get idle-kicked out
-						if (shouldJoin()) {
-							room.join();
-							lastJoined = System.currentTimeMillis();
-						}
-						
-						handler.post(pollSuccess);
-					} catch(CampfireException e) {
-						handler.post(pollFailure);
-					}
-					
-					try {
-						sleep(AUTOPOLL_INTERVAL * 1000);
-					} catch(InterruptedException ex) {
-						// well, I never
-					}
-
-				}
-			}
-		}.start();
+	private void startPoll() {
+		if (pollTask == null)
+			pollTask = (PollTask) new PollTask(this).execute();
 	}
 	
 	// Fetches latest MAX_MESSAGES from the transcript, then for each message,
@@ -467,6 +418,63 @@ public class RoomView extends ListActivity {
         }
 
     }
+    
+    private class PollTask extends AsyncTask<Void,ArrayList<Message>,Integer> {
+    	public RoomView context;
+    	public CampfireException exception = null;
+    	private int pollFailures = 0;
+    	
+    	public PollTask(RoomView context) {
+    		super();
+    		this.context = context;
+    	}
+    	
+    	protected void onScreenLoad(RoomView context) {
+       		this.context = context;
+       	}
+    	
+    	@Override
+    	protected Integer doInBackground(Void... nothing) {
+    		new Thread() {
+    			
+    			@SuppressWarnings("unchecked") // for the autocasting to publishProgress
+				public void run() {
+		    		while(true) {
+						try {
+							publishProgress(context.poll(context.room, context.users));
+							
+							// ping the room so we don't get idle-kicked out
+							if (context.shouldJoin()) {
+								context.room.join();
+								context.lastJoined = System.currentTimeMillis();
+							}
+						} catch(CampfireException e) {
+							exception = e;
+							publishProgress((ArrayList<Message>) null);
+						}
+						
+						try {
+							sleep(AUTOPOLL_INTERVAL * 1000);
+						} catch(InterruptedException ex) {
+							// well, I never
+						}
+					}
+    			}
+    		}.start();
+    		return -1; // Integer instead of Void, to avoid compiler errors in Eclipse
+    	}
+    	
+    	@Override
+    	public void onProgressUpdate(ArrayList<Message>... messages) {
+    		if (exception == null) {
+    			pollFailures = 0;
+    			context.onPoll(messages[0]);
+    		} else {
+    			pollFailures += 1;
+    			context.onPoll(new CampfireException(exception, "Connection error while trying to poll. (Try #" + pollFailures + ")"));
+    		}
+    	}
+	};
 	
 	private class SpeakTask extends AsyncTask<Void,Void,Message> {
 		public RoomView context;
@@ -603,5 +611,6 @@ public class RoomView extends ListActivity {
 		HashMap<String,User> users;
 		HashMap<String,SpeakTask> speakTasks;
 		JoinTask joinTask;
+		PollTask pollTask;
 	}
 }
