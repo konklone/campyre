@@ -2,10 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
+	
 	android:orientation="vertical"
-	> 
-		
-	<ListView android:id="@android:id/list"
+	>
+  
+  <ListView android:id="@android:id/list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:layout_weight="1"
@@ -25,8 +26,6 @@
     		android:layout_height="wrap_content"
     		style="?android:attr/progressBarStyleSmallTitle"
     		
-    		android:visibility="invisible"
-    		
     		android:layout_marginRight="10dp"
     		/>
     		
@@ -34,42 +33,9 @@
     		android:layout_width="wrap_content"
     		android:layout_height="wrap_content"
     		
-    		android:visibility="invisible"
-    		
     		android:text="Loading messages..."
     		/>
     	
     </LinearLayout>
-	
-	<LinearLayout android:id="@+id/room_bottom"
-		android:orientation="horizontal"
-		
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_weight="0"
-		>
-		
-		<EditText android:id="@+id/room_message_body"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			
-			android:maxLines="2"
-			android:inputType="textCapSentences|textAutoCorrect"
-			
-			android:imeOptions="actionDone"
-			android:imeActionId="6"
-			android:imeActionLabel="@string/send_button"
-			/>
-			
-		<Button android:id="@+id/room_speak"
-			android:layout_width="80dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="0"
-			
-			android:textSize="18sp"
-			android:text="@string/send_button"
-			/>
-	</LinearLayout>
-	
+  
 </LinearLayout>
