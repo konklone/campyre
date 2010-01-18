@@ -129,7 +129,7 @@ public class RoomList extends ListActivity {
     		
     		finish();
     	} else
-    		startActivity(new Intent(this, RoomView.class).putExtra("room_id", room.id));
+    		startActivity(new Intent(this, RoomTabs.class).putExtra("room_id", room.id));
     }
     
     public void displayRooms() {
@@ -174,7 +174,7 @@ public class RoomList extends ListActivity {
     
     public static Intent roomIntent(Room room) {
     	Intent intent = new Intent(Intent.ACTION_MAIN).putExtra("room_id", room.id);
-    	intent.setClassName("campyre.android", "campyre.android.RoomView");
+    	intent.setClassName("campyre.android", "campyre.android.RoomTabs");
     	return intent;
     }
     

@@ -54,8 +54,8 @@ public class RoomView extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-		setContentView(R.layout.room);
+		//requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+		setContentView(R.layout.room_view);
 		
 		roomId = getIntent().getStringExtra("room_id");
 		
@@ -319,11 +319,11 @@ public class RoomView extends ListActivity {
     }
     
     private void setWindowTitle(String title) {
-        ((TextView) findViewById(R.id.room_title)).setText(title);
+        //((TextView) findViewById(R.id.room_title)).setText(title);
     }
     
     private void setWindowTitle(int title) {
-        ((TextView) findViewById(R.id.room_title)).setText(title);
+        //((TextView) findViewById(R.id.room_title)).setText(title);
     }
     
     private boolean shouldJoin() {
