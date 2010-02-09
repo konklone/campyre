@@ -44,6 +44,8 @@ public class RoomView extends ListActivity {
 	
 	private ArrayList<Message> messages = new ArrayList<Message>();
 	private HashMap<String,Message> transitMessages = new HashMap<String,Message>();
+	private Message errorMessage;
+	
 	private HashMap<String,User> users = new HashMap<String,User>();
 	
 	private EditText body;
@@ -52,7 +54,6 @@ public class RoomView extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		setContentView(R.layout.room_view);
 		
 		roomId = getIntent().getStringExtra("room_id");
@@ -70,6 +71,7 @@ public class RoomView extends ListActivity {
 			room = holder.room;
 			messages = holder.messages;
 			transitMessages = holder.transitMessages;
+			errorMessage = holder.errorMessage;
 			users = holder.users;
 			speakTasks = holder.speakTasks;
 			joinTask = holder.joinTask;
@@ -105,6 +107,7 @@ public class RoomView extends ListActivity {
 		holder.room = this.room;
 		holder.messages = this.messages;
 		holder.transitMessages = this.transitMessages;
+		holder.errorMessage = this.errorMessage;
 		holder.users = this.users;
 		holder.speakTasks = this.speakTasks;
 		holder.joinTask = this.joinTask;
@@ -141,6 +144,7 @@ public class RoomView extends ListActivity {
 	
 	private void onPoll(ArrayList<Message> messages) {
 		this.messages = messages;
+		errorMessage = null;
 		
 		boolean wasAtBottom = scrolledToBottom();
 		int position = scrollPosition();
@@ -155,7 +159,7 @@ public class RoomView extends ListActivity {
 	
 	// polling failed, messages still has the old list
 	private void onPoll(CampfireException exception) {
-		messages.add(new Message("error", Message.ERROR, exception.getMessage()));
+		errorMessage = new Message("error", Message.ERROR, exception.getMessage());
 		updateMessages();
 		scrollToBottom();
 	}
@@ -175,6 +179,8 @@ public class RoomView extends ListActivity {
 		ArrayList<Message> allMessages = new ArrayList<Message>();
 		allMessages.addAll(messages);
 		allMessages.addAll(transitMessages.values());
+		if (errorMessage != null)
+			allMessages.add(errorMessage);
 		setListAdapter(new MessageAdapter(this, allMessages));
 	}
 	
@@ -484,6 +490,7 @@ public class RoomView extends ListActivity {
 		Room room;
 		ArrayList<Message> messages;
 		HashMap<String,Message> transitMessages;
+		Message errorMessage;
 		HashMap<String,User> users;
 		HashMap<String,SpeakTask> speakTasks;
 		JoinTask joinTask;
