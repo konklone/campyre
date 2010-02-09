@@ -2,6 +2,7 @@ package campyre.java;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -10,7 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Room {
+public class Room implements Comparable<Room> {
 	public String id, name, topic;
 	public boolean full = false;
 	public Campfire campfire;
@@ -53,9 +54,13 @@ public class Room {
 		ArrayList<Room> rooms = new ArrayList<Room>();
 		try {
 			JSONArray roomList = new CampfireRequest(campfire).getList(Campfire.roomsPath(), "rooms");
+			
 			int length = roomList.length();
 			for (int i=0; i<length; i++)
 				rooms.add(new Room(campfire, roomList.getJSONObject(i)));
+			
+			Collections.sort(rooms);
+			
 		} catch(JSONException e) {
 			throw new CampfireException(e, "Problem loading room list from the API.");
 		}
@@ -110,5 +115,10 @@ public class Room {
 
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public int compareTo(Room another) {
+		return name.compareTo(another.name);
 	}
 }
