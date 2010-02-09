@@ -102,15 +102,6 @@
 				android:textSize="15sp"
 				android:text="@string/regular_switch_message"
 				/>
-				
-			<Button android:id="@+id/regular_login"
-				android:layout_width="fill_parent"
-				android:layout_height="60dp"
-				android:layout_marginTop="20dp"
-				
-				android:textSize="20sp"
-				android:text="Log in"
-				/>
 			
 		</LinearLayout>
 		
@@ -161,17 +152,17 @@
 				android:text="@string/token_switch_message"
 				/>
 				
-			<Button android:id="@+id/token_login"
-				android:layout_width="fill_parent"
-				android:layout_height="60dp"
-				android:layout_marginTop="20dp"
-				
-				android:textSize="20sp"
-				android:text="Log in"
-				/>
-				
 		</LinearLayout>
+		
+		<Button android:id="@+id/login_button"
+			android:layout_width="fill_parent"
+			android:layout_height="60dp"
+			android:layout_marginTop="20dp"
 			
+			android:textSize="20sp"
+			android:text="Log in"
+			/>
+				
 	</LinearLayout>
 
 </ScrollView>
