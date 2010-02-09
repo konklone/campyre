@@ -30,8 +30,7 @@ public class Login extends Activity {
 	private EditText tokenView, subdomainView, usernameView, passwordView;
 	private View regularInput, tokenInput;
 	
-	private LoginTask loginTask = null;
-	private ProgressDialog dialog = null;
+	private LoginTask loginTask;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,10 +52,8 @@ public class Login extends Activity {
         
         setupControls();
         
-        if (loginTask != null) {
-    		loginTask.context = this;
-    		loadingDialog();
-    	}
+        if (loginTask != null)
+    		loginTask.onScreenLoad(this);
 	}
 	
 	@Override
@@ -160,26 +157,9 @@ public class Login extends Activity {
 		return id == Utils.ABOUT ? Utils.aboutDialog(this) : null;
 	}
 	
-	public void loadingDialog() {
-		dialog = new ProgressDialog(this);
-		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		dialog.setMessage("Logging in...");
-		   
-		dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				if (loginTask != null) {
-					loginTask.cancel(true);
-					loginTask = null; // so that the button will work again
-				}
-			}
-		});
-       
-       dialog.show();
-    }
-	
 	private class LoginTask extends AsyncTask<Void,Void,CampfireException> {
 		public Login context;
+		private ProgressDialog dialog;
     	
     	public LoginTask(Login context) {
     		super();
@@ -189,8 +169,13 @@ public class Login extends Activity {
     	 
        	@Override
     	protected void onPreExecute() {
-            context.loadingDialog();
+            loadingDialog();
     	}
+       	
+       	public void onScreenLoad(Login context) {
+       		this.context = context;
+       		loadingDialog();
+       	}
     	
     	@Override
     	protected CampfireException doInBackground(Void... nothing) {
@@ -220,12 +205,28 @@ public class Login extends Activity {
     	
     	@Override
     	protected void onPostExecute(CampfireException exception) {
-    		if (context.dialog != null && context.dialog.isShowing())
-    			context.dialog.dismiss();
+    		if (dialog != null && dialog.isShowing())
+    			dialog.dismiss();
     		context.loginTask = null;
     		
     		context.onLogin(exception);
     	}
+    	
+    	public void loadingDialog() {
+    		dialog = new ProgressDialog(context);
+    		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    		dialog.setMessage("Logging in...");
+    		   
+    		dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+    			@Override
+    			public void onCancel(DialogInterface dialog) {
+					cancel(true);
+					context.loginTask = null; // so that the button will work again
+    			}
+    		});
+           
+           dialog.show();
+        }
 	}
 	
 	static class LoginHolder {
