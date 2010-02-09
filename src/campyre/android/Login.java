@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
@@ -23,8 +22,11 @@ public class Login extends Activity {
 	public static final int MENU_FEEDBACK = 2;
 	public static final int MENU_DONATE = 3;
 	
+	public static final int LOGIN_USERNAME = 1;
+	public static final int LOGIN_TOKEN = 2;
+	
 	private Campfire campfire;
-	private EditText tokenView, subdomainView;
+	private EditText tokenView, subdomainView, usernameView, passwordView;
 	
 	private LoginTask loginTask = null;
 	private ProgressDialog dialog = null;
@@ -55,9 +57,9 @@ public class Login extends Activity {
     	return holder;
     }
 	
-	public void login() {
+	public void login(int mode) {
 		if (loginTask == null)
-        	new LoginTask(this).execute();
+        	new LoginTask(this, mode).execute();
 	}
 	
 	public void onLogin(CampfireException exception) {
@@ -72,14 +74,39 @@ public class Login extends Activity {
     public void setupControls() {
     	tokenView = (EditText) findViewById(R.id.token);
     	subdomainView = (EditText) findViewById(R.id.subdomain);
+    	usernameView = (EditText) findViewById(R.id.username);
+    	passwordView = (EditText) findViewById(R.id.password);
+    	
         subdomainView.setText(Utils.getCampfireValue(this, "subdomain"));
         tokenView.setText(Utils.getCampfireValue(this, "token"));
     	
-    	Button loginButton = (Button) findViewById(R.id.login_button);
-    	loginButton.setOnClickListener(new View.OnClickListener() {
+    	findViewById(R.id.regular_login).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				login();
+				login(LOGIN_USERNAME);
+			}
+		});
+    	
+    	findViewById(R.id.token_login).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				login(LOGIN_TOKEN);
+			}
+		});
+    	
+    	findViewById(R.id.regular_switch).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				findViewById(R.id.regular_input).setVisibility(View.GONE);
+				findViewById(R.id.token_input).setVisibility(View.VISIBLE);
+			}
+		});
+    	
+    	findViewById(R.id.token_switch).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				findViewById(R.id.token_input).setVisibility(View.GONE);
+				findViewById(R.id.regular_input).setVisibility(View.VISIBLE);
 			}
 		});
     }
@@ -138,11 +165,13 @@ public class Login extends Activity {
 	
 	private class LoginTask extends AsyncTask<Void,Void,CampfireException> {
 		public Login context;
+		public int mode;
     	
-    	public LoginTask(Login context) {
+    	public LoginTask(Login context, int mode) {
     		super();
     		this.context = context;
     		this.context.loginTask = this;
+    		this.mode = mode;
     	}
     	 
        	@Override
@@ -153,10 +182,21 @@ public class Login extends Activity {
     	@Override
     	protected CampfireException doInBackground(Void... nothing) {
     		String subdomain = context.subdomainView.getText().toString().trim();
-			String token = context.tokenView.getText().toString().trim();
-			
-			context.campfire = new Campfire(subdomain, token);
-			Utils.saveCampfire(context, context.campfire);
+    		context.campfire = new Campfire(subdomain);
+    		
+    		if (mode == Login.LOGIN_TOKEN) {
+	    		String token = context.tokenView.getText().toString().trim();
+				context.campfire.token = token;
+    		} else {
+    			String username = context.usernameView.getText().toString().trim();
+    			String password = context.passwordView.getText().toString().trim();
+    			context.campfire.username = username;
+    			context.campfire.password = password;
+    		}
+    		
+    		// save the subdomain and token right away
+    		Utils.saveCampfire(context, context.campfire); 
+    		
 			try {
 				context.campfire.login();
 			} catch (CampfireException exception) {

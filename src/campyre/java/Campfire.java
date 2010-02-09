@@ -11,12 +11,12 @@ public class Campfire {
 	public static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire)";
 	
 	public String subdomain, token;
+	public String username, password;
 	public String user_id = null;
 	public boolean ssl = false;
 		
-	public Campfire(String subdomain, String token) {
+	public Campfire(String subdomain) {
 		this.subdomain = subdomain;
-		this.token = token;
 	}
 	
 	public Campfire(String subdomain, String token, boolean ssl, String user_id) {
@@ -37,6 +37,7 @@ public class Campfire {
 			try {
 				JSONObject user = new JSONObject(CampfireRequest.responseBody(response)).getJSONObject("user");
 				this.user_id = user.getString("id");
+				this.token = user.getString("api_auth_token");
 			} catch (JSONException e) {
 				throw new CampfireException(e, "Couldn't load user details on login.");
 			}

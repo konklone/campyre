@@ -79,7 +79,16 @@ public class CampfireRequest {
     public HttpResponse makeRequest(HttpUriRequest request) throws CampfireException {
     	request.addHeader("User-Agent", Campfire.USER_AGENT);
     	
-    	Credentials credentials = new UsernamePasswordCredentials(campfire.token, "X");
+    	String username, password;
+    	if (campfire.username != null && campfire.password != null) {
+    		username = campfire.username;
+    		password = campfire.password;
+    	} else {
+    		username = campfire.token;
+    		password = "X";
+    	}
+    	
+    	Credentials credentials = new UsernamePasswordCredentials(username, password);
 		CredentialsProvider credsProvider = new BasicCredentialsProvider();
 		credsProvider.setCredentials(new AuthScope(domain(), (campfire.ssl ? 443 : 80)), credentials);
 		
