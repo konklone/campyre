@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import campyre.android.donate.R;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
 

@@ -22,7 +22,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import campyre.android.donate.R;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
 import campyre.java.Room;

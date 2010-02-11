@@ -15,7 +15,6 @@ import android.view.Window;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import campyre.android.donate.R;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
 
@@ -23,10 +22,10 @@ public class Utils {
 	public static final int ABOUT = 0;
 	
 	// change this to false for the donate version
-	public static final boolean ASK_DONATE = false;
+	public static final boolean ASK_DONATE = true;
 	
 	// change this to icon_donate for the donate version
-	public static final int SHORTCUT_ICON = R.drawable.icon_donate; 
+	public static final int SHORTCUT_ICON = R.drawable.icon; 
 	
 	public static void alert(Context context, String message) {
 		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();

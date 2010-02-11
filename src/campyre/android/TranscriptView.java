@@ -6,7 +6,6 @@ import java.util.HashMap;
 import android.app.ListActivity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import campyre.android.donate.R;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
 import campyre.java.Message;
