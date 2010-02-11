@@ -1,4 +1,5 @@
 1) Make sure you bumped the version and tagged the release
+  * Also update the version number in strings.xml
 
 2) Remove the debuggable flag
 
