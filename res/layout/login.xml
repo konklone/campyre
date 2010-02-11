@@ -129,8 +129,6 @@
 				android:layout_marginTop="5dp"
 				
 				android:inputType="text"
-				
-				android:hint="Paste or type your API token"
 				/>
 			
 			<TextView 
