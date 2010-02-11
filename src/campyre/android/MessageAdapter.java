@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import campyre.android.donate.R;
 import campyre.java.Message;
 
 public class MessageAdapter extends ArrayAdapter<Message> {

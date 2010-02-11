@@ -1,5 +1,6 @@
 package campyre.android;
 
+import campyre.android.donate.R;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;

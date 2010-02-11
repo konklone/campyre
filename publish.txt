@@ -17,7 +17,7 @@
     - package name to append ".donate"
     - application market_name to append "_donate"
     - icon name of app to append "_donate"
-    - icon name of share image alias to append "_donate"
+    - icon name of shortcut alias to append "_donate"
     - Save, regenerate R
     
   * Re-import in the main activities to fix errors
@@ -27,4 +27,5 @@
 6) Convert it back to regular
 
   * Refactor -> Rename the package to remove ".donate"
+  * Rename the package in AndroidManifest.xml to regenerate R
   * Reset the rest with git
