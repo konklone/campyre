@@ -28,7 +28,7 @@ public class RoomView extends ListActivity {
 	private static final int MENU_LOGOUT = 0;
 	
 	private static final int MAX_MESSAGES = 20;
-	private static final int AUTOPOLL_INTERVAL = 2; // in seconds
+	private static final int AUTOPOLL_INTERVAL = 5; // in seconds
 	private static final long JOIN_TIMEOUT = 60; // in seconds
 	
 	private Campfire campfire;
