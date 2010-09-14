@@ -24,8 +24,9 @@ public class User {
 	
 	public String displayName() {
 		if (name == null) return "(No name)";
-		String[] names = name.split(" ");
-		if (names.length > 1)
+		
+		String[] names = name.trim().split(" ");
+		if (names.length > 1 && names[1].length() > 0)
 			return names[0] + " " + names[1].charAt(0) + ".";
 		else
 			return names[0];
