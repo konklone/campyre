@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="version_string">0.9.6</string>
+	<string name="version_string">0.9.7</string>
 	
     <string name="market_name">Campyre</string>
     <string name="market_name_donate">Campyre (Donate)</string>
