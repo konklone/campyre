@@ -3,7 +3,7 @@ package campyre.java;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-
+import java.io.UnsupportedEncodingException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.cookie.DateParseException;
