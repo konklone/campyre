@@ -94,6 +94,7 @@ public class Room implements Comparable<Room> {
 		String type = (body.contains("\n")) ? "PasteMessage" : "TextMessage";
 		String url = Campfire.speakPath(id);
 		try {
+			body = new String(body.getBytes("UTF-8"), "ISO-8859-1");
 			String request = new JSONObject().put("message", new JSONObject().put("type", type).put("body", body)).toString();
 			HttpResponse response = new CampfireRequest(campfire).post(url, request);
 			int statusCode = response.getStatusLine().getStatusCode();
@@ -106,6 +107,8 @@ public class Room implements Comparable<Room> {
 			throw new CampfireException(e, "Couldn't create JSON object while speaking.");
 		} catch (DateParseException e) {
 			throw new CampfireException(e, "Couldn't parse date from created message while speaking.");
+		} catch (UnsupportedEncodingException e) {
+			throw new CampfireException(e, "Cannot convert from UTF-8 to ISO-8859-1");
 		}
 	}
 	
