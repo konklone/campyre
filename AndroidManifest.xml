@@ -51,6 +51,8 @@
         	</intent-filter>
         </activity>
         
+        <activity android:name=".Settings" />
+        
     </application>
     
     <uses-permission android:name="android.permission.INTERNET" />

@@ -25,9 +25,9 @@ import campyre.java.Room;
 import campyre.java.User;
 
 public class RoomView extends ListActivity {
-	private static final int MENU_LOGOUT = 0;
+	private static final int MENU_SETTINGS = 0;
+	private static final int MENU_LOGOUT = 1;
 	
-	private static final int MAX_MESSAGES = 80;
 	private static final int AUTOPOLL_INTERVAL = 5; // in seconds
 	private static final long JOIN_TIMEOUT = 60; // in seconds
 	
@@ -258,7 +258,12 @@ public class RoomView extends ListActivity {
 	// looks up the associated User to assign a display name.
 	// We use the "users" HashMap to cache Users from the network. 
 	private ArrayList<Message> poll(Room room, HashMap<String,User> users) throws CampfireException {
-		ArrayList<Message> messages = Message.allToday(room, MAX_MESSAGES);
+		int maxMessages = Utils.getIntPreferenceFromString(this, Settings.KEY_NUMBER_MESSAGES, Settings.DEFAULT_NUMBER_MESSAGES);
+		
+		if (maxMessages < 1) // sanity check for this value
+			maxMessages = Settings.DEFAULT_NUMBER_MESSAGES;
+			
+		ArrayList<Message> messages = Message.allToday(room, maxMessages);
 		int length = messages.size();
 		for (int i=0; i<length; i++) {
 			Message message = messages.get(i);
@@ -304,7 +309,9 @@ public class RoomView extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-        menu.add(0, MENU_LOGOUT, MENU_LOGOUT, R.string.logout)
+	    menu.add(0, MENU_SETTINGS, 0, R.string.menu_settings)
+	    	.setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(1, MENU_LOGOUT, 1, R.string.logout)
         	.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         
         return result;
@@ -312,11 +319,14 @@ public class RoomView extends ListActivity {
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	switch(item.getItemId()) { 
+    	switch(item.getItemId()) {
+    	case MENU_SETTINGS:
+    		startActivity(new Intent(this, Settings.class));
+    		break;
     	case MENU_LOGOUT:
     		Utils.logoutCampfire(this);
     		finish();
-    		return true;
+    		break;
     	}
     	return super.onOptionsItemSelected(item);
     }

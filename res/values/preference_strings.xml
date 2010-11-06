@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="number_messages_title">Room Message Limit</string>
+	<string name="number_messages_summary">The number of messages to load for a room.</string>
+	<string name="number_messages_default">80</string>
+</resources>

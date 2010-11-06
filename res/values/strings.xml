@@ -34,4 +34,5 @@
     <string name="contact_subject">Campyre feedback</string>
     
     <string name="logout">Logout</string>
+    <string name="menu_settings">Settings</string>
 </resources>

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.Window;
@@ -114,5 +115,43 @@ public class Utils {
 		editor.putString("user_id", null);
 		
 		editor.commit();
+	}
+	
+	public static String getStringPreference(Context context, String key) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getString(key, null);
+	}
+	
+	public static String getStringPreference(Context context, String key, String value) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getString(key, value);
+	}
+
+	public static boolean setStringPreference(Context context, String key, String value) {
+		return PreferenceManager.getDefaultSharedPreferences(context).edit().putString(key, value).commit();
+	}
+	
+	public static boolean getBooleanPreference(Context context, String key, boolean defaultValue) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(key, defaultValue);
+	}
+	
+	public static boolean setBooleanPreference(Context context, String key, boolean value) {
+		return PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(key, value).commit();
+	}
+	
+	// this should probably be moved into the Settings class itself
+	public static int getIntPreferenceFromString(Context context, String key, int defaultValue) {
+		int value;
+		
+		String stringValue = getStringPreference(context, key, null);
+		if (stringValue == null)
+			value = defaultValue;
+		else {
+			try {
+				value = Integer.parseInt(stringValue); 
+			} catch (NumberFormatException e) {
+				value = defaultValue;
+			}
+		}
+		
+		return value;
 	}
 }

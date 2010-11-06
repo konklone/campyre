@@ -27,10 +27,11 @@ import campyre.java.CampfireException;
 import campyre.java.Room;
 
 public class RoomList extends ListActivity { 
-	private static final int MENU_CLEAR = 0;
-	private static final int MENU_ABOUT = 1;
-	private static final int MENU_FEEDBACK = 2;
-	private static final int MENU_DONATE = 3;
+	private static final int MENU_SETTINGS = 0;
+	private static final int MENU_CLEAR = 1;
+	private static final int MENU_ABOUT = 2;
+	private static final int MENU_FEEDBACK = 3;
+	private static final int MENU_DONATE = 4;
 	
 	private Campfire campfire = null;
 	private ArrayList<Room> rooms = null;
@@ -198,11 +199,12 @@ public class RoomList extends ListActivity {
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-        menu.add(0, MENU_CLEAR, 0, R.string.logout).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+	    menu.add(0, MENU_SETTINGS, 0, R.string.menu_settings).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(1, MENU_CLEAR, 1, R.string.logout).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         if (Utils.ASK_DONATE)
-        	menu.add(1, MENU_DONATE, 1, R.string.menu_donate).setIcon(android.R.drawable.ic_menu_send);
-        menu.add(2, MENU_FEEDBACK, 2, "Feedback").setIcon(android.R.drawable.ic_menu_report_image);
-        menu.add(3, MENU_ABOUT, 3, "About").setIcon(android.R.drawable.ic_menu_help);
+        	menu.add(2, MENU_DONATE, 2, R.string.menu_donate).setIcon(android.R.drawable.ic_menu_send);
+        menu.add(3, MENU_FEEDBACK, 3, "Feedback").setIcon(android.R.drawable.ic_menu_report_image);
+        menu.add(4, MENU_ABOUT, 4, "About").setIcon(android.R.drawable.ic_menu_help);
         
         return result;
     }
@@ -216,6 +218,9 @@ public class RoomList extends ListActivity {
     		break;
     	case MENU_FEEDBACK:
     		startActivity(Utils.feedbackIntent(this));
+    		break;
+    	case MENU_SETTINGS:
+    		startActivity(new Intent(this, Settings.class));
     		break;
     	case MENU_ABOUT:
     		showDialog(Utils.ABOUT);
