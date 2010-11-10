@@ -75,14 +75,12 @@ public class Room implements Comparable<Room> {
 	
 	public static void joinRoom(Campfire campfire, String roomId) throws CampfireException {
 		String url = Campfire.joinPath(roomId);
-		HttpResponse response = new CampfireRequest(campfire, false).post(url);
+		HttpResponse response = new CampfireRequest(campfire).post(url);
 		int statusCode = response.getStatusLine().getStatusCode();
 		
 		switch(statusCode) {
 		case HttpStatus.SC_OK:
 			return; // okay!
-		case HttpStatus.SC_METHOD_NOT_ALLOWED:
-			throw new CampfireException("Error joining room - Campfire connection not using SSL, and should be.");
 		case HttpStatus.SC_MOVED_TEMPORARILY:
 			throw new CampfireException("Unknown room.");
 		default:

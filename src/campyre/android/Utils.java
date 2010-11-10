@@ -85,8 +85,7 @@ public class Utils {
         if (user_id != null) {
         	String subdomain = prefs.getString("subdomain", null);
             String token = prefs.getString("token", null);
-            boolean ssl = prefs.getBoolean("ssl", false);
-        	return new Campfire(subdomain, token, ssl, user_id);
+        	return new Campfire(subdomain, token, user_id);
         } else
         	return null;
 	}
@@ -101,7 +100,6 @@ public class Utils {
 	
 		editor.putString("subdomain", campfire.subdomain);
 		editor.putString("token", campfire.token);
-		editor.putBoolean("ssl", campfire.ssl);
 		editor.putString("user_id", campfire.user_id);
 		
 		editor.commit();
@@ -111,9 +109,7 @@ public class Utils {
 		SharedPreferences prefs = context.getSharedPreferences("campfire", 0);
 		Editor editor = prefs.edit();
 	
-		editor.putBoolean("ssl", false);
-		editor.putString("user_id", null);
-		
+		editor.putString("user_id", null);		
 		editor.commit();
 	}
 	

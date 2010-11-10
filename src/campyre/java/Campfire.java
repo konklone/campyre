@@ -13,24 +13,21 @@ public class Campfire {
 	public String subdomain, token;
 	public String username, password;
 	public String user_id = null;
-	public boolean ssl = false;
 		
 	public Campfire(String subdomain) {
 		this.subdomain = subdomain;
 	}
 	
-	public Campfire(String subdomain, String token, boolean ssl, String user_id) {
+	public Campfire(String subdomain, String token, String user_id) {
 		this.subdomain = subdomain;
 		this.token = token;
-		this.ssl = ssl;
 		this.user_id = user_id;
 	}
 	
 	public void login() throws CampfireException {
-		HttpResponse response = new CampfireRequest(this, false).get(mePath());
+		HttpResponse response = new CampfireRequest(this).get(mePath());
 		int statusCode = response.getStatusLine().getStatusCode();
 		// if API key is wrong, we'll get a 401 status code (HttpStatus.SC_UNAUTHORIZED)
-		// if the Campfire needs SSL, we'll get a 302, so relogin as an SSL-enabled Campfire
 		// if it gets a 200, then save the info from the response
 		switch (statusCode) {
 		case HttpStatus.SC_OK:
@@ -40,14 +37,6 @@ public class Campfire {
 				this.token = user.getString("api_auth_token");
 			} catch (JSONException e) {
 				throw new CampfireException(e, "Couldn't load user details on login.");
-			}
-			break;
-		case HttpStatus.SC_MOVED_TEMPORARILY:
-			if (this.ssl) // only reason this would happen is if the user really has no permissions here
-				throw new CampfireException("You don't have access to any rooms on this account. Ask an administrator to grant you permission.");
-			else {
-				this.ssl = true;
-				login();
 			}
 			break;
 		case HttpStatus.SC_UNAUTHORIZED:

@@ -40,11 +40,6 @@ public class CampfireRequest {
 		this.campfire = campfire;
 	}
 	
-	public CampfireRequest(Campfire campfire, boolean followRedirects) {
-		this.campfire = campfire;
-		this.followRedirects = followRedirects;
-	}
-	
 	public JSONObject getOne(String path, String key) throws CampfireException, JSONException {
 		return new JSONObject(responseBody(get(path))).getJSONObject(key);
 	}
@@ -90,7 +85,7 @@ public class CampfireRequest {
     	
     	Credentials credentials = new UsernamePasswordCredentials(username, password);
 		CredentialsProvider credsProvider = new BasicCredentialsProvider();
-		credsProvider.setCredentials(new AuthScope(domain(), (campfire.ssl ? 443 : 80)), credentials);
+		credsProvider.setCredentials(new AuthScope(domain(), 443), credentials);
 		
 		DefaultHttpClient client = new DefaultHttpClient();
 		client.setCredentialsProvider(credsProvider);
@@ -125,7 +120,7 @@ public class CampfireRequest {
 	
 	// lets you override the format per-request (used only for file uploading, which has to be .xml)
 	public String url(String path, String format) {
-		return (campfire.ssl ? "https" : "http") + "://" + domain() + path + format;
+		return "https://" + domain() + path + format;
 	}
 	
 	public String url(String path) {
