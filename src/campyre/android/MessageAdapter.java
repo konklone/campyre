@@ -93,7 +93,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		case Message.PASTE:
 		case Message.ENTRY:
 		case Message.LEAVE:
-		case Message.TRANSIT:
 			holder.person = (TextView) view.findViewById(R.id.person);
 		}
 		
@@ -107,7 +106,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		case Message.PASTE:
 		case Message.ENTRY:
 		case Message.LEAVE:
-		case Message.TRANSIT:
 			holder.person.setText(message.person);
 		}
 		
