@@ -11,8 +11,6 @@ public class RoomTabs extends TabActivity {
 	public String roomId, roomName;
 	public Room room;
 	
-	public String userId;
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -28,7 +26,6 @@ public class RoomTabs extends TabActivity {
 			roomId = extras.getString("room_id");
 			roomName = extras.getString("room_name");
 		}
-		userId = extras.getString("user_id");
 		
 		Utils.setWindowTitle(this, roomName);
 		
@@ -51,9 +48,7 @@ public class RoomTabs extends TabActivity {
 	}
 	
 	public Intent transcriptIntent() {
-		return new Intent(this, TranscriptView.class)
-			.putExtra("room_id", roomId)
-			.putExtra("user_id", userId);
+		return new Intent(this, TranscriptView.class).putExtra("room_id", roomId);
 	}
 	
 }

@@ -16,7 +16,6 @@ public class TranscriptView extends ListActivity {
 	private Campfire campfire;
 	private Room room;
 	private ArrayList<Message> messages;
-	private String userId;
 	
 	private LoadTranscriptTask loadTranscriptTask;
 	
@@ -25,8 +24,10 @@ public class TranscriptView extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.transcript);
 		
+		Bundle extras = getIntent().getExtras();
+		
 		campfire = Utils.getCampfire(this);
-		room = new Room(campfire, getIntent().getStringExtra("room_id"));
+		room = new Room(campfire, extras.getString("room_id"));
 		
 		TranscriptViewHolder holder = (TranscriptViewHolder) getLastNonConfigurationInstance();
 		if (holder != null) {
@@ -63,7 +64,7 @@ public class TranscriptView extends ListActivity {
 	}
 	
 	public void displayTranscript() {
-		setListAdapter(new MessageAdapter(this, messages, userId));
+		setListAdapter(new MessageAdapter(this, messages, campfire.user_id));
 	}
 	
 	private class LoadTranscriptTask extends AsyncTask<Void,Void,ArrayList<Message>> {

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +18,16 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 	private static String TIMESTAMP_FORMAT = "hh:mm a";
 	
 	private LayoutInflater inflater;
+	private Resources resources;
 	
+	// should be refactored to be an entire Campfire object, instead of hacking a userId around the system
 	private String ownId;
 	
     public MessageAdapter(Activity context, ArrayList<Message> messages, String ownId) {
         super(context, 0, messages);
         this.ownId = ownId;
         inflater = LayoutInflater.from(context);
+        resources = context.getResources();
     }
     
     
@@ -97,6 +101,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 	}
 	
 	public void bindMessage(Message message, View view, ViewHolder holder) {
+		// load the person's name if necessary
 		switch(message.type) {
 		case Message.TEXT:
 		case Message.PASTE:
@@ -106,6 +111,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			holder.person.setText(message.person);
 		}
 		
+		// format the body text
 		switch (message.type) { 
 		case Message.ENTRY:
 			holder.body.setText(R.string.message_entered_room);
@@ -122,8 +128,21 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			else
 				holder.body.setText(message.body);
 			break;
-		default: // all others
+		case Message.TEXT:
+		case Message.TRANSIT:
+		default:
 			holder.body.setText(message.body);
+		}
+		
+		// change background color of text view if the owner is the logged in user (like the web client)
+		// no need to do this for messages of type TRANSIT because they are always that way
+		switch (message.type) {
+		case Message.TEXT:
+		case Message.PASTE:
+			if (message.user_id.equals(ownId))
+				view.setBackgroundColor(resources.getColor(R.color.message_text_background_own));
+			else
+				view.setBackgroundColor(resources.getColor(R.color.message_text_background));
 		}
 	}
 	

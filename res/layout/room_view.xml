@@ -9,7 +9,9 @@
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		android:layout_weight="1"
+		android:divider="@color/message_text_background"
 		/>
+	<!-- setting android:divider to a color removes the divider entirely (which is what I want), for reasons unknown to me -->
 		
 	<LinearLayout android:id="@id/android:empty"
     	android:layout_width="fill_parent"

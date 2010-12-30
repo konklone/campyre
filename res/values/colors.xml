@@ -2,9 +2,9 @@
 <resources>
 	<color name="header_line">#3E445f</color>
 	
-	<color name="message_text_divider">#666666</color>
+	<color name="message_text_divider">#555555</color>
 	<color name="message_text_background">#333333</color>
-	<color name="message_text_background_own">#666666</color>
+	<color name="message_text_background_own">#33444e</color>
 	<color name="message_text_foreground_link">#2c88b7</color>
 	<color name="message_text_foreground">#ffffff</color>
 	<color name="message_timestamp_background">#333333</color>
