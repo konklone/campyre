@@ -41,6 +41,8 @@ public class Campfire {
 			break;
 		case HttpStatus.SC_UNAUTHORIZED:
 			throw new CampfireException("Invalid credentials.");
+		case HttpStatus.SC_NOT_FOUND:
+			throw new CampfireException("Incorrect Campfire URL; correct the subdomain.");
 		default:
 			throw new CampfireException("Unknown error code " + statusCode + " on login.");
 		}
