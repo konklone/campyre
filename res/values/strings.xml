@@ -39,4 +39,6 @@
     
     <string name="message_left_room">has left the room</string>
     <string name="message_entered_room">has entered the room</string>
+    <string name="pasted">Pasted</string>
+    <string name="see_paste">See full paste</string>
 </resources>

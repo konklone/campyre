@@ -13,4 +13,9 @@
 	<color name="message_error_background">#982323</color>
 	<color name="message_entry_foreground">#ffffff</color>
 	<color name="message_entry_background">#234567</color>
+	
+	<color name="paste_header">#bbbbbb</color>
+	<color name="paste_divider">#555555</color>
+	<color name="paste_background">#333333</color>
+	<color name="paste_foreground">#ffffff</color>
 </resources>

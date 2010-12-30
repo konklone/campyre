@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,13 +18,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import campyre.android.MessageAdapter.RoomContext;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
 import campyre.java.Message;
 import campyre.java.Room;
 import campyre.java.User;
 
-public class RoomView extends ListActivity {
+public class RoomView extends ListActivity implements RoomContext {
 	private static final int MENU_SETTINGS = 0;
 	private static final int MENU_LOGOUT = 1;
 	
@@ -175,7 +177,7 @@ public class RoomView extends ListActivity {
 		boolean wasAtBottom = scrolledToBottom();
 		int position = scrollPosition();
 		
-		setListAdapter(new MessageAdapter(this, allMessages, this.campfire.user_id));
+		setListAdapter(new MessageAdapter(this, allMessages));
 		
 		if (wasAtBottom)
 			scrollToBottom();
@@ -342,6 +344,20 @@ public class RoomView extends ListActivity {
     	return (System.currentTimeMillis() - lastJoined) > (JOIN_TIMEOUT * 1000);
     }
     
+    @Override
+    public Campfire getCampfire() {
+    	return campfire;
+    }
+    
+    @Override
+    public Room getRoom() {
+    	return room;
+    }
+    
+    @Override
+    public Context getContext() {
+    	return this;
+    }
     
     private class PollTask extends AsyncTask<Void,ArrayList<Message>,Integer> {
     	public RoomView context;

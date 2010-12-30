@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import campyre.android.MessageAdapter.RoomContext;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
 import campyre.java.Message;
 import campyre.java.Room;
 import campyre.java.User;
 
-public class TranscriptView extends ListActivity {
+public class TranscriptView extends ListActivity implements RoomContext {
 	private Campfire campfire;
 	private Room room;
 	private ArrayList<Message> messages;
@@ -64,8 +66,23 @@ public class TranscriptView extends ListActivity {
 	}
 	
 	public void displayTranscript() {
-		setListAdapter(new MessageAdapter(this, messages, campfire.user_id));
+		setListAdapter(new MessageAdapter(this, messages));
 	}
+	
+	@Override
+    public Campfire getCampfire() {
+    	return campfire;
+    }
+    
+    @Override
+    public Room getRoom() {
+    	return room;
+    }
+    
+    @Override
+    public Context getContext() {
+    	return this;
+    }
 	
 	private class LoadTranscriptTask extends AsyncTask<Void,Void,ArrayList<Message>> {
 		public TranscriptView context;
