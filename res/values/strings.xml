@@ -29,6 +29,7 @@
     <string name="joining_room">Joining room...</string>
     <string name="loading_room">Getting latest messages...</string>
     <string name="loading_transcript">Getting today\'s full transcript...</string>
+    <string name="no_messages">No messages yet today.</string>
     
     <string name="contact_email">kprojection+campyre@gmail.com</string>
     <string name="contact_subject">Campyre feedback</string>

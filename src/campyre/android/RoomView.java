@@ -36,7 +36,7 @@ public class RoomView extends ListActivity {
 	private Room room;
 	
 	private HashMap<String,SpeakTask> speakTasks = new HashMap<String,SpeakTask>();
-	private JoinTask joinTask;
+	private LoadRoomTask loadRoomTask;
 	private PollTask pollTask;
 	
 	private int transitId = 1;
@@ -74,7 +74,7 @@ public class RoomView extends ListActivity {
 			errorMessage = holder.errorMessage;
 			users = holder.users;
 			speakTasks = holder.speakTasks;
-			joinTask = holder.joinTask;
+			loadRoomTask = holder.loadRoomTask;
 			pollTask = holder.pollTask;
 			
 			if (speakTasks != null) {
@@ -86,8 +86,8 @@ public class RoomView extends ListActivity {
 			if (pollTask != null)
 				pollTask.onScreenLoad(this);
 			
-			if (joinTask != null)
-				joinTask.onScreenLoad(this);
+			if (loadRoomTask != null)
+				loadRoomTask.onScreenLoad(this);
 			else {
 				if (campfire == null)
 					verifyLogin();
@@ -110,7 +110,7 @@ public class RoomView extends ListActivity {
 		holder.errorMessage = this.errorMessage;
 		holder.users = this.users;
 		holder.speakTasks = this.speakTasks;
-		holder.joinTask = this.joinTask;
+		holder.loadRoomTask = this.loadRoomTask;
 		holder.pollTask = this.pollTask;
 		return holder;
 	}
@@ -149,6 +149,12 @@ public class RoomView extends ListActivity {
 		boolean wasAtBottom = scrolledToBottom();
 		int position = scrollPosition();
 		
+		// one-way, since no other "Loading..." messages will be shown after this.
+		if (messages.size() == 0) {
+			findViewById(R.id.empty_spinner).setVisibility(View.GONE);
+			((TextView) findViewById(R.id.empty_message)).setText(R.string.no_messages);
+		}
+		
 		updateMessages();
 		
 		if (wasAtBottom)
@@ -181,6 +187,7 @@ public class RoomView extends ListActivity {
 		allMessages.addAll(transitMessages.values());
 		if (errorMessage != null)
 			allMessages.add(errorMessage);
+		
 		setListAdapter(new MessageAdapter(this, allMessages));
 	}
 	
@@ -245,8 +252,8 @@ public class RoomView extends ListActivity {
 	}
 
 	private void join() {
-		if (joinTask == null)
-			new JoinTask(this).execute();
+		if (loadRoomTask == null)
+			new LoadRoomTask(this).execute();
 	}
 	
 	private void startPoll() {
@@ -441,16 +448,16 @@ public class RoomView extends ListActivity {
     	}
 	}
 	
-	private class JoinTask extends AsyncTask<Void,String,CampfireException> {
+	private class LoadRoomTask extends AsyncTask<Void,String,CampfireException> {
 		public RoomView context;
     	
     	public Room room = null;
     	public HashMap<String,User> users;
     	
-    	public JoinTask(RoomView context) {
+    	public LoadRoomTask(RoomView context) {
     		super();
     		this.context = context;
-    		this.context.joinTask = this;
+    		this.context.loadRoomTask = this;
     		
     		// get the current state of the user cache, so that we can write to it as we poll
     		// and then assign it back to the new context
@@ -483,7 +490,7 @@ public class RoomView extends ListActivity {
     	
     	@Override
     	protected void onPostExecute(CampfireException exception) {
-    		context.joinTask = null;
+    		context.loadRoomTask = null;
     		
     		context.room = room;
     		context.users = users;
@@ -503,7 +510,7 @@ public class RoomView extends ListActivity {
 		Message errorMessage;
 		HashMap<String,User> users;
 		HashMap<String,SpeakTask> speakTasks;
-		JoinTask joinTask;
+		LoadRoomTask loadRoomTask;
 		PollTask pollTask;
 	}
 }
