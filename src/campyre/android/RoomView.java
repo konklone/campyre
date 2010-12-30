@@ -122,7 +122,6 @@ public class RoomView extends ListActivity {
 	
 	private void onRoomLoaded() {
 		updateMessages();
-		scrollToBottom();
 		
 		body.setFocusableInTouchMode(true);
 		body.setEnabled(true);
@@ -141,9 +140,6 @@ public class RoomView extends ListActivity {
 		this.messages = messages;
 		errorMessage = null;
 		
-		boolean wasAtBottom = scrolledToBottom();
-		int position = scrollPosition();
-		
 		// one-way, since no other "Loading..." messages will be shown after this.
 		if (messages.size() == 0) {
 			findViewById(R.id.empty_spinner).setVisibility(View.GONE);
@@ -151,25 +147,18 @@ public class RoomView extends ListActivity {
 		}
 		
 		updateMessages();
-		
-		if (wasAtBottom)
-			scrollToBottom();
-		else
-			scrollToPosition(position);
 	}
 	
 	// polling failed, messages still has the old list
 	private void onPoll(CampfireException exception) {
 		errorMessage = new Message("error", Message.ERROR, exception.getMessage());
 		updateMessages();
-		scrollToBottom();
 	}
 	
 	private void onSpeak(Message message, String transitId) {
 		transitMessages.remove(transitId);
 		messages.add(message);
 		updateMessages();
-		scrollToBottom();
 	}
 	
 	private void onSpeak(CampfireException exception) {
@@ -183,7 +172,16 @@ public class RoomView extends ListActivity {
 		if (errorMessage != null)
 			allMessages.add(errorMessage);
 		
+		// refresh screen and try to control scrolling intelligently
+		boolean wasAtBottom = scrolledToBottom();
+		int position = scrollPosition();
+		
 		setListAdapter(new MessageAdapter(this, allMessages, this.campfire.user_id));
+		
+		if (wasAtBottom)
+			scrollToBottom();
+		else
+			scrollToPosition(position);
 	}
 	
 	private void setupControls() {
@@ -211,6 +209,8 @@ public class RoomView extends ListActivity {
 	}
 	
 	private boolean scrolledToBottom() {
+		if (getListAdapter() == null)
+			return true;
 		return (getListView().getLastVisiblePosition() == (getListAdapter().getCount()-1));
 	}
 	
