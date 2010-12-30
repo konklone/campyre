@@ -10,14 +10,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Message {
-	public static final int UNSUPPORTED = -2;
-	public static final int ERROR = -1; // can be used by clients to make messages that didn't come from the Campfire
-	public static final int TRANSIT = 0; // can be used by clients to make messages that are still in transit 
-	public static final int TEXT = 1;
-	public static final int TIMESTAMP = 2;
-	public static final int ENTRY = 3;
-	public static final int LEAVE = 4;
-	public static final int PASTE = 5;
+	// special message types
+	public static final int UNSUPPORTED = -3;
+	public static final int ERROR = -2; // can be used by clients to make messages that didn't come from the Campfire
+	public static final int TRANSIT = -1; // can be used by clients to make messages that are still in transit
+	
+	// Campfire message types
+	// The Android client depends on these beginning at 0, and going to SUPPORTED_MESSAGE_TYPES - 1.
+	public static final int TEXT = 0;
+	public static final int TIMESTAMP = 1;
+	public static final int ENTRY = 2;
+	public static final int LEAVE = 3;
+	public static final int PASTE = 4;
+	
+	// Here for the Android client: the number of supported message types (keep in sync with the constants above)
+	public static final int SUPPORTED_MESSAGE_TYPES = 5;
 	
 	public int type;
 	public String id, user_id, body;
@@ -47,11 +54,7 @@ public class Message {
 		
 		this.timestamp = DateUtils.parseDate(json.getString("created_at"), inFormat);
 		
-		// for testing
-		if (requiresPerson(this.type))
-			this.person = "Test " + this.user_id;
-		else
-			this.person = null;
+		this.person = null;
 	}
 	
 	public static ArrayList<Message> allToday(Room room) throws CampfireException {
@@ -100,21 +103,6 @@ public class Message {
 			return LEAVE;
 		else
 			return UNSUPPORTED;
-	}
-	
-	public boolean requiresPerson(int type) {
-		switch (type) {
-		case TEXT:
-		case ENTRY:
-		case LEAVE:
-			return true;
-		case TIMESTAMP:
-		case ERROR:
-		case TRANSIT:
-			return false;
-		default:
-			return false;
-		}
 	}
 	
 	public static String todayPath(String room_id) {
