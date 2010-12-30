@@ -179,7 +179,7 @@ public class Login extends Activity {
     	
     	@Override
     	protected CampfireException doInBackground(Void... nothing) {
-    		String subdomain = context.subdomainView.getText().toString().trim();
+    		String subdomain = context.subdomainView.getText().toString().trim().replace(" ", "");
     		context.campfire = new Campfire(subdomain);
     		
     		if (context.loginMode == Login.LOGIN_TOKEN) {
