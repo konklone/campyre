@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -46,10 +45,9 @@ public class RoomList extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.room_list);
         
-        Utils.setWindowTitle(this, R.string.room_list_title);
+        setTitle(R.string.room_list_title);
         
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();

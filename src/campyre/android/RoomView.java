@@ -13,7 +13,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -185,8 +184,6 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void setupControls() {
-		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.room_title);
-		
 		body = (EditText) findViewById(R.id.room_message_body);
 		body.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override

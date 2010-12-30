@@ -1,11 +1,10 @@
 package campyre.android;
 
-import campyre.java.Room;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Window;
 import android.widget.TabHost;
+import campyre.java.Room;
 
 public class RoomTabs extends TabActivity {
 	public String roomId, roomName;
@@ -14,7 +13,6 @@ public class RoomTabs extends TabActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		setContentView(R.layout.room);
 		
 		Bundle extras = getIntent().getExtras();
@@ -27,7 +25,7 @@ public class RoomTabs extends TabActivity {
 			roomName = extras.getString("room_name");
 		}
 		
-		Utils.setWindowTitle(this, roomName);
+		setTitle(roomName);
 		
 		setupTabs();
 	}
