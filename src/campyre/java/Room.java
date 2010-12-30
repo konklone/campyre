@@ -1,9 +1,11 @@
 package campyre.java;
 
 import java.io.InputStream;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.io.UnsupportedEncodingException;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.cookie.DateParseException;
@@ -11,7 +13,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Room implements Comparable<Room> {
+public class Room implements Comparable<Room>, Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	public String id, name, topic;
 	public boolean full = false;
 	public Campfire campfire;

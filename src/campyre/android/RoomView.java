@@ -56,7 +56,9 @@ public class RoomView extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.room_view);
 		
-		roomId = getIntent().getStringExtra("room_id");
+		Bundle extras = getIntent().getExtras();
+		roomId = extras.getString("room_id"); // will always be set
+		room = (Room) extras.getSerializable("room"); // may be null
 		
 		setupControls();
 		
@@ -76,28 +78,21 @@ public class RoomView extends ListActivity {
 			speakTasks = holder.speakTasks;
 			loadRoomTask = holder.loadRoomTask;
 			pollTask = holder.pollTask;
-			
-			if (speakTasks != null) {
-				Iterator<SpeakTask> iterator = speakTasks.values().iterator();
-				while (iterator.hasNext())
-					iterator.next().onScreenLoad(this);
-			}
-			
-			if (pollTask != null)
-				pollTask.onScreenLoad(this);
-			
-			if (loadRoomTask != null)
-				loadRoomTask.onScreenLoad(this);
-			else {
-				if (campfire == null)
-					verifyLogin();
-				else if (room == null)
-					onLogin();
-				else
-					onJoined();
-			}
-		} else
-			verifyLogin();
+		}
+		
+		if (speakTasks != null) {
+			Iterator<SpeakTask> iterator = speakTasks.values().iterator();
+			while (iterator.hasNext())
+				iterator.next().onScreenLoad(this);
+		}
+		
+		if (pollTask != null)
+			pollTask.onScreenLoad(this);
+		
+		if (loadRoomTask != null)
+			loadRoomTask.onScreenLoad(this);
+		
+		verifyLogin();
 	}
 	
 	@Override
@@ -122,22 +117,22 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void onLogin() {
-		join();
+		loadRoom();
 	}
 	
-	private void onJoined() {
+	private void onRoomLoaded() {
 		updateMessages();
 		scrollToBottom();
 		
 		body.setFocusableInTouchMode(true);
 		body.setEnabled(true);
 		speak.setEnabled(true);
-		((TextView) findViewById(R.id.empty_message)).setText(R.string.loading_room);
+		((TextView) findViewById(R.id.empty_message)).setText(R.string.loading_messages);
 		
 		startPoll();
 	}
 	
-	private void onJoined(CampfireException exception) {
+	private void onRoomLoaded(CampfireException exception) {
 		Utils.alert(this, exception);
 		finish();
 	}
@@ -251,9 +246,13 @@ public class RoomView extends ListActivity {
 		}
 	}
 
-	private void join() {
-		if (loadRoomTask == null)
-			new LoadRoomTask(this).execute();
+	private void loadRoom() {
+		if (room != null)
+			onRoomLoaded();
+		else {
+			if (loadRoomTask == null)
+				new LoadRoomTask(this).execute();
+		}
 	}
 	
 	private void startPoll() {
@@ -292,11 +291,15 @@ public class RoomView extends ListActivity {
 	}
 	
 	private void verifyLogin() {
-		campfire = Utils.getCampfire(this);
-        if (campfire != null)
-        	onLogin();
-        else
-        	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);
+		if (campfire != null) 
+			onLogin();
+		else {
+			campfire = Utils.getCampfire(this);
+	        if (campfire != null)
+	        	onLogin();
+	        else
+	        	startActivityForResult(new Intent(this, Login.class), Login.RESULT_LOGIN);
+		} 
     }
 	
 	@Override
@@ -496,9 +499,9 @@ public class RoomView extends ListActivity {
     		context.users = users;
     		   		
     		if (exception == null)
-    			context.onJoined();
+    			context.onRoomLoaded();
     		else
-    			context.onJoined(exception);
+    			context.onRoomLoaded(exception);
     	}
 	}
 	

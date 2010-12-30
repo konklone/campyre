@@ -1,12 +1,16 @@
 package campyre.java;
 
+import java.io.Serializable;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class Campfire {
+public class Campfire implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	// Change this to use your own user agent
 	public static final String USER_AGENT = "android-campfire (http://github.com/klondike/android-campfire)";
 	

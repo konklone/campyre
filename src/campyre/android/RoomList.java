@@ -112,7 +112,7 @@ public class RoomList extends ListActivity {
     }
     
     public void selectRoom(Room room) {
-    	if (forResult) {
+    	if (forResult) { // for file uploading
         	setResult(RESULT_OK, new Intent().putExtra("room_id", room.id));
         	finish();
     	} else if (shortcut) {
@@ -129,9 +129,7 @@ public class RoomList extends ListActivity {
     		
     		finish();
     	} else
-    		startActivity(new Intent(this, RoomTabs.class)
-    			.putExtra("room_id", room.id)
-    			.putExtra("room_name", room.name));
+    		startActivity(new Intent(this, RoomTabs.class).putExtra("room", room));
     }
     
     public void displayRooms() {

@@ -27,7 +27,7 @@
     <string name="about_button">Cool</string>
     
     <string name="joining_room">Joining room...</string>
-    <string name="loading_room">Getting latest messages...</string>
+    <string name="loading_messages">Getting latest messages...</string>
     <string name="loading_transcript">Getting today\'s full transcript...</string>
     <string name="no_messages">No messages yet today.</string>
     
