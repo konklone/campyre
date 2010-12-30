@@ -8,7 +8,7 @@ import org.json.JSONObject;
 
 public class Campfire {
 	// Change this to use your own user agent
-	public static final String USER_AGENT = "android-campfire (http://github.com/Klondike/android-campfire)";
+	public static final String USER_AGENT = "android-campfire (http://github.com/klondike/android-campfire)";
 	
 	public String subdomain, token;
 	public String username, password;
