@@ -44,6 +44,11 @@
 		
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
+		
+		android:background="@color/message_text_background"
+		
+		android:paddingTop="2dp"
+		
 		android:layout_weight="0"
 		>
 		
