@@ -75,7 +75,7 @@ public class Utils {
     
     public static Intent donateIntent(Context context) {
     	return new Intent(Intent.ACTION_VIEW,
-    			Uri.parse("market://search?q=pname:" + context.getResources().getString(R.string.package_name_donate)));
+    			Uri.parse("market://details?id=" + context.getResources().getString(R.string.package_name_donate)));
     }
     
     public static Campfire getCampfire(Context context) {

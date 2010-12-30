@@ -128,7 +128,7 @@ public class Login extends Activity {
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
 	    if (Utils.ASK_DONATE)
-        	menu.add(0, MENU_DONATE, 0, R.string.menu_donate).setIcon(android.R.drawable.ic_menu_send);
+        	menu.add(0, MENU_DONATE, 0, R.string.menu_donate).setIcon(R.drawable.ic_menu_market);
 	    menu.add(1, MENU_FEEDBACK, 1, "Feedback").setIcon(android.R.drawable.ic_menu_report_image);
         menu.add(2, MENU_ABOUT, 2, "About").setIcon(android.R.drawable.ic_menu_help);
         
