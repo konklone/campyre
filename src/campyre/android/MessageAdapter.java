@@ -89,6 +89,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		case Message.ENTRY:
 		case Message.LEAVE:
 			return R.layout.message_entry;
+		case Message.TOPIC:
+			return R.layout.message_topic;
 		default:
 			return R.layout.message_text;
 		}
@@ -104,6 +106,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		case Message.PASTE:
 		case Message.ENTRY:
 		case Message.LEAVE:
+		case Message.TOPIC:
 			holder.person = (TextView) view.findViewById(R.id.person);
 		}
 		
@@ -120,6 +123,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		case Message.PASTE:
 		case Message.ENTRY:
 		case Message.LEAVE:
+		case Message.TOPIC:
 			holder.person.setText(message.person);
 		}
 		
@@ -143,6 +147,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			break;
 		case Message.TEXT:
 		case Message.TRANSIT:
+		case Message.TOPIC:
 		default:
 			holder.body.setText(message.body.trim());
 		}

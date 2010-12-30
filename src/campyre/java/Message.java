@@ -22,9 +22,10 @@ public class Message {
 	public static final int ENTRY = 2;
 	public static final int LEAVE = 3;
 	public static final int PASTE = 4;
+	public static final int TOPIC = 5;
 	
 	// Here for the Android client: the number of supported message types (keep in sync with the constants above)
-	public static final int SUPPORTED_MESSAGE_TYPES = 5;
+	public static final int SUPPORTED_MESSAGE_TYPES = 6;
 	
 	public int type;
 	public String id, user_id, body;
@@ -101,6 +102,8 @@ public class Message {
 			return ENTRY;
 		else if (type.equals("LeaveMessage") || type.equals("KickMessage"))
 			return LEAVE;
+		else if (type.equals("TopicChangeMessage"))
+			return TOPIC;
 		else
 			return UNSUPPORTED;
 	}
