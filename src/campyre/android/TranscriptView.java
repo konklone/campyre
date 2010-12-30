@@ -16,6 +16,7 @@ public class TranscriptView extends ListActivity {
 	private Campfire campfire;
 	private Room room;
 	private ArrayList<Message> messages;
+	private String userId;
 	
 	private LoadTranscriptTask loadTranscriptTask;
 	
@@ -62,7 +63,7 @@ public class TranscriptView extends ListActivity {
 	}
 	
 	public void displayTranscript() {
-		setListAdapter(new MessageAdapter(this, messages));
+		setListAdapter(new MessageAdapter(this, messages, userId));
 	}
 	
 	private class LoadTranscriptTask extends AsyncTask<Void,Void,ArrayList<Message>> {

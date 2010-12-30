@@ -129,7 +129,9 @@ public class RoomList extends ListActivity {
     		
     		finish();
     	} else
-    		startActivity(new Intent(this, RoomTabs.class).putExtra("room", room));
+    		startActivity(new Intent(this, RoomTabs.class)
+    			.putExtra("room", room)
+    			.putExtra("user_id", this.campfire.user_id));
     }
     
     public void displayRooms() {

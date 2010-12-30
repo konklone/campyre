@@ -36,4 +36,7 @@
     
     <string name="logout">Logout</string>
     <string name="menu_settings">Settings</string>
+    
+    <string name="message_left_room">has left the room</string>
+    <string name="message_entered_room">has entered the room</string>
 </resources>

@@ -183,7 +183,7 @@ public class RoomView extends ListActivity {
 		if (errorMessage != null)
 			allMessages.add(errorMessage);
 		
-		setListAdapter(new MessageAdapter(this, allMessages));
+		setListAdapter(new MessageAdapter(this, allMessages, this.campfire.user_id));
 	}
 	
 	private void setupControls() {

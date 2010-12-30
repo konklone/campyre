@@ -18,11 +18,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 	
 	private LayoutInflater inflater;
 	
-	//private String ownId;
+	private String ownId;
 	
-    public MessageAdapter(Activity context, ArrayList<Message> messages) {
+    public MessageAdapter(Activity context, ArrayList<Message> messages, String ownId) {
         super(context, 0, messages);
-        //this.ownId = ownId;
+        this.ownId = ownId;
         inflater = LayoutInflater.from(context);
     }
     
@@ -42,32 +42,26 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
     
     @Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(int position, View view, ViewGroup parent) {
 		Message message = getItem(position);
 		
 		ViewHolder holder = null;
-		if (convertView != null)
-			holder = (ViewHolder) convertView.getTag();
-		
-		if (convertView == null) {
-			convertView = inflater.inflate(viewForMessage(message), null);
+		if (view != null)
+			holder = (ViewHolder) view.getTag();
+		else {
+			view = inflater.inflate(viewForMessage(message.type), null);
+			holder = holderForMessage(message.type, view);
 			
-			holder = new ViewHolder();
-			holder.body = (TextView) convertView.findViewById(R.id.text);
-			holder.person = (TextView) convertView.findViewById(R.id.person); // could be null
-			
-			convertView.setTag(holder);
+			view.setTag(holder);
 		}
 		
-		holder.body.setText(bodyForMessage(message));
-		if (holder.person != null)
-			holder.person.setText(message.person);
+		bindMessage(message, view, holder);
 		
-		return convertView;
+		return view;
 	}
 	
-	public int viewForMessage(Message message) {
-		switch (message.type) {
+	public int viewForMessage(int type) {
+		switch (type) {
 		case Message.ERROR:
 			return R.layout.message_error;
 		case Message.TRANSIT:
@@ -85,24 +79,55 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		}
 	}
 	
-	public String bodyForMessage(Message message) {
+	public ViewHolder holderForMessage(int type, View view) {
+		ViewHolder holder = new ViewHolder();
+		
+		holder.body = (TextView) view.findViewById(R.id.text);
+		
+		switch(type) {
+		case Message.TEXT:
+		case Message.PASTE:
+		case Message.ENTRY:
+		case Message.LEAVE:
+		case Message.TRANSIT:
+			holder.person = (TextView) view.findViewById(R.id.person);
+		}
+		
+		return holder;
+	}
+	
+	public void bindMessage(Message message, View view, ViewHolder holder) {
+		switch(message.type) {
+		case Message.TEXT:
+		case Message.PASTE:
+		case Message.ENTRY:
+		case Message.LEAVE:
+		case Message.TRANSIT:
+			holder.person.setText(message.person);
+		}
+		
 		switch (message.type) { 
 		case Message.ENTRY:
-			return "has entered the room";
+			holder.body.setText(R.string.message_entered_room);
+			break;
 		case Message.LEAVE:
-			return "has left the room";
+			holder.body.setText(R.string.message_left_room);
+			break;
 		case Message.TIMESTAMP:
-			return new SimpleDateFormat(TIMESTAMP_FORMAT).format(message.timestamp);
+			holder.body.setText(new SimpleDateFormat(TIMESTAMP_FORMAT).format(message.timestamp));
+			break;
 		case Message.PASTE:
 			if (message.body.length() > PASTE_TRUNCATE)
-				return message.body.substring(0, PASTE_TRUNCATE-1) + "\n\n[paste truncated]";
+				holder.body.setText(message.body.substring(0, PASTE_TRUNCATE-1) + "\n\n[paste truncated]");
 			else
-				return message.body;
+				holder.body.setText(message.body);
+			break;
 		default: // all others
-			return message.body;
+			holder.body.setText(message.body);
 		}
 	}
 	
+	// needs to have a field for every type of view that could be found on a message object
 	static class ViewHolder {
         TextView body, person;
     }
