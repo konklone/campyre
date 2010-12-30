@@ -7,7 +7,7 @@
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	
-	android:background="#234567"
+	android:background="@color/message_entry_background"
 	>
 	
 	<TextView android:id="@+id/person"
@@ -18,7 +18,7 @@
 		
 		android:textSize="14sp"
 		android:textStyle="bold"
-		android:textColor="@android:color/white"
+		android:textColor="@color/message_entry_foreground"
 		
 		android:text="Sir L."
 		/>
@@ -31,7 +31,7 @@
 		android:layout_marginRight="5dp"
 		
 		android:textSize="14sp"
-		android:textColor="@android:color/white"
+		android:textColor="@color/message_entry_foreground"
 		
 		android:text="has loved the room"
 		/>

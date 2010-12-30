@@ -7,7 +7,7 @@
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	
-	android:background="#333333"
+	android:background="@color/message_timestamp_background"
 	>
   
 	<TextView android:id="@+id/text"
@@ -18,7 +18,7 @@
 		android:gravity="center"
 		
 		android:textSize="12sp"
-		android:textColor="#999999"
+		android:textColor="@color/message_timestamp_foreground"
 		
 		android:text="12:10 PM"
 		/>
