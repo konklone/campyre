@@ -106,7 +106,7 @@ public class Room implements Comparable<Room> {
 		} catch (DateParseException e) {
 			throw new CampfireException(e, "Couldn't parse date from created message while speaking.");
 		} catch (UnsupportedEncodingException e) {
-			throw new CampfireException(e, "Cannot convert from UTF-8 to ISO-8859-1");
+			throw new CampfireException(e, "Problem converting special characters for transmission.");
 		}
 	}
 	
