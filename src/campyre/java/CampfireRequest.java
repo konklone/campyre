@@ -34,7 +34,6 @@ public class CampfireRequest {
 	private String format = ".json";
 	
 	private Campfire campfire;
-	private boolean followRedirects = true;
 	
 	public CampfireRequest(Campfire campfire) {
 		this.campfire = campfire;
@@ -89,8 +88,6 @@ public class CampfireRequest {
 		
 		DefaultHttpClient client = new DefaultHttpClient();
 		client.setCredentialsProvider(credsProvider);
-		if (!followRedirects)
-			client.setRedirectHandler(new NoRedirectHandler());
         
         try {
         	return client.execute(request);
@@ -195,13 +192,5 @@ public class CampfireRequest {
         	throw new CampfireException("Network error while uploading to Campfire, file not uploaded.");
         } 
 		
-	}
-}
-
-// Used for requests where we want to detect a redirect vs a 200 (i.e. login)
-class NoRedirectHandler extends DefaultRedirectHandler {
-	@Override
-	public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
-		return false;
 	}
 }
