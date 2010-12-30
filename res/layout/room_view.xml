@@ -52,8 +52,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			
-			android:maxLines="2"
-			android:inputType="textCapSentences|textAutoCorrect"
+			android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
 			
 			android:enabled="false"
 			android:focusable="false"
