@@ -20,4 +20,18 @@
 	<color name="paste_divider">#555555</color>
 	<color name="paste_background">#333333</color>
 	<color name="paste_foreground">#ffffff</color>
+	
+	<color name="tab_edges">#04081a</color>
+	<color name="tab_top">#04081a</color>
+	
+	<color name="tab_pressed_top">#f58525</color>
+	<color name="tab_pressed_bottom">#c56520</color>
+	
+	<color name="tab_selected_top">#235e6f</color>
+	<color name="tab_selected_bottom">#094555</color>
+	<color name="tab_dim_top">#084048</color>
+	<color name="tab_dim_bottom">#02252f</color>
+	
+	<color name="tab_text_deselected">#aaaaaa</color>
+	<color name="tab_text_selected">#f5f5f5</color>
 </resources>

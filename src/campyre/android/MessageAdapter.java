@@ -140,10 +140,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			break;
 		case Message.PASTE:
 			String body = message.body.trim();
-			if (body.length() > PASTE_TRUNCATE)
-				holder.body.setText(body.substring(0, PASTE_TRUNCATE-1) + "...");
-			else
-				holder.body.setText(body);
+			holder.body.setText(Utils.truncate(body, PASTE_TRUNCATE));
 			break;
 		case Message.TEXT:
 		case Message.TRANSIT:

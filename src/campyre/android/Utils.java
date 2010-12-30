@@ -138,4 +138,11 @@ public class Utils {
 		
 		return value;
 	}
+	
+	public static String truncate(String original, int length) {
+		if (original.length() > length)
+			return original.substring(0, length-1) + "...";
+		else
+			return original;
+	}
 }
