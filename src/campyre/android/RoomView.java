@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -248,6 +249,17 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 					speak();
 				else if (event != null) // the event will only be non-null for a press of the "Enter" key
 					speak();
+				return false;
+			}
+		});
+		
+		body.setOnKeyListener(new View.OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER) {
+					speak();
+					return true;
+				}
 				return false;
 			}
 		});
