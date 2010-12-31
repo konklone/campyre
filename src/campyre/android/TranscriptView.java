@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import campyre.android.MessageAdapter.RoomContext;
@@ -87,6 +88,11 @@ public class TranscriptView extends ListActivity implements RoomContext {
     @Override
     public void loadImage(String url, String messageId) {
     	return;
+    }
+    
+    @Override
+    public BitmapDrawable cachedImage(String messageId) {
+    	return null;
     }
 	
 	private class LoadTranscriptTask extends AsyncTask<Void,Void,ArrayList<Message>> {

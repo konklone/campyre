@@ -2,6 +2,8 @@ package campyre.java;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
@@ -18,14 +20,15 @@ public class Message {
 	// Campfire message types
 	// The Android client depends on these beginning at 0, and going to SUPPORTED_MESSAGE_TYPES - 1.
 	public static final int TEXT = 0;
-	public static final int TIMESTAMP = 1;
-	public static final int ENTRY = 2;
-	public static final int LEAVE = 3;
-	public static final int PASTE = 4;
-	public static final int TOPIC = 5;
+	public static final int IMAGE = 1;
+	public static final int TIMESTAMP = 2;
+	public static final int ENTRY = 3;
+	public static final int LEAVE = 4;
+	public static final int PASTE = 5;
+	public static final int TOPIC = 6;
 	
 	// Here for the Android client: the number of supported message types (keep in sync with the constants above)
-	public static final int SUPPORTED_MESSAGE_TYPES = 6;
+	public static final int SUPPORTED_MESSAGE_TYPES = 7;
 	
 	public int type;
 	public String id, user_id, body;
@@ -47,14 +50,14 @@ public class Message {
 	}
 	
 	public Message(JSONObject json) throws JSONException, DateParseException {
-		this.type = typeFor(json.getString("type"));
+		String body = denull(json.getString("body"));
+		
+		this.body = body;
+		this.type = typeFor(json.getString("type"), body);
+		
 		this.id = json.getString("id");
-		
 		this.user_id = denull(json.getString("user_id"));
-		this.body = denull(json.getString("body"));
-		
 		this.timestamp = DateUtils.parseDate(json.getString("created_at"), inFormat);
-		
 		this.person = null;
 	}
 	
@@ -91,10 +94,13 @@ public class Message {
 		return messages; 
 	}
 	
-	private static int typeFor(String type) {
-		if (type.equals("TextMessage"))
-			return TEXT;
-		else if (type.equals("PasteMessage"))
+	private static int typeFor(String type, String body) {
+		if (type.equals("TextMessage")) {
+			if (imageLink(body))
+				return IMAGE;
+			else
+				return TEXT;
+		} else if (type.equals("PasteMessage"))
 			return PASTE;
 		else if (type.equals("TimestampMessage"))
 			return TIMESTAMP;
@@ -117,5 +123,13 @@ public class Message {
 			return null;
 		else
 			return maybeNull;
+	}
+	
+	// depends on the assumption that we'll only render image links that are the entirety of the body
+	// if we ever expand this assumption, this will need to also extract the URL
+	public static boolean imageLink(String body) {
+		Pattern pattern = Pattern.compile("^(http[^\\s]+(?:jpe?g|gif|png))$");
+		Matcher matcher = pattern.matcher(body);
+		return matcher.matches();
 	}
 }

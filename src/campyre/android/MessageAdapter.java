@@ -3,12 +3,12 @@ package campyre.android;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,6 +88,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			return R.layout.message_transit;
 		case Message.TEXT:
 			return R.layout.message_text;
+		case Message.IMAGE:
+			return R.layout.message_image;
 		case Message.PASTE:
 			return R.layout.message_paste;
 		case Message.TIMESTAMP:
@@ -105,10 +107,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 	public ViewHolder holderForMessage(int type, View view) {
 		ViewHolder holder = new ViewHolder();
 		
-		holder.body = (TextView) view.findViewById(R.id.text);
+		if (type != Message.IMAGE)
+			holder.body = (TextView) view.findViewById(R.id.text);
 		
 		switch(type) {
 		case Message.TEXT:
+		case Message.IMAGE:
 		case Message.PASTE:
 		case Message.ENTRY:
 		case Message.LEAVE:
@@ -119,7 +123,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		if (type == Message.PASTE)
 			holder.paste = (Button) view.findViewById(R.id.paste);
 		
-		if (type == Message.TEXT)
+		if (type == Message.IMAGE)
 			holder.image = (ImageView) view.findViewById(R.id.image);
 		
 		return holder;
@@ -129,6 +133,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		// load the person's name if necessary
 		switch(message.type) {
 		case Message.TEXT:
+		case Message.IMAGE:
 		case Message.PASTE:
 		case Message.ENTRY:
 		case Message.LEAVE:
@@ -154,7 +159,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		case Message.TEXT:
 		case Message.TRANSIT:
 		case Message.TOPIC:
-		default:
 			holder.body.setText(message.body.trim());
 		}
 		
@@ -186,17 +190,20 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		}
 		
 		// spawn a possible image loading task, to load images inline like the web client
-		if (message.type == Message.TEXT) {
-			Pattern pattern = Pattern.compile("^(http[^\\s]+(?:jpe?g|gif|png))$");
-			Matcher matcher = pattern.matcher(message.body);
-			if (matcher.matches()) {
-				//TODO: Change this to set a spinner as visible, and have the imageview become visible post-download
-				holder.image.setVisibility(View.VISIBLE);
-				
-				String url = matcher.group(1);
+		if (message.type == Message.IMAGE) {
+			final String url = message.body;
+			holder.image.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					originalContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+				}
+			});
+					
+			BitmapDrawable image = context.cachedImage(message.id);
+			if (image != null)
+				holder.image.setImageDrawable(image);
+			else
 				context.loadImage(url, message.id);
-			} else
-				holder.image.setVisibility(View.GONE);
 		}
 	}
 	
@@ -219,5 +226,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		public abstract Room getRoom();
 		public abstract Context getContext();
 		public abstract void loadImage(String url, String id);
+		public abstract BitmapDrawable cachedImage(String id);
 	}
 }

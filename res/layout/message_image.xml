@@ -7,7 +7,7 @@
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	
-	android:background="@color/message_text_background"
+	android:background="@color/message_text_background_own"
 	>
 	
 	<TextView android:id="@+id/person"
@@ -25,7 +25,7 @@
 		android:text="Eric M."
 		/>
 		
-	<View android:id="@+id/message_text_divider"
+	<View
 		android:layout_width="1dp"
 		android:layout_height="fill_parent"
 		android:layout_marginLeft="10dp"
@@ -33,19 +33,12 @@
 		android:background="@color/message_text_divider"
 		/>
 	
-	<TextView android:id="@+id/text"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+	<ImageView android:id="@+id/image"
+		android:layout_width="fill_parent"
+		android:layout_height="80dp"
 		android:layout_marginTop="5dp"
-		android:layout_marginBottom="5dp"
-	
-		android:autoLink="web"
 		
-		android:textSize="14sp"
-		android:textColor="@color/message_text_foreground"
-		android:textColorLink="@color/message_text_foreground_link"
-		
-		android:text="This is a message I said in the Campfire. I love talking into lists. Now let's wrap it to multiple lines."
+		android:scaleType="centerInside"
 		/>
   	
 </LinearLayout>

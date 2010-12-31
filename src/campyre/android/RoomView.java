@@ -45,12 +45,14 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	
 	private int transitId = 1;
 	private long lastJoined = 0;
+	private String lastMessageId = null;
 	
 	private ArrayList<Message> messages = new ArrayList<Message>();
 	private HashMap<String,Message> transitMessages = new HashMap<String,Message>();
 	private Message errorMessage;
 	
 	private HashMap<String,LoadImageTask> loadImageTasks = new HashMap<String,LoadImageTask>();
+	private HashMap<String,BitmapDrawable> cachedImages = new HashMap<String,BitmapDrawable>();
 	
 	private HashMap<String,User> users = new HashMap<String,User>();
 	
@@ -159,8 +161,11 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 			findViewById(R.id.empty_spinner).setVisibility(View.GONE);
 			((TextView) findViewById(R.id.empty_message)).setText(R.string.no_messages);
 		}
-		
-		updateMessages();
+		String newLastMessageId = messages.get(messages.size() - 1).id;
+		if (!newLastMessageId.equals(lastMessageId)) {
+			lastMessageId = newLastMessageId;
+			updateMessages();
+		}
 	}
 	
 	// polling failed, messages still has the old list
@@ -384,6 +389,11 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
     }
     
     @Override
+    public BitmapDrawable cachedImage(String messageId) {
+    	return cachedImages.get(messageId);
+    }
+    
+    @Override
     public void onLoadImage(BitmapDrawable image, Object tag) {
     	loadImageTasks.remove((String) tag);
 		
@@ -392,7 +402,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 
 		View result = getListView().findViewWithTag(holder);
 		if (result != null) {
-			// get actual holder
+			// replace with actual holder
 			holder = (MessageAdapter.ViewHolder) result.getTag();
 			if (image != null)
 				holder.image.setImageDrawable(image);
