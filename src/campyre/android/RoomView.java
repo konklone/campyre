@@ -247,8 +247,6 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_DONE)
 					speak();
-				else if (event != null) // the event will only be non-null for a press of the "Enter" key
-					speak();
 				return false;
 			}
 		});
