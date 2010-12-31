@@ -1,5 +1,12 @@
 package campyre.android;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -7,6 +14,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.util.Linkify;
@@ -145,4 +155,46 @@ public class Utils {
 		else
 			return original;
 	}
+	
+	public static InputStream openConnection(String urlString) throws CampfireException {
+		InputStream inputStream = null;
+		
+		try {
+			URL url = new URL(urlString);
+			URLConnection conn = url.openConnection();
+			HttpURLConnection httpConn = (HttpURLConnection) conn;
+			httpConn.setRequestMethod("GET");
+			httpConn.connect();
+	
+			if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK)
+				inputStream = httpConn.getInputStream();
+		}
+		catch (MalformedURLException e) {
+			return null;
+		}
+		catch (IOException e) {
+			throw new CampfireException(e, "Problem downloading image.");
+		}
+		
+		return inputStream;
+	}
+	
+	public static BitmapDrawable imageFromUrl(Context context, String url) throws CampfireException {
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		
+		InputStream in = openConnection(url);
+		Bitmap bitmap = BitmapFactory.decodeStream(in, null, options);
+		try {
+			in.close();
+		} catch(IOException e) {
+			throw new CampfireException(e, "Error after downloading image.");
+		}
+		
+		if (bitmap == null)
+			return null;
+		else
+			return new BitmapDrawable(context.getResources(), bitmap);
+	}
+	
+
 }

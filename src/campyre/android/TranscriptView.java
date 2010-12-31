@@ -83,6 +83,11 @@ public class TranscriptView extends ListActivity implements RoomContext {
     public Context getContext() {
     	return this;
     }
+    
+    @Override
+    public void loadImage(String url, String messageId) {
+    	return;
+    }
 	
 	private class LoadTranscriptTask extends AsyncTask<Void,Void,ArrayList<Message>> {
 		public TranscriptView context;

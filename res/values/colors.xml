@@ -3,16 +3,15 @@
 	<color name="header_line">#3E445f</color>
 	
 	<color name="message_text_divider">#555555</color>
-	<color name="message_text_background">#333333</color>
-	<color name="message_text_background_own">#33444e</color>
-	<color name="message_text_foreground_link">#2c88b7</color>
+	<color name="message_text_background">#2c3844</color>
+	<color name="message_text_background_own">#2c405f</color>
+	<color name="message_text_foreground_link">#4c88b7</color>
 	<color name="message_text_foreground">#ffffff</color>
-	<color name="message_timestamp_background">#333333</color>
 	<color name="message_timestamp_foreground">#999999</color>
 	<color name="message_error_foreground">#eeeeee</color>
 	<color name="message_error_background">#982323</color>
 	<color name="message_entry_foreground">#ffffff</color>
-	<color name="message_entry_background">#234567</color>
+	<color name="message_entry_background">#063345</color>
 	<color name="message_topic_foreground">#ffffff</color>
 	<color name="message_topic_background">#662614</color>
 	

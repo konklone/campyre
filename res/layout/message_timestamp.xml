@@ -7,7 +7,7 @@
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	
-	android:background="@color/message_timestamp_background"
+	android:background="@color/message_text_background"
 	>
   
 	<TextView android:id="@+id/text"

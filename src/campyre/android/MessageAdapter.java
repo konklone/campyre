@@ -3,6 +3,8 @@ package campyre.android;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import campyre.java.Campfire;
 import campyre.java.Message;
@@ -22,7 +25,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 	private static final int PASTE_TRUNCATE = 200;
 	private static String TIMESTAMP_FORMAT = "h:mm a";
 	
-	private Context context;
+	private RoomContext context;
+	private Context originalContext;
 	private LayoutInflater inflater;
 	private Resources resources;
 	
@@ -32,12 +36,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     public MessageAdapter(RoomContext context, ArrayList<Message> messages) {
     	super(context.getContext(), 0, messages);
     	
-    	this.context = context.getContext();
+    	this.context = context;
     	this.campfire = context.getCampfire();
     	this.room = context.getRoom();
+    	this.originalContext = context.getContext();
         
-        inflater = LayoutInflater.from(this.context);
-        resources = this.context.getResources();
+        inflater = LayoutInflater.from(originalContext);
+        resources = originalContext.getResources();
     }
     
     
@@ -65,6 +70,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		else {
 			view = inflater.inflate(viewForMessage(message.type), null);
 			holder = holderForMessage(message.type, view);
+			holder.messageId = message.id;
 			
 			view.setTag(holder);
 		}
@@ -112,6 +118,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		
 		if (type == Message.PASTE)
 			holder.paste = (Button) view.findViewById(R.id.paste);
+		
+		if (type == Message.TEXT)
+			holder.image = (ImageView) view.findViewById(R.id.image);
 		
 		return holder;
 	}
@@ -167,7 +176,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			holder.paste.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					context.startActivity(new Intent(context, PasteView.class)
+					originalContext.startActivity(new Intent(originalContext, PasteView.class)
 						.putExtra("person", person)
 						.putExtra("paste", paste)
 						.putExtra("timestamp", timestamp)
@@ -175,17 +184,40 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 				}
 			});
 		}
+		
+		// spawn a possible image loading task, to load images inline like the web client
+		if (message.type == Message.TEXT) {
+			Pattern pattern = Pattern.compile("^(http[^\\s]+(?:jpe?g|gif|png))$");
+			Matcher matcher = pattern.matcher(message.body);
+			if (matcher.matches()) {
+				//TODO: Change this to set a spinner as visible, and have the imageview become visible post-download
+				holder.image.setVisibility(View.VISIBLE);
+				
+				String url = matcher.group(1);
+				context.loadImage(url, message.id);
+			} else
+				holder.image.setVisibility(View.GONE);
+		}
 	}
 	
 	// needs to have a field for every type of view that could be found on a message object
 	static class ViewHolder {
         TextView body, person;
         Button paste;
+        ImageView image;
+        String messageId; // used as hook for attaching a downloaded image to the right message
+        
+        @Override
+		public boolean equals(Object holder) {
+			ViewHolder other = (ViewHolder) holder;
+			return other != null && other instanceof ViewHolder && this.messageId.equals(other.messageId);
+		}
     }
 
 	public interface RoomContext {
 		public abstract Campfire getCampfire();
 		public abstract Room getRoom();
 		public abstract Context getContext();
+		public abstract void loadImage(String url, String id);
 	}
 }

@@ -3,11 +3,13 @@ package campyre.android;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.RejectedExecutionException;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -18,6 +20,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import campyre.android.LoadImageTask.LoadsImage;
 import campyre.android.MessageAdapter.RoomContext;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
@@ -25,7 +28,7 @@ import campyre.java.Message;
 import campyre.java.Room;
 import campyre.java.User;
 
-public class RoomView extends ListActivity implements RoomContext {
+public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	private static final int MENU_SETTINGS = 0;
 	private static final int MENU_LOGOUT = 1;
 	
@@ -46,6 +49,8 @@ public class RoomView extends ListActivity implements RoomContext {
 	private ArrayList<Message> messages = new ArrayList<Message>();
 	private HashMap<String,Message> transitMessages = new HashMap<String,Message>();
 	private Message errorMessage;
+	
+	private HashMap<String,LoadImageTask> loadImageTasks = new HashMap<String,LoadImageTask>();
 	
 	private HashMap<String,User> users = new HashMap<String,User>();
 	
@@ -77,12 +82,19 @@ public class RoomView extends ListActivity implements RoomContext {
 			errorMessage = holder.errorMessage;
 			users = holder.users;
 			speakTasks = holder.speakTasks;
+			loadImageTasks = holder.loadImageTasks;
 			loadRoomTask = holder.loadRoomTask;
 			pollTask = holder.pollTask;
 		}
 		
 		if (speakTasks != null) {
 			Iterator<SpeakTask> iterator = speakTasks.values().iterator();
+			while (iterator.hasNext())
+				iterator.next().onScreenLoad(this);
+		}
+		
+		if (loadImageTasks != null) {
+			Iterator<LoadImageTask> iterator = loadImageTasks.values().iterator();
 			while (iterator.hasNext())
 				iterator.next().onScreenLoad(this);
 		}
@@ -106,6 +118,7 @@ public class RoomView extends ListActivity implements RoomContext {
 		holder.errorMessage = this.errorMessage;
 		holder.users = this.users;
 		holder.speakTasks = this.speakTasks;
+		holder.loadImageTasks = this.loadImageTasks;
 		holder.loadRoomTask = this.loadRoomTask;
 		holder.pollTask = this.pollTask;
 		return holder;
@@ -359,6 +372,35 @@ public class RoomView extends ListActivity implements RoomContext {
     	return this;
     }
     
+    @Override
+    public void loadImage(String url, String messageId) {
+    	if (!loadImageTasks.containsKey(messageId)) {
+			try {
+				loadImageTasks.put(messageId, (LoadImageTask) new LoadImageTask(this, messageId).execute(url));
+			} catch (RejectedExecutionException e) {
+				onLoadImage(null, messageId); // if we can't run it, then just show the text and close up shop
+			}
+		}
+    }
+    
+    @Override
+    public void onLoadImage(BitmapDrawable image, Object tag) {
+    	loadImageTasks.remove((String) tag);
+		
+		MessageAdapter.ViewHolder holder = new MessageAdapter.ViewHolder();
+		holder.messageId = (String) tag;
+
+		View result = getListView().findViewWithTag(holder);
+		if (result != null) {
+			// get actual holder
+			holder = (MessageAdapter.ViewHolder) result.getTag();
+			if (image != null)
+				holder.image.setImageDrawable(image);
+			else
+				holder.image.setVisibility(View.GONE);
+		}
+    }
+    
     private class PollTask extends AsyncTask<Void,ArrayList<Message>,Integer> {
     	public RoomView context;
     	public CampfireException exception = null;
@@ -526,6 +568,7 @@ public class RoomView extends ListActivity implements RoomContext {
 		Message errorMessage;
 		HashMap<String,User> users;
 		HashMap<String,SpeakTask> speakTasks;
+		HashMap<String,LoadImageTask> loadImageTasks;
 		LoadRoomTask loadRoomTask;
 		PollTask pollTask;
 	}
