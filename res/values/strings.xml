@@ -16,8 +16,8 @@
     
     <string name="regular_message">Your username and password will not be stored on the phone.</string>
     <string name="token_message">Visit the "My Info" page in your Campfire to find your API token.</string>
-    <string name="regular_switch_message">Use my API token instead</string>
-    <string name="token_switch_message">Use my username/password instead</string>
+    <string name="regular_switch_message">I use OpenID</string>
+    <string name="token_switch_message">Username and password</string>
     
     <string name="send_button">Send</string>
     
