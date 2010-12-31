@@ -128,7 +128,7 @@ public class Message {
 	// depends on the assumption that we'll only render image links that are the entirety of the body
 	// if we ever expand this assumption, this will need to also extract the URL
 	public static boolean imageLink(String body) {
-		Pattern pattern = Pattern.compile("^(http[^\\s]+(?:jpe?g|gif|png))$");
+		Pattern pattern = Pattern.compile("^(http[^\\s]+(?:jpe?g|gif|png))(\\?[^\\s]*)?$");
 		Matcher matcher = pattern.matcher(body);
 		return matcher.matches();
 	}
