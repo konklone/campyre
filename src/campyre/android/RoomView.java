@@ -387,7 +387,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	    
 	    menu.add(0, MENU_SETTINGS, 0, R.string.menu_settings)
 	    	.setIcon(android.R.drawable.ic_menu_preferences);
-        menu.add(1, MENU_LEAVE, 1, R.string.leave)
+        menu.add(1, MENU_LEAVE, 1, R.string.menu_leave)
         	.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         
         return result;

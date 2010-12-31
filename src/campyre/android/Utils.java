@@ -20,6 +20,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +56,15 @@ public class Utils {
     	LayoutInflater inflater = LayoutInflater.from(context);
     	
     	ScrollView aboutView = (ScrollView) inflater.inflate(R.layout.about, null);
+    	
+    	Spanned about1 = Html.fromHtml(
+    			"Made by <a href=\"" + 
+    			context.getResources().getString(R.string.home_link) + 
+    			"\">Eric Mill</a>, a loyal Campfire user since 2006."
+    			);
+    	TextView aboutView1 = (TextView) aboutView.findViewById(R.id.about_main_1);
+    	aboutView1.setText(about1);
+    	aboutView1.setMovementMethod(LinkMovementMethod.getInstance());
     	
     	TextView about3 = (TextView) aboutView.findViewById(R.id.about_links);
     	about3.setText(R.string.about_links);

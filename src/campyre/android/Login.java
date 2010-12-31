@@ -132,8 +132,8 @@ public class Login extends Activity {
 	    
 	    if (Utils.ASK_DONATE)
         	menu.add(0, MENU_DONATE, 0, R.string.menu_donate).setIcon(R.drawable.ic_menu_market);
-	    menu.add(1, MENU_FEEDBACK, 1, "Feedback").setIcon(android.R.drawable.ic_menu_report_image);
-        menu.add(2, MENU_ABOUT, 2, "About").setIcon(android.R.drawable.ic_menu_help);
+	    menu.add(1, MENU_FEEDBACK, 1, R.string.menu_feedback).setIcon(R.drawable.ic_menu_send);
+        menu.add(2, MENU_ABOUT, 2, R.string.menu_about).setIcon(android.R.drawable.ic_menu_help);
         
         return result;
     }
