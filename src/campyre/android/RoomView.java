@@ -173,11 +173,12 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		if (messages.size() == 0) {
 			findViewById(R.id.empty_spinner).setVisibility(View.GONE);
 			((TextView) findViewById(R.id.empty_message)).setText(R.string.no_messages);
-		}
-		String newLastMessageId = messages.get(messages.size() - 1).id;
-		if (!newLastMessageId.equals(lastMessageId)) {
-			lastMessageId = newLastMessageId;
-			updateMessages();
+		} else {
+			String newLastMessageId = messages.get(messages.size() - 1).id;
+			if (!newLastMessageId.equals(lastMessageId)) {
+				lastMessageId = newLastMessageId;
+				updateMessages();
+			}
 		}
 	}
 	
