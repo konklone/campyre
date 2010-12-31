@@ -91,6 +91,7 @@ public class Message {
 		} catch (DateParseException e) {
 			throw new CampfireException(e, "Could not parse date from a message's JSON.");
 		}
+		
 		return messages; 
 	}
 	

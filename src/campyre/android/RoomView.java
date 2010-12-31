@@ -202,7 +202,9 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		updateMessages();
 	}
 	
-	private void onSpeak(CampfireException exception) {
+	private void onSpeak(CampfireException exception, String transitId) {
+		transitMessages.remove(transitId);
+		updateMessages();
 		Utils.alert(this, exception);
 	}
 	
@@ -283,7 +285,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	}
 	
 	private void speak() {
-		String msg = body.getText().toString();
+		String msg = body.getText().toString().trim();
 		
 		if (!msg.equals("")) {
 			body.setText("");
@@ -559,7 +561,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
     		if (exception == null)
     			context.onSpeak(newMessage, transitMessage.id);
     		else
-    			context.onSpeak(exception);
+    			context.onSpeak(exception, transitMessage.id);
     	}
 	}
 	
