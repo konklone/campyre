@@ -166,7 +166,15 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	}
 	
 	private void onPoll(ArrayList<Message> messages) {
-		this.messages = messages;
+		this.messages = new ArrayList<Message>();
+		
+		// filter out some messages according to user preferences
+		for (int i=0; i<messages.size(); i++) {
+			Message message = messages.get(i);
+			if (messageAllowed(message.type))
+				this.messages.add(message);
+		}
+		
 		errorMessage = null;
 		
 		// one-way, since no other "Loading..." messages will be shown after this.
@@ -215,6 +223,18 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 			scrollToBottom();
 		else
 			scrollToPosition(position);
+	}
+	
+	private boolean messageAllowed(int type) {
+		switch(type) {
+		case Message.ENTRY:
+		case Message.LEAVE:
+			return Utils.getBooleanPreference(this, Settings.ENTRY_EXIT_KEY, Settings.ENTRY_EXIT_DEFAULT);
+		case Message.TIMESTAMP:
+			return Utils.getBooleanPreference(this, Settings.TIMESTAMPS_KEY, Settings.TIMESTAMPS_DEFAULT);
+		default:
+			return true;
+		}
 	}
 	
 	private void setupControls() {
@@ -300,10 +320,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	// looks up the associated User to assign a display name.
 	// We use the "users" HashMap to cache Users from the network. 
 	private ArrayList<Message> poll(Room room, HashMap<String,User> users) throws CampfireException {
-		int maxMessages = Utils.getIntPreferenceFromString(this, Settings.KEY_NUMBER_MESSAGES, Settings.DEFAULT_NUMBER_MESSAGES);
-		
-		if (maxMessages < 1) // sanity check for this value
-			maxMessages = Settings.DEFAULT_NUMBER_MESSAGES;
+		int maxMessages = Utils.getIntPreferenceFromString(this, Settings.NUMBER_MESSAGES_KEY, Settings.NUMBER_MESSAGES_DEFAULT);
 			
 		ArrayList<Message> messages = Message.allToday(room, maxMessages);
 		int length = messages.size();
