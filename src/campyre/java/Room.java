@@ -92,6 +92,19 @@ public class Room implements Comparable<Room>, Serializable {
 		}
 	}
 	
+	public void leave() throws CampfireException {
+		String url = Campfire.leavePath(id);
+		HttpResponse response = new CampfireRequest(campfire).post(url);
+		int statusCode = response.getStatusLine().getStatusCode();
+		
+		switch(statusCode) {
+		case HttpStatus.SC_OK:
+			return; // okay!
+		default:
+			throw new CampfireException("Error trying to leave the room.");
+		}
+	}
+	
 	public Message speak(String body) throws CampfireException {
 		String type = (body.contains("\n")) ? "PasteMessage" : "TextMessage";
 		String url = Campfire.speakPath(id);

@@ -8,6 +8,7 @@ import java.util.concurrent.RejectedExecutionException;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
@@ -30,7 +31,7 @@ import campyre.java.User;
 
 public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	private static final int MENU_SETTINGS = 0;
-	private static final int MENU_LOGOUT = 1;
+	private static final int MENU_LEAVE = 1;
 	
 	private static final int AUTOPOLL_INTERVAL = 5; // in seconds
 	private static final long JOIN_TIMEOUT = 60; // in seconds
@@ -41,6 +42,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	
 	private HashMap<String,SpeakTask> speakTasks = new HashMap<String,SpeakTask>();
 	private LoadRoomTask loadRoomTask;
+	private LeaveRoomTask leaveRoomTask;
 	private PollTask pollTask;
 	
 	private int transitId = 1;
@@ -90,6 +92,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 			speakTasks = holder.speakTasks;
 			loadImageTasks = holder.loadImageTasks;
 			loadRoomTask = holder.loadRoomTask;
+			leaveRoomTask = holder.leaveRoomTask;
 			pollTask = holder.pollTask;
 			shared = holder.shared;
 		}
@@ -112,6 +115,9 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		if (loadRoomTask != null)
 			loadRoomTask.onScreenLoad(this);
 		
+		if (leaveRoomTask != null)
+			leaveRoomTask.onScreenLoad(this);
+		
 		verifyLogin();
 	}
 	
@@ -129,6 +135,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		holder.loadRoomTask = this.loadRoomTask;
 		holder.pollTask = this.pollTask;
 		holder.shared = this.shared;
+		holder.leaveRoomTask = this.leaveRoomTask;
 		return holder;
 	}
 	
@@ -330,6 +337,19 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		} 
     }
 	
+	private void leaveRoom() {
+		if (leaveRoomTask == null)
+			new LeaveRoomTask(this).execute();
+	}
+	
+	private void onLeaveRoom() {
+		finish();
+	}
+	
+	private void onLeaveRoom(CampfireException e) {
+		Utils.alert(this, e);
+	}
+	
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	switch (requestCode) {
@@ -349,7 +369,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	    
 	    menu.add(0, MENU_SETTINGS, 0, R.string.menu_settings)
 	    	.setIcon(android.R.drawable.ic_menu_preferences);
-        menu.add(1, MENU_LOGOUT, 1, R.string.logout)
+        menu.add(1, MENU_LEAVE, 1, R.string.leave)
         	.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         
         return result;
@@ -361,9 +381,8 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
     	case MENU_SETTINGS:
     		startActivity(new Intent(this, Settings.class));
     		break;
-    	case MENU_LOGOUT:
-    		Utils.logoutCampfire(this);
-    		finish();
+    	case MENU_LEAVE:
+    		leaveRoom();
     		break;
     	}
     	return super.onOptionsItemSelected(item);
@@ -484,7 +503,6 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	private class SpeakTask extends AsyncTask<Void,Void,Message> {
 		public RoomView context;
     	public CampfireException exception = null;
-    	private ProgressDialog dialog = null;
     	private Message transitMessage;
     	
     	public SpeakTask(RoomView context, Message transitMessage) {
@@ -518,8 +536,6 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
     	
     	@Override
     	protected void onPostExecute(Message newMessage) {
-    		if (dialog != null && dialog.isShowing())
-    			dialog.dismiss();
     		context.speakTasks.remove(transitMessage.id);
     		
     		if (exception == null)
@@ -583,6 +599,67 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
     	}
 	}
 	
+	private class LeaveRoomTask extends AsyncTask<Void,Void,Boolean> {
+		public RoomView context;
+    	public CampfireException exception = null;
+    	private ProgressDialog dialog = null;
+    	
+    	public LeaveRoomTask(RoomView context) {
+    		super();
+    		this.context = context;
+    		this.context.leaveRoomTask = this;
+    	}
+    	
+    	@Override
+    	protected void onPreExecute() {
+            loadingDialog();
+    	}
+    	
+       	protected void onScreenLoad(RoomView context) {
+       		this.context = context;
+       		loadingDialog();
+       	}
+       	
+       	protected void loadingDialog() {
+       		dialog = new ProgressDialog(context);
+            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            dialog.setMessage(context.getResources().getString(R.string.leaving_room));
+            
+            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+    			@Override
+    			public void onCancel(DialogInterface dialog) {
+    				cancel(true);
+    			}
+    		});
+            
+            dialog.show();
+       	}
+       	
+    	@Override
+    	protected Boolean doInBackground(Void... nothing) {
+    		try {
+    			room.leave();
+    			return Boolean.TRUE;
+			} catch (CampfireException e) {
+				this.exception = e;
+				return null;
+			}
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(Boolean value) {
+    		if (dialog != null && dialog.isShowing())
+    			dialog.dismiss();
+    		 
+    		context.leaveRoomTask = null;
+    		
+    		if (exception == null)
+    			context.onLeaveRoom();
+    		else
+    			context.onLeaveRoom(exception);
+    	}
+	}
+	
 	static class RoomViewHolder {
 		Campfire campfire;
 		Room room;
@@ -594,6 +671,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		HashMap<String,LoadImageTask> loadImageTasks;
 		LoadRoomTask loadRoomTask;
 		PollTask pollTask;
+		LeaveRoomTask leaveRoomTask;
 		boolean shared;
 	}
 }

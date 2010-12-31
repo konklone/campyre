@@ -76,6 +76,10 @@ public class Campfire implements Serializable {
 		return roomPath(room_id) + "/speak";
 	}
 	
+	public static String leavePath(String room_id) {
+		return roomPath(room_id) + "/leave";
+	}
+	
 	public static String uploadPath(String room_id) {
 		return roomPath(room_id) + "/uploads";
 	}

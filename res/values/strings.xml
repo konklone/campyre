@@ -35,6 +35,8 @@
     <string name="contact_subject">Campyre feedback</string>
     
     <string name="logout">Logout</string>
+    <string name="leave">Leave room</string>
+    <string name="leaving_room">Leaving room...</string>
     <string name="menu_settings">Settings</string>
     
     <string name="tab_room">Room</string>
