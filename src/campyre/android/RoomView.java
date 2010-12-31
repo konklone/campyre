@@ -47,6 +47,9 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	private long lastJoined = 0;
 	private String lastMessageId = null;
 	
+	private String shareText = null;
+	private boolean shared = false;
+	
 	private ArrayList<Message> messages = new ArrayList<Message>();
 	private HashMap<String,Message> transitMessages = new HashMap<String,Message>();
 	private Message errorMessage;
@@ -67,6 +70,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		Bundle extras = getIntent().getExtras();
 		roomId = extras.getString("room_id"); // will always be set
 		room = (Room) extras.getSerializable("room"); // may be null
+		shareText = extras.getString("shareText");
 		
 		setupControls();
 		
@@ -87,6 +91,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 			loadImageTasks = holder.loadImageTasks;
 			loadRoomTask = holder.loadRoomTask;
 			pollTask = holder.pollTask;
+			shared = holder.shared;
 		}
 		
 		if (speakTasks != null) {
@@ -123,6 +128,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		holder.loadImageTasks = this.loadImageTasks;
 		holder.loadRoomTask = this.loadRoomTask;
 		holder.pollTask = this.pollTask;
+		holder.shared = this.shared;
 		return holder;
 	}
 	
@@ -215,6 +221,11 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 				return false;
 			}
 		});
+		
+		if (shareText != null && !shared) {
+			body.setText(shareText);
+			shared = true;
+		}
 		
 		speak = (Button) this.findViewById(R.id.room_speak);
 		speak.setOnClickListener(new View.OnClickListener() {
@@ -583,5 +594,6 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		HashMap<String,LoadImageTask> loadImageTasks;
 		LoadRoomTask loadRoomTask;
 		PollTask pollTask;
+		boolean shared;
 	}
 }

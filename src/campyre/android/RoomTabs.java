@@ -15,6 +15,8 @@ public class RoomTabs extends TabActivity {
 	public String roomId, roomName;
 	public Room room;
 	
+	public String shareText;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -30,6 +32,7 @@ public class RoomTabs extends TabActivity {
 			roomId = extras.getString("room_id");
 			roomName = extras.getString("room_name");
 		}
+		shareText = extras.getString("shareText");
 		
 		setupTabs();
 	}
@@ -46,7 +49,8 @@ public class RoomTabs extends TabActivity {
 	public Intent roomIntent() {
 		return new Intent(this, RoomView.class)
 			.putExtra("room_id", roomId)
-			.putExtra("room", room); // may be null
+			.putExtra("room", room) // may be null
+			.putExtra("shareText", shareText);
 	}
 	
 	public Intent transcriptIntent() {

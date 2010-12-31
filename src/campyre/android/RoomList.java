@@ -41,6 +41,7 @@ public class RoomList extends ListActivity {
 	
 	private boolean forResult = false;
 	private boolean shortcut = false;
+	private String shareText = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,8 +52,10 @@ public class RoomList extends ListActivity {
         
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        if (extras != null)
-        	forResult = extras.getBoolean("for_result", false);
+        if (extras != null) {
+	        forResult = extras.getBoolean("for_result", false);
+	        shareText = extras.getString(android.content.Intent.EXTRA_TEXT);
+        }
         
         String action = intent.getAction();
         shortcut = (action != null && action.equals(Intent.ACTION_CREATE_SHORTCUT));
@@ -127,7 +130,9 @@ public class RoomList extends ListActivity {
     		
     		finish();
     	} else
-    		startActivity(new Intent(this, RoomTabs.class).putExtra("room", room));
+    		startActivity(new Intent(this, RoomTabs.class)
+    			.putExtra("room", room)
+    			.putExtra("shareText", shareText));
     }
     
     public void displayRooms() {
