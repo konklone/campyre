@@ -70,11 +70,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		else {
 			view = inflater.inflate(viewForMessage(message.type), null);
 			holder = holderForMessage(message.type, view);
-			holder.messageId = message.id;
 			
 			view.setTag(holder);
 		}
 		
+		holder.messageId = message.id;
 		bindMessage(message, view, holder);
 		
 		return view;
@@ -202,8 +202,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			BitmapDrawable image = context.cachedImage(message.id);
 			if (image != null)
 				holder.image.setImageDrawable(image);
-			else
-				context.loadImage(url, message.id);
+			else {
+				holder.image.setImageDrawable(null);
+				context.loadImage(message.body, message.id);
+			}
 		}
 	}
 	

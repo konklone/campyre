@@ -395,10 +395,12 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
     
     @Override
     public void onLoadImage(BitmapDrawable image, Object tag) {
-    	loadImageTasks.remove((String) tag);
+    	String messageId = (String) tag;
+    	loadImageTasks.remove(messageId); // harmless if it doesn't exist
+    	cachedImages.put(messageId, image);
 		
 		MessageAdapter.ViewHolder holder = new MessageAdapter.ViewHolder();
-		holder.messageId = (String) tag;
+		holder.messageId = messageId;
 
 		View result = getListView().findViewWithTag(holder);
 		if (result != null) {
@@ -407,7 +409,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 			if (image != null)
 				holder.image.setImageDrawable(image);
 			else
-				holder.image.setVisibility(View.GONE);
+				holder.image.setVisibility(View.INVISIBLE); //TODO: make this a 'retry' button
 		}
     }
     
