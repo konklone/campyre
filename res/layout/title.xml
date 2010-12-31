@@ -11,7 +11,7 @@
 	android:paddingLeft="14dp"
 	android:paddingRight="14dp"
 	
-	android:background="@color/title_background"
+	android:background="@drawable/tab_gradient_selected"
 	>
 	
 	<ImageView android:id="@+id/title_icon"
