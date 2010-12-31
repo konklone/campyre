@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,8 +34,6 @@ public class RoomList extends ListActivity {
 	private ArrayList<Room> rooms = null;
 	
 	private LoadRoomsTask loadRoomsTask = null;
-	private TextView empty;
-	private Button tryAgain;
 	
 	private boolean forResult = false;
 	private boolean shortcut = false;
@@ -46,9 +42,7 @@ public class RoomList extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.room_list);
-        
-        setTitle(R.string.room_list_title);
+        setContentView(R.layout.list_titled);
         
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -137,38 +131,24 @@ public class RoomList extends ListActivity {
     
     public void displayRooms() {
     	if (rooms.size() <= 0)
-    		showEmpty(R.string.no_rooms);
+    		Utils.showEmpty(this, R.string.no_rooms);
     	else
     		setListAdapter(new RoomAdapter(this, rooms));
     }
     
     public void displayRooms(CampfireException exception) {
-    	showEmpty(R.string.rooms_error);
-		Utils.alert(this, exception);
+    	Utils.showRefresh(this, R.string.rooms_error);
     }
     
     public void setupControls() {
-    	empty = (TextView) findViewById(R.id.rooms_empty);
-    	tryAgain = (Button) findViewById(R.id.try_again);
-    	tryAgain.setOnClickListener(new View.OnClickListener() {
-			@Override
+    	Utils.setLoading(this, R.string.loading_rooms);
+		((Button) findViewById(R.id.refresh)).setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				rooms = null;
-				hideEmpty();
+				Utils.showLoading(RoomList.this);
 				loadRooms();
 			}
 		});
-    }
-    
-    public void showEmpty(int message) {
-    	empty.setText(message);
-    	empty.setVisibility(View.VISIBLE);
-    	tryAgain.setVisibility(View.VISIBLE);
-    }
-    
-    public void hideEmpty() {
-    	empty.setVisibility(View.GONE);
-    	tryAgain.setVisibility(View.GONE);
     }
     
     public void onListItemClick(ListView parent, View v, int position, long id) {
@@ -176,11 +156,10 @@ public class RoomList extends ListActivity {
     }
     
     public static Intent roomIntent(Room room) {
-    	Intent intent = new Intent(Intent.ACTION_MAIN)
+    	return new Intent(Intent.ACTION_MAIN)
     		.putExtra("room_id", room.id)
-    		.putExtra("room_name", room.name);
-    	intent.setClassName("campyre.android", "campyre.android.RoomTabs");
-    	return intent;
+    		.putExtra("room_name", room.name)
+    		.setClassName("campyre.android", "campyre.android.RoomTabs");
     }
     
     @Override
@@ -266,41 +245,18 @@ public class RoomList extends ListActivity {
     private class LoadRoomsTask extends AsyncTask<Void,Void,ArrayList<Room>> {
     	public RoomList context;
     	public CampfireException exception = null;
-    	private ProgressDialog dialog = null;
     	
     	public LoadRoomsTask(RoomList context) {
     		super();
     		this.context = context;
     		this.context.loadRoomsTask = this;
     	}
-    	 
-       	@Override
-    	protected void onPreExecute() {
-            loadingDialog();
-    	}
        	
        	protected void onScreenLoad(RoomList context) {
        		this.context = context;
-    		loadingDialog();
        	}
        	
-       	protected void loadingDialog() {
-       		dialog = new ProgressDialog(context);
-            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            dialog.setMessage("Loading rooms...");
-            
-            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-    			@Override
-    			public void onCancel(DialogInterface dialog) {
-    				cancel(true);
-    				context.finish();
-    			}
-    		});
-            
-            dialog.show();
-       	}
-    	
-    	@Override
+       	@Override
     	protected ArrayList<Room> doInBackground(Void... nothing) {
     		try {
 				return Room.all(context.campfire);
@@ -312,8 +268,6 @@ public class RoomList extends ListActivity {
     	
     	@Override
     	protected void onPostExecute(ArrayList<Room> rooms) {
-    		if (dialog != null && dialog.isShowing())
-    			dialog.dismiss();
     		context.loadRoomsTask = null;
     		
     		context.onLoadRooms(rooms, exception);

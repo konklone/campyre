@@ -10,8 +10,9 @@
     <string name="app_name">Campyre</string>
     <string name="shortcut_name">Campfire Room</string>
     
+    <string name="loading_rooms">Loading rooms...</string>
     <string name="no_rooms">No rooms found for this Campfire.</string>
-    <string name="rooms_error">Couldn\'t load rooms.\n\nSelect "Clear Credentials" from the menu to change your login info, or try again.</string>
+    <string name="rooms_error">Couldn\'t load rooms.</string>
     <string name="room_list_title">Select a room</string>
     
     <string name="regular_message">Your username and password will not be stored on the phone.</string>

@@ -3,6 +3,8 @@
 	<color name="header_line">#3E445f</color>
 	
 	<color name="main_background">#2c3844</color>
+	<color name="title_background">#235e6f</color>
+	<color name="title_foreground">#ffffff</color>
 	
 	<color name="message_text_divider">#555555</color>
 	<color name="message_text_background">#2c3844</color>

@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -21,6 +22,8 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -196,5 +199,64 @@ public class Utils {
 			return new BitmapDrawable(context.getResources(), bitmap);
 	}
 	
+	public static void showLoading(Activity activity) {
+		activity.findViewById(R.id.empty_message).setVisibility(View.GONE);
+		activity.findViewById(R.id.refresh).setVisibility(View.GONE);
+		activity.findViewById(R.id.loading).setVisibility(View.VISIBLE);
+	}
+
+	public static void setLoading(Activity activity, int message) {
+		((TextView) activity.findViewById(R.id.loading_message)).setText(message);
+	}
+
+	public static void showRefresh(Activity activity, int message) {
+		activity.findViewById(R.id.loading).setVisibility(View.GONE);
+		TextView messageView = (TextView) activity.findViewById(R.id.empty_message);
+		messageView.setText(message);
+		messageView.setVisibility(View.VISIBLE);
+		activity.findViewById(R.id.refresh).setVisibility(View.VISIBLE);
+	}
+
+	public static void showBack(Activity activity, int message) {
+		activity.findViewById(R.id.loading).setVisibility(View.GONE);
+		TextView messageView = (TextView) activity.findViewById(R.id.empty_message);
+		messageView.setText(message);
+		messageView.setVisibility(View.VISIBLE);
+		activity.findViewById(R.id.back).setVisibility(View.VISIBLE);	
+	}
+
+	public static void showEmpty(Activity activity, int message) {
+		activity.findViewById(R.id.loading).setVisibility(View.GONE);
+		activity.findViewById(R.id.back).setVisibility(View.GONE);
+		TextView messageView = (TextView) activity.findViewById(R.id.empty_message);
+		messageView.setText(message);
+		messageView.setVisibility(View.VISIBLE);
+	}
+
+	public static void setTitle(Activity activity, String title) {
+		((TextView) activity.findViewById(R.id.title_text)).setText(title);
+	}
+
+	public static void setTitle(Activity activity, int title) {
+		((TextView) activity.findViewById(R.id.title_text)).setText(title);
+	}
+
+	public static void setTitleIcon(Activity activity, int icon) {
+		((ImageView) activity.findViewById(R.id.title_icon)).setImageResource(icon);
+	}
+
+	public static void setTitle(Activity activity, int title, int icon) {
+		setTitle(activity, title);
+		setTitleIcon(activity, icon);
+	}
+
+	public static void setTitle(Activity activity, String title, int icon) {
+		setTitle(activity, title);
+		setTitleIcon(activity, icon);
+	}
+
+	public static void setTitleSize(Activity activity, float size) {
+		((TextView) activity.findViewById(R.id.title_text)).setTextSize(size);
+	}
 
 }
