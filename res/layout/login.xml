@@ -9,14 +9,19 @@
 	    android:orientation="vertical"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-	    
-	    android:padding="10dp"
 	    >
+	    
+	    <include layout="@layout/title" />
+	    <include layout="@layout/line" />
 		
 		<LinearLayout
 			android:orientation="vertical"
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="10dp"
+			android:layout_marginRight="10dp"
+			android:layout_marginBottom="10dp"
+			android:layout_marginTop="10dp"
 			>
 			
 			<LinearLayout
@@ -49,6 +54,9 @@
 			android:orientation="vertical"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dp"
+			android:layout_marginRight="10dp"
+			android:layout_marginBottom="10dp"
 			android:layout_marginTop="15dp"
 			>
 			
@@ -111,7 +119,10 @@
 			android:orientation="vertical"
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content"
-		    android:layout_marginTop="15dp"
+		    android:layout_marginLeft="10dp"
+			android:layout_marginRight="10dp"
+			android:layout_marginBottom="10dp"
+			android:layout_marginTop="15dp"
 		    
 		    android:visibility="gone"
 			>
@@ -157,6 +168,9 @@
 		<Button android:id="@+id/login_button"
 			android:layout_width="fill_parent"
 			android:layout_height="60dp"
+			android:layout_marginLeft="10dp"
+			android:layout_marginRight="10dp"
+			android:layout_marginBottom="10dp"
 			android:layout_marginTop="20dp"
 			
 			android:textSize="20sp"

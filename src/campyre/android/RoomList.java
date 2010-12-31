@@ -141,7 +141,10 @@ public class RoomList extends ListActivity {
     }
     
     public void setupControls() {
+    	Utils.setTitle(this, R.string.room_list_title);
+    	
     	Utils.setLoading(this, R.string.loading_rooms);
+    	
 		((Button) findViewById(R.id.refresh)).setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				rooms = null;

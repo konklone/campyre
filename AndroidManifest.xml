@@ -22,6 +22,7 @@
         </activity>
         
         <activity-alias android:targetActivity=".RoomList"
+        	android:theme="@android:style/Theme.NoTitleBar"
         	android:name=".RoomShortcut"
         	android:label="@string/shortcut_name"
         	android:icon="@drawable/icon"
@@ -32,11 +33,14 @@
             </intent-filter>
         </activity-alias>
         
-        <activity android:name=".Login" 
+        <activity android:name=".Login"
+        	android:theme="@android:style/Theme.NoTitleBar" 
         	android:label="@string/app_name"
         	/>
         	
-        <activity android:name=".RoomTabs">
+        <activity android:name=".RoomTabs"
+        	android:theme="@android:style/Theme.NoTitleBar"
+        	>
         	<intent-filter>
         		<action android:name="android.intent.action.MAIN" />
         		<category android:name="android.intent.category.DEFAULT" />
@@ -57,7 +61,9 @@
         	</intent-filter>
         </activity>
         
-        <activity android:name=".Settings" />
+        <activity android:name=".Settings" 
+        	android:theme="@android:style/Theme.NoTitleBar"
+        	/>
         
     </application>
     

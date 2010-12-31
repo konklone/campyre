@@ -80,6 +80,9 @@ public class Login extends Activity {
     };
     
     public void setupControls() {
+    	Utils.setTitle(this, R.string.app_name);
+    	Utils.setTitleSize(this, 24);
+    	
     	tokenView = (EditText) findViewById(R.id.token);
     	subdomainView = (EditText) findViewById(R.id.subdomain);
     	usernameView = (EditText) findViewById(R.id.username);
