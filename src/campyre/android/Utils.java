@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
+import campyre.java.Room;
 
 public class Utils {
 	public static final int ABOUT = 0;
@@ -89,6 +90,25 @@ public class Utils {
     public static Intent donateIntent(Context context) {
     	return new Intent(Intent.ACTION_VIEW,
     			Uri.parse("market://details?id=" + context.getResources().getString(R.string.package_name_donate)));
+    }
+    
+    public static Intent shortcutIntent(Context context, Room room) {
+    	return new Intent()
+    		.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(context, Utils.SHORTCUT_ICON))
+			.putExtra(Intent.EXTRA_SHORTCUT_INTENT, roomIntent(room))
+			.putExtra(Intent.EXTRA_SHORTCUT_NAME, room.name);
+    }
+    
+    public static Intent roomIntent(Room room) {
+    	return new Intent(Intent.ACTION_MAIN)
+    		.putExtra("room_id", room.id)
+    		.putExtra("room_name", room.name)
+    		.setClassName("campyre.android", "campyre.android.RoomTabs");
+    }
+    
+    public static void installShortcut(Context context, Room room) {
+    	context.sendBroadcast(shortcutIntent(context, room)
+				.setAction("com.android.launcher.action.INSTALL_SHORTCUT"));
     }
     
     public static Campfire getCampfire(Context context) {

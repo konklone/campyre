@@ -8,7 +8,6 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,7 +35,6 @@ public class RoomList extends ListActivity {
 	private LoadRoomsTask loadRoomsTask = null;
 	
 	private boolean forResult = false;
-	private boolean shortcut = false;
 	private String shareText = null;
 	
     @Override
@@ -50,9 +48,6 @@ public class RoomList extends ListActivity {
 	        forResult = extras.getBoolean("for_result", false);
 	        shareText = extras.getString(android.content.Intent.EXTRA_TEXT);
         }
-        
-        String action = intent.getAction();
-        shortcut = (action != null && action.equals(Intent.ACTION_CREATE_SHORTCUT));
         
         setupControls();
         
@@ -110,23 +105,11 @@ public class RoomList extends ListActivity {
     	if (forResult) { // for file uploading
         	setResult(RESULT_OK, new Intent().putExtra("room_id", room.id));
         	finish();
-    	} else if (shortcut) {
-        	Intent roomIntent = roomIntent(room).putExtra("shortcut", true);
-    		
-    		Intent intent = new Intent();
-    		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, roomIntent);
-    		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, room.name);
-
-    		Parcelable resource = Intent.ShortcutIconResource.fromContext(this, Utils.SHORTCUT_ICON);
-    		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, resource);
-    		
-    		setResult(RESULT_OK, intent);
-    		
-    		finish();
-    	} else
+    	} else {
     		startActivity(new Intent(this, RoomTabs.class)
     			.putExtra("room", room)
     			.putExtra("shareText", shareText));
+    	}
     }
     
     public void displayRooms() {
@@ -156,13 +139,6 @@ public class RoomList extends ListActivity {
     
     public void onListItemClick(ListView parent, View v, int position, long id) {
     	selectRoom((Room) parent.getItemAtPosition(position));
-    }
-    
-    public static Intent roomIntent(Room room) {
-    	return new Intent(Intent.ACTION_MAIN)
-    		.putExtra("room_id", room.id)
-    		.putExtra("room_name", room.name)
-    		.setClassName("campyre.android", "campyre.android.RoomTabs");
     }
     
     @Override

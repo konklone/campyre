@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,7 +31,8 @@ import campyre.java.User;
 
 public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	private static final int MENU_SETTINGS = 0;
-	private static final int MENU_LEAVE = 1;
+	private static final int MENU_SHORTCUT = 1;
+	private static final int MENU_LEAVE = 2;
 	
 	private static final int AUTOPOLL_INTERVAL = 5; // in seconds
 	private static final long JOIN_TIMEOUT = 60; // in seconds
@@ -399,7 +399,9 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	    
 	    menu.add(0, MENU_SETTINGS, 0, R.string.menu_settings)
 	    	.setIcon(android.R.drawable.ic_menu_preferences);
-        menu.add(1, MENU_LEAVE, 1, R.string.menu_leave)
+	    menu.add(1, MENU_SHORTCUT, 1, R.string.menu_shortcut)
+	    	.setIcon(android.R.drawable.ic_menu_add);
+        menu.add(2, MENU_LEAVE, 2, R.string.menu_leave)
         	.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         
         return result;
@@ -410,6 +412,9 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
     	switch(item.getItemId()) {
     	case MENU_SETTINGS:
     		startActivity(new Intent(this, Settings.class));
+    		break;
+    	case MENU_SHORTCUT:
+    		Utils.installShortcut(this, room);
     		break;
     	case MENU_LEAVE:
     		leaveRoom();
