@@ -73,8 +73,14 @@ public class ImageDetail extends Activity implements LoadsImage {
 	@Override
 	public void onLoadImage(BitmapDrawable image, Object tag) {
 		this.loadImageTask = null;
+		this.image = image;
+		
 		ImageView view = (ImageView) findViewById(R.id.image);
 		view.setImageDrawable(image);
+		
+		findViewById(R.id.loading).setVisibility(View.GONE);
+		view.setVisibility(View.VISIBLE);
+		
 		view.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
