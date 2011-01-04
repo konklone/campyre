@@ -22,7 +22,7 @@
 	
 	<color name="paste_header">#bbbbbb</color>
 	<color name="paste_divider">#555555</color>
-	<color name="paste_background">#333333</color>
+	<color name="paste_background">#2c3844</color>
 	<color name="paste_foreground">#ffffff</color>
 	
 	<color name="tab_edges">#04081a</color>
