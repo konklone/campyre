@@ -39,7 +39,10 @@
 
 		<activity android:name=".RoomView" />
         <activity android:name=".TranscriptView" />
-        <activity android:name=".PasteView"
+        <activity android:name=".PasteDetail"
+        	android:theme="@android:style/Theme.NoTitleBar"
+        	/>
+        <activity android:name=".ImageDetail"
         	android:theme="@android:style/Theme.NoTitleBar" 
         	/>
         

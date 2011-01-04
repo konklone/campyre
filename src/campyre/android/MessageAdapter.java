@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -180,7 +179,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			holder.paste.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					originalContext.startActivity(new Intent(originalContext, PasteView.class)
+					originalContext.startActivity(new Intent(originalContext, PasteDetail.class)
 						.putExtra("person", person)
 						.putExtra("paste", paste)
 						.putExtra("timestamp", timestamp)
@@ -192,13 +191,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		// spawn a possible image loading task, to load images inline like the web client
 		if (message.type == Message.IMAGE) {
 			final String url = message.body;
-			holder.image.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					originalContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-				}
-			});
-					
+			final String person = message.person;
+			final Date timestamp = message.timestamp;
+			
 			BitmapDrawable image = context.cachedImage(message.id);
 			if (image != null)
 				holder.image.setImageDrawable(image);
@@ -206,6 +201,18 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 				holder.image.setImageDrawable(null);
 				context.loadImage(message.body, message.id);
 			}
+			
+			// take the user to a dedicated activity when it's clicked on
+			holder.image.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					originalContext.startActivity(new Intent(originalContext, ImageDetail.class)
+						.putExtra("person", person)
+						.putExtra("url", url)
+						.putExtra("timestamp", timestamp)
+						.putExtra("room_name", room.name));
+				}
+			});
 		}
 	}
 	

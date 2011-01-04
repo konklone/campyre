@@ -32,12 +32,12 @@ public class LoadImageTask extends AsyncTask<String,Void,BitmapDrawable> {
 	}
 	
 	@Override
-	public void onPostExecute(BitmapDrawable photo) {
-		context.onLoadImage(photo, tag);
+	public void onPostExecute(BitmapDrawable image) {
+		context.onLoadImage(image, tag);
 	}
 	
 	public interface LoadsImage {
-		public void onLoadImage(BitmapDrawable photo, Object tag);
+		public void onLoadImage(BitmapDrawable image, Object tag);
 		public Context getContext();
 	}
 }

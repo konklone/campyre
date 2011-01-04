@@ -7,7 +7,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-public class PasteView extends Activity {
+public class PasteDetail extends Activity {
 	private static String TIMESTAMP_FORMAT = "MMM d, h:mm a";
 	
 	String roomName;
@@ -32,7 +32,7 @@ public class PasteView extends Activity {
 		
 		String formatted = new SimpleDateFormat(TIMESTAMP_FORMAT).format(timestamp);
 		
-		((TextView) findViewById(R.id.person)).setText(person + " pasted at " + formatted + ":");
+		((TextView) findViewById(R.id.person)).setText(person + ", at " + formatted + ":");
 		((TextView) findViewById(R.id.paste)).setText(paste);
 	}
 }
