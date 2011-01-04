@@ -95,6 +95,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 			loadRoomTask = holder.loadRoomTask;
 			leaveRoomTask = holder.leaveRoomTask;
 			pollTask = holder.pollTask;
+			cachedImages = holder.cachedImages;
 			shared = holder.shared;
 		}
 		
@@ -136,6 +137,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		holder.loadRoomTask = this.loadRoomTask;
 		holder.pollTask = this.pollTask;
 		holder.shared = this.shared;
+		holder.cachedImages = this.cachedImages;
 		holder.leaveRoomTask = this.leaveRoomTask;
 		return holder;
 	}
@@ -472,9 +474,9 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 			// replace with actual holder
 			holder = (MessageAdapter.ViewHolder) result.getTag();
 			if (image != null)
-				holder.image.setImageDrawable(image);
+				holder.showImage(image);
 			else
-				holder.image.setVisibility(View.INVISIBLE); //TODO: make this a 'retry' button
+				holder.imageFailed();
 		}
     }
     
@@ -707,6 +709,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		LoadRoomTask loadRoomTask;
 		PollTask pollTask;
 		LeaveRoomTask leaveRoomTask;
+		HashMap<String,BitmapDrawable> cachedImages;
 		boolean shared;
 	}
 }

@@ -33,12 +33,42 @@
 		android:background="@color/message_text_divider"
 		/>
 	
-	<ImageView android:id="@+id/image"
+	<LinearLayout android:id="@+id/loading"
+    	android:layout_width="fill_parent"
+    	android:layout_height="80dp"
+    	android:layout_margin="5dp"
+    	
+    	android:orientation="horizontal"
+    	android:gravity="center"
+    	
+    	android:visibility="visible"
+    	>
+    	
+    	<ProgressBar android:id="@+id/loading_spinner"
+    		android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		style="?android:attr/progressBarStyleSmallTitle"
+    		
+    		android:layout_marginRight="10dp"
+    		/>
+    		
+    	<TextView android:id="@+id/loading_message"
+    		android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		
+    		android:text="@string/image_loading"
+    		/>
+    	
+    </LinearLayout>
+    
+    <ImageView android:id="@+id/image"
 		android:layout_width="fill_parent"
 		android:layout_height="80dp"
 		android:layout_margin="5dp"
 		
 		android:scaleType="centerInside"
+		
+		android:visibility="gone"
 		/>
   	
 </LinearLayout>

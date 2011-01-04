@@ -51,4 +51,6 @@
     <string name="message_entered_room">has entered the room</string>
     <string name="see_paste">See full paste</string>
     <string name="has_changed_topic">has changed the topic to:</string>
+    
+    <string name="image_loading">Loading image...</string>
 </resources>

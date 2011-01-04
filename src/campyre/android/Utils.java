@@ -203,6 +203,8 @@ public class Utils {
 	
 			if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK)
 				inputStream = httpConn.getInputStream();
+			else
+				throw new CampfireException("Problem downloading image.");
 		}
 		catch (MalformedURLException e) {
 			return null;
@@ -216,13 +218,16 @@ public class Utils {
 	
 	public static BitmapDrawable imageFromUrl(Context context, String url) throws CampfireException {
 		BitmapFactory.Options options = new BitmapFactory.Options();
+		Bitmap bitmap = null;
 		
 		InputStream in = openConnection(url);
-		Bitmap bitmap = BitmapFactory.decodeStream(in, null, options);
-		try {
-			in.close();
-		} catch(IOException e) {
-			throw new CampfireException(e, "Error after downloading image.");
+		if (in != null) {
+			bitmap = BitmapFactory.decodeStream(in, null, options);
+			try {
+				in.close();
+			} catch(IOException e) {
+				throw new CampfireException(e, "Error after downloading image.");
+			}
 		}
 		
 		if (bitmap == null)

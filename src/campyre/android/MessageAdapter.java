@@ -122,8 +122,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		if (type == Message.PASTE)
 			holder.paste = (Button) view.findViewById(R.id.paste);
 		
-		if (type == Message.IMAGE)
+		if (type == Message.IMAGE) {
 			holder.image = (ImageView) view.findViewById(R.id.image);
+			holder.imageLoading = (ViewGroup) view.findViewById(R.id.loading);
+		}
 		
 		return holder;
 	}
@@ -196,11 +198,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			
 			BitmapDrawable image = context.cachedImage(message.id);
 			if (image != null)
-				holder.image.setImageDrawable(image);
-			else {
-				holder.image.setImageDrawable(null);
+				holder.showImage(image);
+			else
 				context.loadImage(message.body, message.id);
-			}
 			
 			// take the user to a dedicated activity when it's clicked on
 			holder.image.setOnClickListener(new View.OnClickListener() {
@@ -221,6 +221,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         TextView body, person;
         Button paste;
         ImageView image;
+        ViewGroup imageLoading;
         String messageId; // used as hook for attaching a downloaded image to the right message
         
         @Override
@@ -228,6 +229,22 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			ViewHolder other = (ViewHolder) holder;
 			return other != null && other instanceof ViewHolder && this.messageId.equals(other.messageId);
 		}
+        
+        public void showImage(BitmapDrawable drawable) {
+        	image.setImageDrawable(drawable);
+			imageLoading.setVisibility(View.GONE);
+			image.setVisibility(View.VISIBLE);
+        }
+        
+        public void hideImage() {
+        	image.setImageDrawable(null);
+			image.setVisibility(View.GONE);
+			imageLoading.setVisibility(View.VISIBLE);
+        }
+        
+        public void imageFailed() {
+        	image.setVisibility(View.INVISIBLE); //TODO: make this a 'retry' button
+        }
     }
 
 	public interface RoomContext {
