@@ -203,7 +203,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 				context.loadImage(message.body, message.id);
 			
 			// take the user to a dedicated activity when it's clicked on
-			holder.image.setOnClickListener(new View.OnClickListener() {
+			View.OnClickListener listener = new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
 					originalContext.startActivity(new Intent(originalContext, ImageDetail.class)
@@ -212,7 +212,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 						.putExtra("timestamp", timestamp)
 						.putExtra("room_name", room.name));
 				}
-			});
+			};
+			holder.image.setOnClickListener(listener);
+			holder.imageLoading.setOnClickListener(listener);
 		}
 	}
 	
