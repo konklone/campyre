@@ -125,6 +125,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		if (type == Message.IMAGE) {
 			holder.image = (ImageView) view.findViewById(R.id.image);
 			holder.imageLoading = (ViewGroup) view.findViewById(R.id.loading);
+			holder.imageSpinner = holder.imageLoading.findViewById(R.id.loading_spinner);
+			holder.imageMessage = (TextView) holder.imageLoading.findViewById(R.id.loading_message);
 		}
 		
 		return holder;
@@ -199,8 +201,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			BitmapDrawable image = context.cachedImage(message.id);
 			if (image != null)
 				holder.showImage(image);
-			else
+			else {
+				holder.showLoading();
 				context.loadImage(message.body, message.id);
+			}
 			
 			// take the user to a dedicated activity when it's clicked on
 			View.OnClickListener listener = new View.OnClickListener() {
@@ -222,9 +226,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 	static class ViewHolder {
         TextView body, person;
         Button paste;
+        String messageId; // used as hook for attaching a downloaded image to the right message
+        
+        // image related views
         ImageView image;
         ViewGroup imageLoading;
-        String messageId; // used as hook for attaching a downloaded image to the right message
+        View imageSpinner;
+        TextView imageMessage;
         
         @Override
 		public boolean equals(Object holder) {
@@ -238,14 +246,18 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 			image.setVisibility(View.VISIBLE);
         }
         
-        public void hideImage() {
+        public void showLoading() {
         	image.setImageDrawable(null);
 			image.setVisibility(View.GONE);
+			imageSpinner.setVisibility(View.VISIBLE);
+			imageMessage.setText(R.string.image_loading);
 			imageLoading.setVisibility(View.VISIBLE);
         }
         
         public void imageFailed() {
-        	image.setVisibility(View.INVISIBLE); //TODO: make this a 'retry' button
+        	showLoading();
+        	imageSpinner.setVisibility(View.GONE);
+        	imageMessage.setText(R.string.image_failed);
         }
     }
 

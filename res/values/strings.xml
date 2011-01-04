@@ -52,4 +52,5 @@
     <string name="has_changed_topic">has changed the topic to:</string>
     
     <string name="image_loading">Loading image...</string>
+    <string name="image_failed">Couldn\'t load image.</string>
 </resources>
