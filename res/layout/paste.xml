@@ -1,46 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
-	android:fillViewport="true"
 	>
 	
-	<LinearLayout android:orientation="vertical"
+	<include layout="@layout/title" />
+	<include layout="@layout/line" />
+	
+	<ScrollView 
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:background="@color/paste_background"
-		
-		android:padding="10dp"
+		android:fillViewport="true"
 		>
 		
-		<TextView android:id="@+id/person"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			
-			android:layout_marginBottom="5dp"
-			
-			android:textSize="14sp"
-			android:textStyle="bold"
-			android:textColor="@color/paste_header"
-			/>
-		
-		<View
+		<LinearLayout android:orientation="vertical"
 			android:layout_width="fill_parent"
-			android:layout_height="1dp"
-			android:background="@color/paste_divider"
-			/>
-		
-		<TextView android:id="@+id/paste"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="10dp"
+			android:layout_height="fill_parent"
+			android:background="@color/paste_background"
 			
-			android:autoLink="web"
+			android:padding="10dp"
+			>
 			
-			android:textSize="14sp"
-			android:textColor="@color/paste_foreground"
-			android:textColorLink="@color/message_text_foreground_link"
-			/>
-		
-	</LinearLayout>
-</ScrollView>
+			<TextView android:id="@+id/person"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				
+				android:layout_marginBottom="5dp"
+				
+				android:textSize="14sp"
+				android:textStyle="bold"
+				android:textColor="@color/paste_header"
+				/>
+			
+			<View
+				android:layout_width="fill_parent"
+				android:layout_height="1dp"
+				android:background="@color/paste_divider"
+				/>
+			
+			<TextView android:id="@+id/paste"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="10dp"
+				
+				android:autoLink="web"
+				
+				android:textSize="14sp"
+				android:textColor="@color/paste_foreground"
+				android:textColorLink="@color/message_text_foreground_link"
+				/>
+			
+		</LinearLayout>
+	</ScrollView>
+</LinearLayout>
