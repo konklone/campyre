@@ -75,18 +75,23 @@ public class ImageDetail extends Activity implements LoadsImage {
 		this.loadImageTask = null;
 		this.image = image;
 		
-		ImageView view = (ImageView) findViewById(R.id.image);
-		view.setImageDrawable(image);
-		
-		findViewById(R.id.loading).setVisibility(View.GONE);
-		view.setVisibility(View.VISIBLE);
-		
-		view.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-			}
-		});
+		if (image != null) {
+			ImageView view = (ImageView) findViewById(R.id.image);
+			view.setImageDrawable(image);
+			
+			findViewById(R.id.loading).setVisibility(View.GONE);
+			view.setVisibility(View.VISIBLE);
+			
+			view.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+				}
+			});
+		} else {
+			findViewById(R.id.loading_spinner).setVisibility(View.GONE);
+			((TextView) findViewById(R.id.loading_message)).setText(R.string.image_failed);
+		}
 	}
 	
 	@Override
