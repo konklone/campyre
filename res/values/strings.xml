@@ -2,8 +2,6 @@
 <resources>
 	<string name="version_string">0.9.8</string>
 	
-    <string name="market_name">Campyre</string>
-    <string name="market_name_donate">Campyre (Donate)</string>
     <string name="package_name_donate">campyre.android.donate</string>
     
     <string name="app_name">Campyre</string>
