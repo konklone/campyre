@@ -5,27 +5,4 @@
 
 3) Export campyre.apk
 
-4) Convert the code to donate
-
-  * In Utils:
-    - change ASK_DONATE constant to false
-    - change SHORTCUT_ICON constant to append "_donate"
-    
-  * Refactor -> Rename the package to append ".donate"
-
-  * Edit the AndroidManifest.xml
-    - package name to append ".donate"
-    - application market_name to append "_donate"
-    - icon name of app to append "_donate"
-    - icon name of shortcut alias to append "_donate"
-    - Save, regenerate R
-    
-  * Re-import in the main activities to fix errors
-
-5) Export campyre-donate.apk
-
-6) Convert it back to regular
-
-  * Refactor -> Rename the package to remove ".donate"
-  * Rename the package in AndroidManifest.xml to regenerate R
-  * Reset the rest with git
+4) Tag in version control

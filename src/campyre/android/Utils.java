@@ -37,12 +37,6 @@ import campyre.java.Room;
 public class Utils {
 	public static final int ABOUT = 0;
 	
-	// change this to false for the donate version
-	public static final boolean ASK_DONATE = true;
-	
-	// change this to icon_donate for the donate version
-	public static final int SHORTCUT_ICON = R.drawable.icon; 
-	
 	public static void alert(Context context, String message) {
 		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 	}
@@ -94,7 +88,7 @@ public class Utils {
     
     public static Intent shortcutIntent(Context context, Room room) {
     	return new Intent()
-    		.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(context, Utils.SHORTCUT_ICON))
+    		.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(context, R.drawable.icon))
 			.putExtra(Intent.EXTRA_SHORTCUT_INTENT, roomIntent(room))
 			.putExtra(Intent.EXTRA_SHORTCUT_NAME, room.name);
     }
