@@ -2,12 +2,14 @@ package campyre.android;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.RejectedExecutionException;
 
 import android.app.ListActivity;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
 import campyre.android.MessageAdapter.RoomContext;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
@@ -15,12 +17,14 @@ import campyre.java.Message;
 import campyre.java.Room;
 import campyre.java.User;
 
-public class TranscriptView extends ListActivity implements RoomContext {
+public class TranscriptView extends ListActivity implements RoomContext, LoadImageTask.LoadsImage {
 	private Campfire campfire;
 	private Room room;
 	private ArrayList<Message> messages;
 	
 	private LoadTranscriptTask loadTranscriptTask;
+	private HashMap<String,LoadImageTask> loadImageTasks = new HashMap<String,LoadImageTask>();
+	private HashMap<String,BitmapDrawable> cachedImages = new HashMap<String,BitmapDrawable>();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -34,8 +38,10 @@ public class TranscriptView extends ListActivity implements RoomContext {
 		
 		TranscriptViewHolder holder = (TranscriptViewHolder) getLastNonConfigurationInstance();
 		if (holder != null) {
-			this.messages = holder.messages;
-			this.loadTranscriptTask = holder.loadTranscriptTask;
+			messages = holder.messages;
+			loadTranscriptTask = holder.loadTranscriptTask;
+			cachedImages = holder.cachedImages;
+			loadImageTasks = holder.loadImageTasks;
 		}
 		
 		loadTranscripts();
@@ -43,7 +49,7 @@ public class TranscriptView extends ListActivity implements RoomContext {
 	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return new TranscriptViewHolder(messages, loadTranscriptTask);
+		return new TranscriptViewHolder(messages, loadTranscriptTask, loadImageTasks, cachedImages);
 	}
 	
 	public void loadTranscripts() {
@@ -87,12 +93,38 @@ public class TranscriptView extends ListActivity implements RoomContext {
     
     @Override
     public void loadImage(String url, String messageId) {
-    	return;
+    	if (!loadImageTasks.containsKey(messageId)) {
+			try {
+				loadImageTasks.put(messageId, (LoadImageTask) new LoadImageTask(this, messageId).execute(url));
+			} catch (RejectedExecutionException e) {
+				onLoadImage(null, messageId); // if we can't run it, then just show the text and close up shop
+			}
+		}
+    }
+    
+    @Override
+    public void onLoadImage(BitmapDrawable image, Object tag) {
+    	String messageId = (String) tag;
+    	loadImageTasks.remove(messageId); // harmless if it doesn't exist
+    	cachedImages.put(messageId, image);
+		
+		MessageAdapter.ViewHolder holder = new MessageAdapter.ViewHolder();
+		holder.messageId = messageId;
+
+		View result = getListView().findViewWithTag(holder);
+		if (result != null) {
+			// replace with actual holder
+			holder = (MessageAdapter.ViewHolder) result.getTag();
+			if (image != null)
+				holder.showImage(image);
+			else
+				holder.imageFailed();
+		}
     }
     
     @Override
     public BitmapDrawable cachedImage(String messageId) {
-    	return null;
+    	return cachedImages.get(messageId);
     }
 	
 	private class LoadTranscriptTask extends AsyncTask<Void,Void,ArrayList<Message>> {
@@ -154,10 +186,14 @@ public class TranscriptView extends ListActivity implements RoomContext {
 	static class TranscriptViewHolder {
 		ArrayList<Message> messages;
 		LoadTranscriptTask loadTranscriptTask;
+		HashMap<String,LoadImageTask> loadImageTasks;
+		HashMap<String,BitmapDrawable> cachedImages;
 		
-		public TranscriptViewHolder(ArrayList<Message> messages, LoadTranscriptTask loadTranscriptTask) {
+		public TranscriptViewHolder(ArrayList<Message> messages, LoadTranscriptTask loadTranscriptTask, HashMap<String,LoadImageTask> loadImageTasks, HashMap<String,BitmapDrawable> cachedImages) {
 			this.messages = messages;
 			this.loadTranscriptTask = loadTranscriptTask;
+			this.loadImageTasks = loadImageTasks;
+			this.cachedImages = cachedImages;
 		}
 	}
 }
