@@ -33,6 +33,8 @@
 		android:layout_marginLeft="10dp"
 		android:layout_marginRight="10dp"
 		android:background="@color/message_text_divider"
+		
+		android:visibility="invisible"
 		/>
 	
 	<TextView android:id="@+id/text"
@@ -44,7 +46,7 @@
 		android:autoLink="web"
 		
 		android:textSize="14sp"
-		android:textColor="@color/message_text_foreground"
+		android:textColor="@color/main_foreground"
 		android:textColorLink="#2c88b7"
 		
 		android:text="This is a message I said in the Campfire. I love talking into lists. Now let's wrap it to multiple lines."

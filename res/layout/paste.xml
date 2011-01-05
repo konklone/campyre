@@ -17,7 +17,7 @@
 		<LinearLayout android:orientation="vertical"
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent"
-			android:background="@color/paste_background"
+			android:background="@color/main_background"
 			
 			android:padding="10dp"
 			>
@@ -47,8 +47,8 @@
 				android:autoLink="web"
 				
 				android:textSize="14sp"
-				android:textColor="@color/paste_foreground"
-				android:textColorLink="@color/message_text_foreground_link"
+				android:textColor="@color/main_foreground"
+				android:textColorLink="@color/main_foreground_link"
 				/>
 			
 		</LinearLayout>

@@ -74,7 +74,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		}
 		
 		holder.messageId = message.id;
-		bindMessage(message, view, holder);
+		bindMessage(message, view, holder, position);
 		
 		return view;
 	}
@@ -132,7 +132,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		return holder;
 	}
 	
-	public void bindMessage(Message message, View view, ViewHolder holder) {
+	public void bindMessage(Message message, View view, ViewHolder holder, int position) {
 		// load the person's name if necessary
 		switch(message.type) {
 		case Message.TEXT:
@@ -142,6 +142,25 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		case Message.LEAVE:
 		case Message.TOPIC:
 			holder.person.setText(message.person);
+		}
+		
+		// hide the person if the previous message in the adapter is a text message of the same person
+		switch(message.type) {
+		case Message.TEXT:
+		case Message.IMAGE:
+		case Message.PASTE:
+			if ((position - 1) >= 0 && (position - 1) < this.getCount()) {
+				Message previous = getItem(position - 1);
+				if (previous != null) {
+					switch(previous.type) {
+					case Message.TEXT:
+					case Message.IMAGE:
+					case Message.PASTE:
+						if (previous.user_id.equals(message.user_id))
+							holder.person.setVisibility(View.INVISIBLE);
+					}
+				}
+			}
 		}
 		
 		// format the body text

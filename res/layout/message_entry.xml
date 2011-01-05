@@ -18,7 +18,7 @@
 		
 		android:textSize="14sp"
 		android:textStyle="bold"
-		android:textColor="@color/message_entry_foreground"
+		android:textColor="@color/main_foreground"
 		
 		android:text="Sir L."
 		/>
@@ -31,7 +31,7 @@
 		android:layout_marginRight="5dp"
 		
 		android:textSize="14sp"
-		android:textColor="@color/message_entry_foreground"
+		android:textColor="@color/main_foreground"
 		
 		android:text="has loved the room"
 		/>

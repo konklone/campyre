@@ -10,6 +10,13 @@
 	android:background="@color/message_topic_background"
 	>
 	
+	<View
+		android:layout_width="fill_parent"
+		android:layout_height="1px"
+		
+		android:background="@color/message_topic_border"
+		/>
+	
 	<LinearLayout android:orientation="horizontal"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
@@ -25,7 +32,7 @@
 			
 			android:textSize="14sp"
 			android:textStyle="bold"
-			android:textColor="@color/message_topic_foreground"
+			android:textColor="@color/main_foreground"
 			
 			android:text="Sir L."
 			/>
@@ -37,7 +44,7 @@
 			android:layout_marginRight="5dp"
 			
 			android:textSize="14sp"
-			android:textColor="@color/message_topic_foreground"
+			android:textColor="@color/main_foreground"
 			
 			android:text="@string/has_changed_topic"
 			/>
@@ -52,9 +59,16 @@
 		android:layout_marginBottom="5dp"
 			
 		android:textSize="14sp"
-		android:textColor="@color/message_topic_foreground"
+		android:textColor="@color/main_foreground"
 		
   		android:text="the best topic is a great topic"
   		/>
+  	
+  	<View
+		android:layout_width="fill_parent"
+		android:layout_height="1px"
+		
+		android:background="@color/message_topic_border"
+		/>
   		
 </LinearLayout>

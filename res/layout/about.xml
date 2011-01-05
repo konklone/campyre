@@ -20,7 +20,7 @@
 			
 			android:textSize="16sp"
 			android:textColor="@color/main_foreground"
-			android:textColorLink="@color/message_text_foreground_link"
+			android:textColorLink="@color/main_foreground_link"
 			/>
 			
 		<TextView android:id="@+id/about_main_2"
@@ -40,7 +40,7 @@
 			
 			android:textSize="14sp"
 			android:textColor="@color/main_foreground"
-			android:textColorLink="@color/message_text_foreground_link"
+			android:textColorLink="@color/main_foreground_link"
 			android:text="@string/about_links"
 			/>
 			
