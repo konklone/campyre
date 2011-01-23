@@ -32,7 +32,7 @@ public class Room implements Comparable<Room>, Serializable {
 		this.campfire = campfire;
 		this.id = json.getString("id");
 		this.name = json.getString("name");
-		this.topic = json.getString("topic");
+		this.topic = json.isNull("topic") ? null : json.getString("topic");
 		
 		if (json.has("full"))
 			this.full = json.getBoolean("full");
