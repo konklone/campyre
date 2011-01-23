@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class CampfireRequest {
 	}
 	
 	public JSONArray getList(String path, String key) throws CampfireException, JSONException {
-		return new JSONObject(responseBody(get(path))).getJSONArray(key);
+		return getList(path, Collections.<String,String>emptyMap(), key);
 	}
 
 	public JSONArray getList(String path, Map<String,String> parameters, String key) throws CampfireException, JSONException {
@@ -126,25 +127,33 @@ public class CampfireRequest {
 	
 	// lets you override the format per-request (used only for file uploading, which has to be .xml)
 	public String url(String path, String format, Map<String,String> parameters) {
-		StringBuilder url = new StringBuilder("https://").append(domain()).append(path).append(format);
-		if ( !parameters.isEmpty() ) {
+		StringBuilder url = new StringBuilder("https://")
+			.append(domain())
+			.append(path)
+			.append(format);
+		
+		if (!parameters.isEmpty()) {
 			url.append("?");
 			Iterator<Map.Entry<String,String>> params = parameters.entrySet().iterator();
 			while (params.hasNext()) {
 				Map.Entry<String,String> param = params.next();
-				url.append(param.getKey()+"="+param.getValue());
-				if ( params.hasNext()) url.append("&");
+				url.append(URLEncoder.encode(param.getKey()));
+				url.append("=");
+				url.append(URLEncoder.encode(param.getValue()));
+				if (params.hasNext())
+					url.append("&");
 			}
 		}
+		
 		return url.toString();
 	}
 
+	public String url(String path, String format) {
+		return url(path, format, Collections.<String,String>emptyMap());
+	}
+	
 	public String url(String path) {
 		return url(path, this.format);
-	}
-
-	public String url(String path, String format) {
-		return url(path, format, Collections.<String, String>emptyMap());
 	}
 	
 	public void uploadFile(String path, InputStream stream, String filename, String mimeType) throws CampfireException {

@@ -168,25 +168,25 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		Utils.alert(this, exception);
 		finish();
 	}
-
-	private int preferredMaxMessages() {
-		return Utils.getIntPreferenceFromString(this, Settings.NUMBER_MESSAGES_KEY, Settings.NUMBER_MESSAGES_DEFAULT);
+	
+	private int preferredMaxMessages() {	
+	 	return Utils.getIntPreferenceFromString(this, Settings.NUMBER_MESSAGES_KEY, Settings.NUMBER_MESSAGES_DEFAULT);	
 	}
 	
 	private void onPoll(ArrayList<Message> messages) {
-		if (this.messages == null) this.messages = new ArrayList<Message>();
 		int max = preferredMaxMessages();
-
+		
 		// filter out some messages according to user preferences
 		for (int i=0; i<messages.size(); i++) {
 			Message message = messages.get(i);
 			if (messageAllowed(message.type))
 				this.messages.add(message);
 		}
-		if ( this.messages.size() > max ) {
-			List<Message> withinMax = this.messages.subList(this.messages.size() - max, this.messages.size());
-			this.messages = new ArrayList<Message>();
-			this.messages.addAll(withinMax);
+		
+		if (this.messages.size() > max) {
+		 	List<Message> withinMax = this.messages.subList(this.messages.size() - max, this.messages.size());	
+		 	this.messages = new ArrayList<Message>();
+		 	this.messages.addAll(withinMax);
 		}
 		
 		errorMessage = null;

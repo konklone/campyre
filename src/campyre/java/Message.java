@@ -3,7 +3,6 @@ package campyre.java;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,9 +37,7 @@ public class Message {
 	
 	private String[] inFormat = new String[] {"yy/MM/dd HH:mm:ss Z"};
 	
-	// This is really just here to serve the Android client. 
-	// It really needs the display name to put on the Message object itself for help in adapting it to the list.
-	// It violates the intended separation between the two packages, but oh well.
+	// Here for the Android client, the display name to put on the Message object itself
 	public String person;
 	
 	// for making artificial messages (really just intended to serve the Android client)
@@ -64,26 +61,14 @@ public class Message {
 	}
 	
 	public static ArrayList<Message> allToday(Room room) throws CampfireException {
-		return allToday(room, -1);
-	}
-
-	public static ArrayList<Message> allToday(Room room, int max) throws CampfireException {
 		ArrayList<Message> messages = new ArrayList<Message>();
+		
 		try {
 			JSONArray items = new CampfireRequest(room.campfire).getList(todayPath(room.id), "messages");
 			int length = items.length();
 			
-			// we want the bottom-most messages, up to a maximum of "max"
-			// if max is 0 or -1, then just return everything
-			int start;
-			if (max > 0 && max < length)
-				start = length - max;
-			else
-				start = 0;
-			
-			for (int i=start; i<length; i++) {
+			for (int i=0; i<length; i++) {
 				Message message = new Message(items.getJSONObject(i));
-				
 				if (message.type != UNSUPPORTED)
 					messages.add(message);
 			}
@@ -99,23 +84,27 @@ public class Message {
 
 	public static ArrayList<Message> recent(Room room, int max, String lastSeen) throws CampfireException {
 		ArrayList<Message> messages = new ArrayList<Message>();
+		
 		try {
 			HashMap<String,String> parameters = new HashMap<String,String>();
 			parameters.put("limit", String.valueOf(max));
-			if (lastSeen != null) parameters.put("since_message_id", lastSeen);
+			if (lastSeen != null) 
+				parameters.put("since_message_id", lastSeen);
+			
 			JSONArray items = new CampfireRequest(room.campfire).getList(recentPath(room.id), parameters, "messages");
 			int length = items.length();
 			for (int i=0; i<length; i++) {
 				Message message = new Message(items.getJSONObject(i));
-
 				if (message.type != UNSUPPORTED)
 					messages.add(message);
 			}
+			
 		} catch (JSONException e) {
 			throw new CampfireException(e, "Could not load messages from their JSON.");
 		} catch (DateParseException e) {
 			throw new CampfireException(e, "Could not parse date from a message's JSON.");
 		}
+		
 		return messages;
 	}
 	
