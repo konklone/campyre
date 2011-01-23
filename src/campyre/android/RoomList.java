@@ -214,8 +214,11 @@ public class RoomList extends ListActivity {
 				
 			Room room = getItem(position);
 			((TextView) view.findViewById(R.id.name)).setText(room.name);
-			((TextView) view.findViewById(R.id.topic)).setText(room.topic);
-			
+			if ( room.topic != null ) {
+				((TextView) view.findViewById(R.id.topic)).setText(room.topic);
+			} else {
+				((TextView) view.findViewById(R.id.topic)).setText(R.string.room_has_no_topic);
+			}
 			return view;
 		}
     }
