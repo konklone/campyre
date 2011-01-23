@@ -2,6 +2,8 @@ package campyre.java;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,7 +66,7 @@ public class Message {
 	public static ArrayList<Message> allToday(Room room) throws CampfireException {
 		return allToday(room, -1);
 	}
-	
+
 	public static ArrayList<Message> allToday(Room room, int max) throws CampfireException {
 		ArrayList<Message> messages = new ArrayList<Message>();
 		try {
@@ -94,6 +96,28 @@ public class Message {
 		
 		return messages; 
 	}
+
+	public static ArrayList<Message> recent(Room room, int max, String lastSeen) throws CampfireException {
+		ArrayList<Message> messages = new ArrayList<Message>();
+		try {
+			HashMap<String,String> parameters = new HashMap<String,String>();
+			parameters.put("limit", String.valueOf(max));
+			if (lastSeen != null) parameters.put("since_message_id", lastSeen);
+			JSONArray items = new CampfireRequest(room.campfire).getList(recentPath(room.id), parameters, "messages");
+			int length = items.length();
+			for (int i=0; i<length; i++) {
+				Message message = new Message(items.getJSONObject(i));
+
+				if (message.type != UNSUPPORTED)
+					messages.add(message);
+			}
+		} catch (JSONException e) {
+			throw new CampfireException(e, "Could not load messages from their JSON.");
+		} catch (DateParseException e) {
+			throw new CampfireException(e, "Could not parse date from a message's JSON.");
+		}
+		return messages;
+	}
 	
 	private static int typeFor(String type, String body) {
 		if (type.equals("TextMessage")) {
@@ -113,6 +137,10 @@ public class Message {
 			return TOPIC;
 		else
 			return UNSUPPORTED;
+	}
+
+	public static String recentPath(String room_id) {
+		return "/room/" + room_id + "/recent";
 	}
 	
 	public static String todayPath(String room_id) {

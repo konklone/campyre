@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
 
 import lgpl.haustein.Base64Encoder;
 
@@ -44,7 +47,15 @@ public class CampfireRequest {
 	public JSONArray getList(String path, String key) throws CampfireException, JSONException {
 		return new JSONObject(responseBody(get(path))).getJSONArray(key);
 	}
-	
+
+	public JSONArray getList(String path, Map<String,String> parameters, String key) throws CampfireException, JSONException {
+		return new JSONObject(responseBody(get(path, parameters))).getJSONArray(key);
+	}
+
+	public HttpResponse get(String path, Map<String,String> parameters) throws CampfireException {
+		return makeRequest(new HttpGet(url(path, this.format, parameters)));
+	}
+
 	public HttpResponse get(String path) throws CampfireException {
         return makeRequest(new HttpGet(url(path)));
 	}
@@ -114,12 +125,26 @@ public class CampfireRequest {
 	}
 	
 	// lets you override the format per-request (used only for file uploading, which has to be .xml)
-	public String url(String path, String format) {
-		return "https://" + domain() + path + format;
+	public String url(String path, String format, Map<String,String> parameters) {
+		StringBuilder url = new StringBuilder("https://").append(domain()).append(path).append(format);
+		if ( !parameters.isEmpty() ) {
+			url.append("?");
+			Iterator<Map.Entry<String,String>> params = parameters.entrySet().iterator();
+			while (params.hasNext()) {
+				Map.Entry<String,String> param = params.next();
+				url.append(param.getKey()+"="+param.getValue());
+				if ( params.hasNext()) url.append("&");
+			}
+		}
+		return url.toString();
 	}
-	
+
 	public String url(String path) {
 		return url(path, this.format);
+	}
+
+	public String url(String path, String format) {
+		return url(path, format, Collections.<String, String>emptyMap());
 	}
 	
 	public void uploadFile(String path, InputStream stream, String filename, String mimeType) throws CampfireException {

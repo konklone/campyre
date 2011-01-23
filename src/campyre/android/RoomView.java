@@ -3,6 +3,7 @@ package campyre.android;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
 import android.app.ListActivity;
@@ -167,15 +168,25 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		Utils.alert(this, exception);
 		finish();
 	}
+
+	private int preferredMaxMessages() {
+		return Utils.getIntPreferenceFromString(this, Settings.NUMBER_MESSAGES_KEY, Settings.NUMBER_MESSAGES_DEFAULT);
+	}
 	
 	private void onPoll(ArrayList<Message> messages) {
-		this.messages = new ArrayList<Message>();
-		
+		if (this.messages == null) this.messages = new ArrayList<Message>();
+		int max = preferredMaxMessages();
+
 		// filter out some messages according to user preferences
 		for (int i=0; i<messages.size(); i++) {
 			Message message = messages.get(i);
 			if (messageAllowed(message.type))
 				this.messages.add(message);
+		}
+		if ( this.messages.size() > max ) {
+			List<Message> withinMax = this.messages.subList(this.messages.size() - max, this.messages.size());
+			this.messages = new ArrayList<Message>();
+			this.messages.addAll(withinMax);
 		}
 		
 		errorMessage = null;
@@ -334,9 +345,9 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	// looks up the associated User to assign a display name.
 	// We use the "users" HashMap to cache Users from the network. 
 	private ArrayList<Message> poll(Room room, HashMap<String,User> users) throws CampfireException {
-		int maxMessages = Utils.getIntPreferenceFromString(this, Settings.NUMBER_MESSAGES_KEY, Settings.NUMBER_MESSAGES_DEFAULT);
-			
-		ArrayList<Message> messages = Message.allToday(room, maxMessages);
+		int maxMessages = preferredMaxMessages();
+
+		ArrayList<Message> messages = Message.recent(room, maxMessages, lastMessageId);
 		int length = messages.size();
 		for (int i=0; i<length; i++) {
 			Message message = messages.get(i);
