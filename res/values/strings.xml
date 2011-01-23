@@ -11,7 +11,7 @@
     <string name="no_rooms">No rooms found for this Campfire.</string>
     <string name="rooms_error">Couldn\'t load rooms.</string>
     <string name="room_list_title">Select a room</string>
-    <string name="room_has_no_topic">no topic</string>
+    <string name="room_has_no_topic">(no topic)</string>
     
     <string name="regular_message">Your username and password will not be stored on the phone.</string>
     <string name="token_message">Visit the "My Info" page in your Campfire to find your API token.</string>
