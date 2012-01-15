@@ -4,12 +4,26 @@
       android:versionCode="6"
       android:versionName="1.0"
       >
+      
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    
+    <uses-feature 
+    	android:name="android.hardware.touchscreen"
+    	android:required="false"
+    	/>
+    
+    <uses-sdk 
+    	android:minSdkVersion="4"
+    	android:targetSdkVersion="5"  
+    	/>
+    
     <application android:icon="@drawable/icon" 
     	android:label="@string/app_name"
     	android:debuggable="true"
+    	android:theme="@style/MainTheme"
     	>
         <activity android:name=".RoomList"
-        	android:theme="@android:style/Theme.NoTitleBar"
 			android:label="@string/app_name"
 			>
             <intent-filter>
@@ -23,13 +37,11 @@
             </intent-filter>
         </activity>
         
-        <activity android:name=".Login"
-        	android:theme="@android:style/Theme.NoTitleBar" 
+        <activity android:name=".Login" 
         	android:label="@string/app_name"
         	/>
         	
         <activity android:name=".RoomTabs"
-        	android:theme="@android:style/Theme.NoTitleBar"
         	>
         	<intent-filter>
         		<action android:name="android.intent.action.MAIN" />
@@ -39,16 +51,13 @@
 
 		<activity android:name=".RoomView" />
         <activity android:name=".TranscriptView" />
-        <activity android:name=".PasteDetail"
-        	android:theme="@android:style/Theme.NoTitleBar"
-        	/>
-        <activity android:name=".ImageDetail"
-        	android:theme="@android:style/Theme.NoTitleBar" 
-        	/>
+        <activity android:name=".PasteDetail" />
+        <activity android:name=".ImageDetail" />
         
         <activity android:name=".ShareImage"
-        	android:theme="@android:style/Theme.Dialog"
-        	android:label="@string/app_name">
+        	android:theme="@style/MainDialog"
+        	android:label="@string/app_name"
+        	>
         	<intent-filter>
         		<action android:name="android.intent.action.SEND" />
         		<category android:name="android.intent.category.DEFAULT" />
@@ -56,22 +65,7 @@
         	</intent-filter>
         </activity>
         
-        <activity android:name=".Settings" 
-        	android:theme="@android:style/Theme.NoTitleBar"
-        	/>
+        <activity android:name=".Settings" />
         
     </application>
-    
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
-    
-    <uses-feature 
-    	android:name="android.hardware.touchscreen"
-    	android:required="false"
-    	/>
-    
-    <uses-sdk 
-    	android:minSdkVersion="4"
-    	android:targetSdkVersion="5"  
-    	/>
 </manifest> 
