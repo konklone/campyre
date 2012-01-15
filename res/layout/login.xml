@@ -8,7 +8,7 @@
 	<LinearLayout  
 	    android:orientation="vertical"
 	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
+	    android:layout_height="wrap_content"
 	    >
 	    
 	    <include layout="@layout/title" />
@@ -107,67 +107,6 @@
 				android:textSize="15sp"
 				android:text="@string/regular_message"
 				/>
-				
-			<Button android:id="@+id/regular_switch"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="5dp"
-				
-				android:textSize="15sp"
-				android:text="@string/regular_switch_message"
-				/>
-			
-		</LinearLayout>
-		
-		<LinearLayout android:id="@+id/token_input"
-			android:orientation="vertical"
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content"
-		    android:layout_marginLeft="10dp"
-			android:layout_marginRight="10dp"
-			android:layout_marginBottom="10dp"
-			android:layout_marginTop="10dp"
-		    
-		    android:visibility="gone"
-			>
-			
-			<TextView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="5dp"
-				android:layout_marginLeft="3dp"
-				android:visibility="gone"
-				/>
-			
-			<EditText android:id="@+id/token"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="5dp"
-				
-				android:inputType="text"
-				android:hint="API token"
-				/>
-			
-			<TextView 
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="5dp"
-				android:layout_marginBottom="5dp"
-				android:layout_marginLeft="3dp"
-				
-				android:textSize="15sp"
-				android:text="@string/token_message"
-				/>
-			
-			<Button android:id="@+id/token_switch"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="5dp"
-				
-				android:textSize="15sp"
-				android:text="@string/token_switch_message"
-				/>
-				
 		</LinearLayout>
 		
 		<Button android:id="@+id/login_button"

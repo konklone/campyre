@@ -27,4 +27,12 @@
 		android:defaultValue="@string/timestamps_default"
 		/>
 	
-	<CheckBoxPreference android:key="load_images" android:summaryOff="@string/load_images_summary_off" android:summaryOn="@string/load_images_summary_on" android:title="@string/load_images_title" android:defaultValue="@string/load_images_default"></CheckBoxPreference></PreferenceScreen>
+	<CheckBoxPreference 
+	    android:key="load_images" 
+	    android:summaryOff="@string/load_images_summary_off" 
+	    android:summaryOn="@string/load_images_summary_on" 
+	    android:title="@string/load_images_title" 
+	    android:defaultValue="@string/load_images_default"
+	    />
+
+</PreferenceScreen>

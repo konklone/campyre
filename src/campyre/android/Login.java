@@ -20,15 +20,9 @@ public class Login extends Activity {
 	
 	public static final int MENU_ABOUT = 1;
 	public static final int MENU_FEEDBACK = 2;
-	public static final int MENU_DONATE = 3;
 	
-	public static final int LOGIN_REGULAR = 1;
-	public static final int LOGIN_TOKEN = 2;
-	
-	private int loginMode;
 	private Campfire campfire;
-	private EditText tokenView, subdomainView, usernameView, passwordView;
-	private View regularInput, tokenInput;
+	private EditText subdomainView, usernameView, passwordView;
 	
 	private LoginTask loginTask;
 
@@ -37,18 +31,11 @@ public class Login extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
 		
-		String token = Utils.getCampfireValue(this, "token");
-		if (token != null && !token.equals(""))
-			loginMode = LOGIN_TOKEN;
-		else
-			loginMode = LOGIN_REGULAR;
-		
 		LoginHolder holder = (LoginHolder) getLastNonConfigurationInstance();
         if (holder != null) {
 	    	campfire = holder.campfire;
 	    	loginTask = holder.loginTask;
-	    	loginMode = holder.loginMode;
-        }
+	    }
         
         setupControls();
         
@@ -61,7 +48,6 @@ public class Login extends Activity {
     	LoginHolder holder = new LoginHolder();
     	holder.campfire = this.campfire;
     	holder.loginTask = this.loginTask;
-    	holder.loginMode = this.loginMode;
     	return holder;
     }
 	
@@ -83,45 +69,16 @@ public class Login extends Activity {
     	Utils.setTitle(this, R.string.app_name);
     	Utils.setTitleSize(this, 24);
     	
-    	tokenView = (EditText) findViewById(R.id.token);
     	subdomainView = (EditText) findViewById(R.id.subdomain);
     	usernameView = (EditText) findViewById(R.id.username);
     	passwordView = (EditText) findViewById(R.id.password);
     	
         subdomainView.setText(Utils.getCampfireValue(this, "subdomain"));
-        tokenView.setText(Utils.getCampfireValue(this, "token"));
         
-        regularInput = findViewById(R.id.regular_input);
-        tokenInput = findViewById(R.id.token_input);
-        
-        // default is already right for LOGIN_REGULAR
-        if (loginMode == LOGIN_TOKEN) {
-        	tokenInput.setVisibility(View.VISIBLE);
-        	regularInput.setVisibility(View.GONE);
-        }
-        
-    	findViewById(R.id.login_button).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.login_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				login();
-			}
-		});
-    	
-    	findViewById(R.id.regular_switch).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				loginMode = LOGIN_TOKEN;
-				regularInput.setVisibility(View.GONE);
-				tokenInput.setVisibility(View.VISIBLE);
-			}
-		});
-    	
-    	findViewById(R.id.token_switch).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				loginMode = LOGIN_REGULAR;
-				tokenInput.setVisibility(View.GONE);
-				regularInput.setVisibility(View.VISIBLE);
 			}
 		});
     }
@@ -130,9 +87,8 @@ public class Login extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) { 
 	    boolean result = super.onCreateOptionsMenu(menu);
 	    
-        menu.add(0, MENU_DONATE, 0, R.string.menu_donate).setIcon(R.drawable.ic_menu_market);
-	    menu.add(1, MENU_FEEDBACK, 1, R.string.menu_feedback).setIcon(R.drawable.ic_menu_send);
-        menu.add(2, MENU_ABOUT, 2, R.string.menu_about).setIcon(android.R.drawable.ic_menu_help);
+	    menu.add(0, MENU_FEEDBACK, 1, R.string.menu_feedback).setIcon(R.drawable.ic_menu_send);
+        menu.add(1, MENU_ABOUT, 2, R.string.menu_about).setIcon(android.R.drawable.ic_menu_help);
         
         return result;
     }
@@ -145,9 +101,6 @@ public class Login extends Activity {
     		break;
     	case MENU_FEEDBACK:
     		startActivity(Utils.feedbackIntent(this));
-    		break;
-    	case MENU_DONATE:
-    		startActivity(Utils.donateIntent(this));
     		break;
     	}
     	
@@ -184,15 +137,10 @@ public class Login extends Activity {
     		String subdomain = context.subdomainView.getText().toString().trim().replace(" ", "");
     		context.campfire = new Campfire(subdomain);
     		
-    		if (context.loginMode == Login.LOGIN_TOKEN) {
-	    		String token = context.tokenView.getText().toString().trim();
-				context.campfire.token = token;
-    		} else {
-    			String username = context.usernameView.getText().toString().trim();
-    			String password = context.passwordView.getText().toString().trim();
-    			context.campfire.username = username;
-    			context.campfire.password = password;
-    		}
+			String username = context.usernameView.getText().toString().trim();
+			String password = context.passwordView.getText().toString().trim();
+			context.campfire.username = username;
+			context.campfire.password = password;
     		
     		// save the subdomain and token right away
     		Utils.saveCampfire(context, context.campfire); 
@@ -217,7 +165,7 @@ public class Login extends Activity {
     	public void loadingDialog() {
     		dialog = new ProgressDialog(context);
     		dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    		dialog.setMessage("Logging in...");
+    		dialog.setMessage("Logging in…");
     		   
     		dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
     			@Override
@@ -234,6 +182,5 @@ public class Login extends Activity {
 	static class LoginHolder {
 		Campfire campfire;
 		LoginTask loginTask;
-		int loginMode;
 	}
 }

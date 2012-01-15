@@ -81,11 +81,6 @@ public class Utils {
     		.putExtra(Intent.EXTRA_SUBJECT, context.getResources().getString(R.string.contact_subject));
     }
     
-    public static Intent donateIntent(Context context) {
-    	return new Intent(Intent.ACTION_VIEW,
-    			Uri.parse("market://details?id=" + context.getResources().getString(R.string.package_name_donate)));
-    }
-    
     public static Intent shortcutIntent(Context context, Room room) {
     	return new Intent()
     		.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(context, R.drawable.icon))

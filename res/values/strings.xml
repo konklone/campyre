@@ -7,17 +7,13 @@
     <string name="app_name">Campyre</string>
     <string name="shortcut_name">Campfire Room</string>
     
-    <string name="loading_rooms">Loading rooms...</string>
+    <string name="loading_rooms">Loading rooms…</string>
     <string name="no_rooms">No rooms found for this Campfire.</string>
     <string name="rooms_error">Couldn\'t load rooms.</string>
     <string name="room_list_title">Select a room</string>
     <string name="room_has_no_topic">(no topic)</string>
     
     <string name="regular_message">Your username and password will not be stored on the phone.</string>
-    <string name="token_message">Visit the "My Info" page in your Campfire to find your API token.</string>
-    <string name="regular_switch_message">I use OpenID</string>
-    <string name="token_switch_message">Username and password</string>
-    
     <string name="send_button">Send</string>
     
     <string name="home_link">http://mill-industries.com</string>
@@ -25,14 +21,14 @@
     <string name="about_links">Source code:\nhttp://github.com/klondike/campyre/</string>
     <string name="about_button">Cool</string>
     
-    <string name="joining_room">Joining room...</string>
-    <string name="loading_messages">Getting latest messages...</string>
-    <string name="loading_transcript">Getting today\'s full transcript...</string>
+    <string name="joining_room">Joining room…</string>
+    <string name="loading_messages">Getting latest messages…</string>
+    <string name="loading_transcript">Getting today\'s full transcript…</string>
     <string name="no_messages">No messages found.</string>
     
     <string name="contact_email">kprojection+campyre@gmail.com</string>
     <string name="contact_subject">Campyre feedback</string>
-    <string name="leaving_room">Leaving room...</string>
+    <string name="leaving_room">Leaving room…</string>
     
     <string name="menu_logout">Logout</string>
     <string name="menu_leave">Leave room</string>
@@ -50,6 +46,6 @@
     <string name="see_paste">See full paste</string>
     <string name="has_changed_topic">has changed the topic to:</string>
     
-    <string name="image_loading">Loading image...</string>
+    <string name="image_loading">Loading image…</string>
     <string name="image_failed">Couldn\'t load image.</string>
 </resources>
