@@ -688,8 +688,11 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
     	@Override
     	protected Boolean doInBackground(Void... nothing) {
     		try {
-    			room.leave();
-    			return Boolean.TRUE;
+    			if (room != null) {
+    				room.leave();
+    				return Boolean.TRUE;
+    			} else
+    				return Boolean.FALSE;
 			} catch (CampfireException e) {
 				this.exception = e;
 				return null;
@@ -703,7 +706,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
     		 
     		context.leaveRoomTask = null;
     		
-    		if (exception == null)
+    		if (value == Boolean.TRUE && exception == null)
     			context.onLeaveRoom();
     		else
     			context.onLeaveRoom(exception);
