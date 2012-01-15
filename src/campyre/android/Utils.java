@@ -55,7 +55,7 @@ public class Utils {
     	Spanned about1 = Html.fromHtml(
     			"Made by <a href=\"" + 
     			context.getResources().getString(R.string.home_link) + 
-    			"\">Eric Mill</a>, a loyal Campfire user since 2006."
+    			"\">Eric Mill</a>."
     			);
     	TextView aboutView1 = (TextView) aboutView.findViewById(R.id.about_main_1);
     	aboutView1.setText(about1);
