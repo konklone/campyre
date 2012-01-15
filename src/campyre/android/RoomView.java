@@ -71,6 +71,8 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.room_view);
 		
+		Message.loadImages = Utils.getBooleanPreference(this, Settings.LOAD_IMAGES_KEY, Settings.LOAD_IMAGES_DEFAULT);
+		
 		Bundle extras = getIntent().getExtras();
 		roomId = extras.getString("room_id"); // will always be set
 		room = (Room) extras.getSerializable("room"); // may be null

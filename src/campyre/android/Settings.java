@@ -15,6 +15,9 @@ public class Settings extends PreferenceActivity {
 	public static final String TIMESTAMPS_KEY = "timestamps";
 	public static final boolean TIMESTAMPS_DEFAULT = true;
 	
+	public static final String LOAD_IMAGES_KEY = "load_images";
+	public static final boolean LOAD_IMAGES_DEFAULT = true;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

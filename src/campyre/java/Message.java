@@ -31,6 +31,8 @@ public class Message {
 	// Here for the Android client: the number of supported message types (keep in sync with the constants above)
 	public static final int SUPPORTED_MESSAGE_TYPES = 7;
 	
+	public static boolean loadImages;
+	
 	public int type;
 	public String id, user_id, body;
 	public Date timestamp;
@@ -146,6 +148,9 @@ public class Message {
 	// depends on the assumption that we'll only render image links that are the entirety of the body
 	// if we ever expand this assumption, this will need to also extract the URL
 	public static boolean imageLink(String body) {
+		if (!loadImages) {
+			return false;
+		}
 		Pattern pattern = Pattern.compile("^(http[^\\s]+(?:jpe?g|gif|png))(\\?[^\\s]*)?$");
 		Matcher matcher = pattern.matcher(body);
 		return matcher.matches();
