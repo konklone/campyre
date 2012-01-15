@@ -65,6 +65,8 @@ public class ShareImage extends Activity {
 		
 		InputStream stream = getContentResolver().openInputStream(uri);
 		String mimeType = getContentResolver().getType(uri);
+		if (mimeType == null)
+			throw new CampfireException("Couldn't figure out what kind of data you're sharing.");
 		String filename = filenameFor(mimeType);
 		
 		room.uploadImage(stream, filename, mimeType);
