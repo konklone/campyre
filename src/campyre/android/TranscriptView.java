@@ -174,7 +174,7 @@ public class TranscriptView extends ListActivity implements RoomContext, LoadIma
     	private void fillPerson(Message message) throws CampfireException {
     		User speaker;
 			if (users.containsKey(message.user_id))
-				speaker = (User) users.get(message.user_id);
+				speaker = users.get(message.user_id);
 			else {
 				speaker = User.find(context.campfire, message.user_id);
 				users.put(message.user_id, speaker);

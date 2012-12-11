@@ -70,7 +70,7 @@ public class Utils {
     	
     	builder.setView(aboutView);
     	builder.setPositiveButton(R.string.about_button, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {}
+			@Override public void onClick(DialogInterface dialog, int which) {}
 		});
         return builder.create();
     }
