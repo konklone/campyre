@@ -14,7 +14,7 @@ public class PasteDetail extends Activity {
 	String person, paste;
 	Date timestamp;
 	
-	public void onCreate(Bundle savedInstanceState) {
+	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.paste);
 		

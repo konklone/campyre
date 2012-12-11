@@ -34,7 +34,7 @@ public class Settings extends PreferenceActivity {
 		updateNumberMessagesSummary(Utils.getStringPreference(this, NUMBER_MESSAGES_KEY, NUMBER_MESSAGES_DEFAULT + ""));
 		
 		findPreference(NUMBER_MESSAGES_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
+			@Override public boolean onPreferenceChange(Preference preference, Object newValue) {
 				updateNumberMessagesSummary((String) newValue);
 				return true;
 			}
