@@ -131,7 +131,7 @@ public class Room implements Comparable<Room>, Serializable {
 		new CampfireRequest(campfire).uploadFile(Campfire.uploadPath(id), stream, filename, mimeType);
 	}
 
-	public String toString() {
+	@Override public String toString() {
 		return name;
 	}
 

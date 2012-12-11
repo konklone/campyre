@@ -128,7 +128,7 @@ public class RoomList extends ListActivity {
     	Utils.setLoading(this, R.string.loading_rooms);
     	
 		((Button) findViewById(R.id.refresh)).setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
+			@Override public void onClick(View v) {
 				rooms = null;
 				Utils.showLoading(RoomList.this);
 				loadRooms();
@@ -136,7 +136,7 @@ public class RoomList extends ListActivity {
 		});
     }
     
-    public void onListItemClick(ListView parent, View v, int position, long id) {
+    @Override public void onListItemClick(ListView parent, View v, int position, long id) {
     	selectRoom((Room) parent.getItemAtPosition(position));
     }
     
@@ -199,7 +199,7 @@ public class RoomList extends ListActivity {
             inflater = LayoutInflater.from(context);
         }
 
-		public View getView(int position, View convertView, ViewGroup parent) {
+		@Override public View getView(int position, View convertView, ViewGroup parent) {
 			LinearLayout view;
 			
 			if (convertView == null)

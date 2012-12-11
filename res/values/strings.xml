@@ -48,4 +48,8 @@
     
     <string name="image_loading">Loading image…</string>
     <string name="image_failed">Couldn\'t load image.</string>
+    <string name="campfire_domain">.campfirenow.com</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="log_in">Log in</string>
 </resources>
