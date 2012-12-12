@@ -1,11 +1,5 @@
 package campyre.android;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
-
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -27,8 +21,14 @@ import campyre.android.MessageAdapter.RoomContext;
 import campyre.java.Campfire;
 import campyre.java.CampfireException;
 import campyre.java.Message;
+import campyre.java.Message.Type;
 import campyre.java.Room;
 import campyre.java.User;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 
 public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 	private static final int MENU_SETTINGS = 0;
@@ -208,7 +208,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 
 	// polling failed, messages still has the old list
 	private void onPoll(CampfireException exception) {
-		errorMessage = new Message("error", Message.ERROR, exception.getMessage());
+		errorMessage = new Message("error", Type.ERROR, exception.getMessage());
 		updateMessages();
 	}
 
@@ -243,12 +243,12 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 			scrollToPosition(position);
 	}
 
-	private boolean messageAllowed(int type) {
+	private boolean messageAllowed(Type type) {
 		switch(type) {
-		case Message.ENTRY:
-		case Message.LEAVE:
+		case ENTRY:
+		case LEAVE:
 			return Utils.getBooleanPreference(this, Settings.ENTRY_EXIT_KEY, Settings.ENTRY_EXIT_DEFAULT);
-		case Message.TIMESTAMP:
+		case TIMESTAMP:
 			return Utils.getBooleanPreference(this, Settings.TIMESTAMPS_KEY, Settings.TIMESTAMPS_DEFAULT);
 		default:
 			return true;
@@ -317,7 +317,7 @@ public class RoomView extends ListActivity implements RoomContext, LoadsImage {
 
 			String id = transitId + "-" + campfire.user_id;
 			transitId += 1;
-			Message message = new Message(id, Message.TRANSIT, msg);
+			Message message = new Message(id, Type.TRANSIT, msg);
 			transitMessages.put(id, message);
 
 			// avoid refreshing the whole adapter if I don't have to
