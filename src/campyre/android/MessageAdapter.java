@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import campyre.java.Campfire;
 import campyre.java.Message;
+import campyre.java.Message.Type;
 import campyre.java.Room;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     @Override
     public int getItemViewType(int position) {
-    	int type = getItem(position).type;
+    	int type = getItem(position).type.ordinal();
     	if (type > 0)
     		return type;
     	else
@@ -55,7 +56,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     @Override
     public int getViewTypeCount() {
-    	return Message.SUPPORTED_MESSAGE_TYPES;
+    	return Message.Type.values().length;
     }
 
     @Override
@@ -78,50 +79,50 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		return view;
 	}
 
-	public int viewForMessage(int type) {
+	public int viewForMessage(Type type) {
+	  // TODO for all the Type things, it'd be great if we could simplify and just call type.method() or something.
 		switch (type) {
-		case Message.ERROR:
+		case ERROR:
 			return R.layout.message_error;
-		case Message.TRANSIT:
+		case TRANSIT:
 			return R.layout.message_transit;
-		case Message.TEXT:
-			return R.layout.message_text;
-		case Message.IMAGE:
+		case IMAGE:
 			return R.layout.message_image;
-		case Message.PASTE:
+		case PASTE:
 			return R.layout.message_paste;
-		case Message.TIMESTAMP:
+		case TIMESTAMP:
 			return R.layout.message_timestamp;
-		case Message.ENTRY:
-		case Message.LEAVE:
+		case ENTRY:
+		case LEAVE:
 			return R.layout.message_entry;
-		case Message.TOPIC:
+		case TOPIC:
 			return R.layout.message_topic;
+		case TEXT:
 		default:
 			return R.layout.message_text;
 		}
 	}
 
-	public ViewHolder holderForMessage(int type, View view) {
+	public ViewHolder holderForMessage(Type type, View view) {
 		ViewHolder holder = new ViewHolder();
 
-		if (type != Message.IMAGE)
+		if (type != Type.IMAGE)
 			holder.body = (TextView) view.findViewById(R.id.text);
 
 		switch(type) {
-		case Message.TEXT:
-		case Message.IMAGE:
-		case Message.PASTE:
-		case Message.ENTRY:
-		case Message.LEAVE:
-		case Message.TOPIC:
+		case TEXT:
+		case IMAGE:
+		case PASTE:
+		case ENTRY:
+		case LEAVE:
+		case TOPIC:
 			holder.person = (TextView) view.findViewById(R.id.person);
 		}
 
-		if (type == Message.PASTE)
+		if (type == Type.PASTE)
 			holder.paste = (Button) view.findViewById(R.id.paste);
 
-		if (type == Message.IMAGE) {
+		if (type == Type.IMAGE) {
 			holder.image = (ImageView) view.findViewById(R.id.image);
 			holder.imageLoading = (ViewGroup) view.findViewById(R.id.loading);
 			holder.imageSpinner = holder.imageLoading.findViewById(R.id.loading_spinner);
@@ -134,27 +135,27 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 	public void bindMessage(Message message, View view, ViewHolder holder, int position) {
 		// load the person's name if necessary
 		switch(message.type) {
-		case Message.TEXT:
-		case Message.IMAGE:
-		case Message.PASTE:
-		case Message.ENTRY:
-		case Message.LEAVE:
-		case Message.TOPIC:
+		case TEXT:
+		case IMAGE:
+		case PASTE:
+		case ENTRY:
+		case LEAVE:
+		case TOPIC:
 			holder.person.setText(message.person);
 		}
 
 		// hide the person if the previous message in the adapter is a text message of the same person
 		switch(message.type) {
-		case Message.TEXT:
-		case Message.IMAGE:
-		case Message.PASTE:
+		case TEXT:
+		case IMAGE:
+		case PASTE:
 			if ((position - 1) >= 0 && (position - 1) < this.getCount()) {
 				Message previous = getItem(position - 1);
 				if (previous != null) {
 					switch(previous.type) {
-					case Message.TEXT:
-					case Message.IMAGE:
-					case Message.PASTE:
+					case TEXT:
+					case IMAGE:
+					case PASTE:
 						if (previous.user_id.equals(message.user_id))
 							holder.person.setVisibility(View.INVISIBLE);
 					}
@@ -164,37 +165,37 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
 		// format the body text
 		switch (message.type) {
-		case Message.ENTRY:
+		case ENTRY:
 			holder.body.setText(R.string.message_entered_room);
 			break;
-		case Message.LEAVE:
+		case LEAVE:
 			holder.body.setText(R.string.message_left_room);
 			break;
-		case Message.TIMESTAMP:
+		case TIMESTAMP:
 			holder.body.setText(new SimpleDateFormat(TIMESTAMP_FORMAT).format(message.timestamp));
 			break;
-		case Message.PASTE:
+		case PASTE:
 			String body = message.body.trim();
 			holder.body.setText(Utils.truncate(body, PASTE_TRUNCATE));
 			break;
-		case Message.TEXT:
-		case Message.TRANSIT:
-		case Message.TOPIC:
+		case TEXT:
+		case TRANSIT:
+		case TOPIC:
 			holder.body.setText(message.body.trim());
 		}
 
 		// change background color of text view if the owner is the logged in user (like the web client)
 		// no need to do this for messages of type TRANSIT because they are always that way
 		switch (message.type) {
-		case Message.TEXT:
-		case Message.PASTE:
+		case TEXT:
+		case PASTE:
 			if (message.user_id.equals(campfire.user_id))
 				view.setBackgroundColor(resources.getColor(R.color.message_text_background_own));
 			else
 				view.setBackgroundColor(resources.getColor(R.color.message_text_background));
 		}
 
-		if (message.type == Message.PASTE) {
+		if (message.type == Type.PASTE) {
 			final String person = message.person;
 			final String paste = message.body;
 			final Date timestamp = message.timestamp;
@@ -211,7 +212,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 		}
 
 		// spawn a possible image loading task, to load images inline like the web client
-		if (message.type == Message.IMAGE) {
+		if (message.type == Type.IMAGE) {
 			final String url = message.body;
 			final String person = message.person;
 			final Date timestamp = message.timestamp;
