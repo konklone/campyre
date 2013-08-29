@@ -1,3 +1,5 @@
-# Campyre - Android Campfire Client
+## Campyre
 
-A basic Campfire client for Android phones.  Available on the Android Market for free; a donation version (no difference) is available for $1.
+A basic Campfire client for Android phones.  
+
+Available [on the Google Play Market](https://play.google.com/store/apps/details?id=campyre.android) for free.
